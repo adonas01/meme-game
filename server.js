@@ -52,18 +52,18 @@ const EVENTS = [
   "Nukritai nuo skardžio tiesiai į upę pilną piranijų...",
   "Pastebėjai pusiau sukramtytą gumą vidury gatvės...",
   "Tave išdavė tavo geriausias draugas...",
-  "Atsikėjei ryte ir pamatei kaip tavo draugas laižo tavo pėdas..."
-  "Jauti jau nebeištversi ir apsikakosi bet jau namai prie pat..."
-  "Atsikėlei ryte su skaudančia subine..."
-  "Mirus nukeliavai į dangų ir dievas pamates tave sako: Ką čia šitas išgama veikia?"
-  "Mirus nukeliavai į pragarą ir velnias pamates tave sako: O dabar tai pasismaginsim..."
-  "Kažkas tuksenasi į tavo duris... atidarai ir pamatai Hitleri..."
-  "Tau pasiūlo dirbi arklių melžėju..."
-  "Mokslininkai išrado naudo medžiu rušį, kiaušiniu medis..."
-  "Atidarei langą ir iskrido 8 vapsvos..."
-  "Nepažystamas žmogus tau pasiūlo atsigerti keisto skysčio iš butelio..."
-  "Tave Putinas pakvietė išgerti degtinės su juo..."
-  "Pažiuri į dangu ir matai kaip iš lėktuvo krenta gyvuliai..."
+  "Atsikėjei ryte ir pamatei kaip tavo draugas laižo tavo pėdas...",
+  "Jauti jau nebeištversi ir apsikakosi bet jau namai prie pat...",
+  "Atsikėlei ryte su skaudančia subine...",
+  "Mirus nukeliavai į dangų ir dievas pamates tave sako: Ką čia šitas išgama veikia?",
+  "Mirus nukeliavai į pragarą ir velnias pamates tave sako: O dabar tai pasismaginsim...",
+  "Kažkas tuksenasi į tavo duris... atidarai ir pamatai Hitleri...",
+  "Tau pasiūlo dirbi arklių melžėju...",
+  "Mokslininkai išrado naudo medžiu rušį, kiaušiniu medis...",
+  "Atidarei langą ir iskrido 8 vapsvos...",
+  "Nepažystamas žmogus tau pasiūlo atsigerti keisto skysčio iš butelio...",
+  "Tave Putinas pakvietė išgerti degtinės su juo...",
+  "Pažiuri į dangu ir matai kaip iš lėktuvo krenta gyvuliai...",
 ];
 
 const MEME_CARDS = [
