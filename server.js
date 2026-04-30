@@ -9,8 +9,6 @@ const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ── Game data ──────────────────────────────────────────────────────────────
-
 const EVENTS = [
   "Tau ant galvos atsisėdo storas senis...",
   "Prie tavęs verkia tavo geriausias draugas...",
@@ -23,8 +21,8 @@ const EVENTS = [
   "Parke matai kaip benamis valgo savo šūdą kaip ledus...",
   "Autobuse benamis uosto tavo kaklą...",
   "Priešais tave pargriuvo bobutė, tu juokeisi bet ji numirė...",
-  "Vakare ateini į parduotuvę ir ant kasos rurinasi du vyrai..",
-  "prabudai iš miego, bet ne lovoje o abiejom kojom tuolete...",
+  "Vakare ateini į parduotuvę ir ant kasos rurinasi du vyrai...",
+  "Prabudai iš miego, bet ne lovoje o abiejom kojom tuolete...",
   "Tave pakvietė į televizijos šou pavadinimu DURNIAUSI LIETUVOS DEBILAI",
   "Tavo draugas netyčia tau į burną pataikė savo skrepli...",
   "Labai garsiai paperdei per laiduotuves...",
@@ -34,7 +32,7 @@ const EVENTS = [
   "Nuėjai miegoti šlapiais rūbais...",
   "Susapnavai kaip tavo draugas sukišo savo galvą tau į subinę...",
   "Vidury nakties girdi kaip kaimynai rurinasi...",
-  "susirgai taip sunkiai kad net negali nueit į tuoletą...",
+  "Susirgai taip sunkiai kad net negali nueit į tuoletą...",
   "Vidury nakties girdi kaip kažkas išovė pistoletą bet tu nemėgsti savo kaimynų...",
   "Netyčia partrenkei bobutę...",
   "Sužinojai kad rytoi mirsi bet ryte, tai nereiks eit į darbą...",
@@ -196,22 +194,20 @@ function dealCards(count = 4) {
   return shuffle(MEME_CARDS).slice(0, count);
 }
 
-// ── Room state ─────────────────────────────────────────────────────────────
-
-const rooms = {}; // roomCode -> room
+const rooms = {};
 
 function createRoom(code) {
-  const eventDeck = shuffle(EVENTS);
   return {
     code,
-    players: {},       // socketId -> { name, hand: [], score }
-    phase: 'lobby',    // lobby | playing | results
+    players: {},
+    phase: 'lobby',
     round: 0,
     maxRounds: 5,
     currentEvent: null,
-    eventDeck,
-    playedCards: {},   // socketId -> card
-    usedEventIndices: new Set(),
+    eventDeck: shuffle(EVENTS),
+    playedCards: {},
+    playOrder: [],
+    votes: {},
   };
 }
 
@@ -223,10 +219,10 @@ function getPublicRoom(room) {
     maxRounds: room.maxRounds,
     currentEvent: room.currentEvent,
     playedCards: room.playedCards,
+    playOrder: room.playOrder,
     players: Object.fromEntries(
       Object.entries(room.players).map(([id, p]) => [
-        id,
-        { name: p.name, score: p.score, hasPlayed: !!room.playedCards[id] }
+        id, { name: p.name, score: p.score, hasPlayed: !!room.playedCards[id] }
       ])
     ),
   };
@@ -235,20 +231,14 @@ function getPublicRoom(room) {
 function nextRound(room) {
   room.round++;
   room.playedCards = {};
-  const idx = room.round - 1;
-  room.currentEvent = room.eventDeck[idx % room.eventDeck.length];
+  room.playOrder = [];
+  room.votes = {};
+  room.currentEvent = room.eventDeck[(room.round - 1) % room.eventDeck.length];
   room.phase = 'playing';
-
-  // deal fresh cards to each player
-  Object.values(room.players).forEach(p => {
-    p.hand = dealCards(4);
-  });
+  Object.values(room.players).forEach(p => { p.hand = dealCards(4); });
 }
 
-// ── Socket handlers ────────────────────────────────────────────────────────
-
 io.on('connection', (socket) => {
-  console.log('connect', socket.id);
 
   socket.on('create_room', ({ name }) => {
     const code = Math.random().toString(36).substring(2, 7).toUpperCase();
@@ -256,40 +246,39 @@ io.on('connection', (socket) => {
     rooms[code].players[socket.id] = { name, hand: dealCards(4), score: 0 };
     socket.join(code);
     socket.data.roomCode = code;
-    socket.emit('room_joined', { code, hand: rooms[code].players[socket.id].hand });
+    socket.data.isHost = true;
+    socket.emit('room_joined', { code, hand: rooms[code].players[socket.id].hand, isHost: true });
     io.to(code).emit('room_update', getPublicRoom(rooms[code]));
   });
 
   socket.on('join_room', ({ name, code }) => {
     const room = rooms[code.toUpperCase()];
-    if (!room) { socket.emit('error', 'Room not found'); return; }
-    if (room.phase !== 'lobby') { socket.emit('error', 'Game already started'); return; }
+    if (!room) { socket.emit('error', 'Kambarys nerastas'); return; }
+    if (room.phase !== 'lobby') { socket.emit('error', 'Žaidimas jau prasidėjo'); return; }
     room.players[socket.id] = { name, hand: dealCards(4), score: 0 };
     socket.join(code.toUpperCase());
     socket.data.roomCode = code.toUpperCase();
-    socket.emit('room_joined', { code: code.toUpperCase(), hand: room.players[socket.id].hand });
+    socket.data.isHost = false;
+    socket.emit('room_joined', { code: code.toUpperCase(), hand: room.players[socket.id].hand, isHost: false });
     io.to(code.toUpperCase()).emit('room_update', getPublicRoom(room));
   });
 
   socket.on('start_game', () => {
-    const code = socket.data.roomCode;
-    const room = rooms[code];
+    const room = rooms[socket.data.roomCode];
     if (!room) return;
     nextRound(room);
-    // send each player their private hand
-    Object.entries(room.players).forEach(([sid, p]) => {
-      io.to(sid).emit('new_hand', { hand: p.hand });
-    });
-    io.to(code).emit('room_update', getPublicRoom(room));
+    Object.entries(room.players).forEach(([sid, p]) => io.to(sid).emit('new_hand', { hand: p.hand }));
+    io.to(room.code).emit('room_update', getPublicRoom(room));
   });
 
   socket.on('play_card', ({ card }) => {
     const code = socket.data.roomCode;
     const room = rooms[code];
     if (!room || room.phase !== 'playing') return;
-    if (room.playedCards[socket.id]) return; // already played
+    if (room.playedCards[socket.id]) return;
 
     room.playedCards[socket.id] = card;
+    room.playOrder.push(socket.id);
 
     const totalPlayers = Object.keys(room.players).length;
     const totalPlayed = Object.keys(room.playedCards).length;
@@ -302,14 +291,48 @@ io.on('connection', (socket) => {
       totalPlayers,
     });
 
-    // all players played → show results
     if (totalPlayed >= totalPlayers) {
+      room.phase = 'voting';
+      setTimeout(() => {
+        io.to(code).emit('start_voting', {
+          playedCards: room.playedCards,
+          playOrder: room.playOrder,
+          players: Object.fromEntries(
+            Object.entries(room.players).map(([id, p]) => [id, { name: p.name }])
+          ),
+        });
+      }, 2500);
+    }
+  });
+
+  socket.on('vote', ({ votedFor }) => {
+    const code = socket.data.roomCode;
+    const room = rooms[code];
+    if (!room || room.phase !== 'voting') return;
+    if (room.votes[socket.id]) return;
+    if (votedFor === socket.id) return;
+
+    room.votes[socket.id] = votedFor;
+
+    const totalPlayers = Object.keys(room.players).length;
+    const totalVotes = Object.keys(room.votes).length;
+
+    io.to(code).emit('vote_update', { totalVotes, totalPlayers });
+
+    // everyone voted (players who can't vote for themselves still count)
+    if (totalVotes >= totalPlayers) {
+      const tally = {};
+      Object.values(room.votes).forEach(vid => { tally[vid] = (tally[vid] || 0) + 1; });
+      Object.entries(tally).forEach(([pid, pts]) => { if (room.players[pid]) room.players[pid].score += pts; });
+
       room.phase = 'results';
       io.to(code).emit('round_results', {
         playedCards: room.playedCards,
+        playOrder: room.playOrder,
         players: Object.fromEntries(
-          Object.entries(room.players).map(([id, p]) => [id, { name: p.name }])
+          Object.entries(room.players).map(([id, p]) => [id, { name: p.name, score: p.score }])
         ),
+        votes: tally,
         round: room.round,
         maxRounds: room.maxRounds,
       });
@@ -320,7 +343,6 @@ io.on('connection', (socket) => {
     const code = socket.data.roomCode;
     const room = rooms[code];
     if (!room) return;
-
     if (room.round >= room.maxRounds) {
       room.phase = 'gameover';
       io.to(code).emit('game_over', {
@@ -330,11 +352,8 @@ io.on('connection', (socket) => {
       });
       return;
     }
-
     nextRound(room);
-    Object.entries(room.players).forEach(([sid, p]) => {
-      io.to(sid).emit('new_hand', { hand: p.hand });
-    });
+    Object.entries(room.players).forEach(([sid, p]) => io.to(sid).emit('new_hand', { hand: p.hand }));
     io.to(code).emit('room_update', getPublicRoom(room));
   });
 
@@ -343,6 +362,7 @@ io.on('connection', (socket) => {
     if (code && rooms[code]) {
       delete rooms[code].players[socket.id];
       delete rooms[code].playedCards[socket.id];
+      delete rooms[code].votes[socket.id];
       if (Object.keys(rooms[code].players).length === 0) {
         delete rooms[code];
       } else {
@@ -353,4 +373,4 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Meme React running on port ${PORT}`));
+server.listen(PORT, () => console.log(`MemeReact running on port ${PORT}`));
