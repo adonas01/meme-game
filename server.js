@@ -9,7 +9,7 @@ const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const EVENTS = [
+const PRESET_EVENTS = [
   "Tau ant galvos atsisėdo storas senis...",
   "Prie tavęs verkia tavo geriausias draugas...",
   "Netyčia pavadinai mokytoją mama...",
@@ -200,14 +200,16 @@ function createRoom(code) {
   return {
     code,
     players: {},
-    phase: 'lobby',
+    phase: 'lobby',       // lobby | submitting | playing | voting | results | gameover
     round: 0,
-    maxRounds: 5,
+    maxRounds: 0,         // set after event submission
+    eventDeck: [],        // built after submission
     currentEvent: null,
-    eventDeck: shuffle(EVENTS),
     playedCards: {},
     playOrder: [],
     votes: {},
+    playerEvents: {},     // socketId -> event string submitted
+    submittedCount: 0,
   };
 }
 
@@ -220,12 +222,25 @@ function getPublicRoom(room) {
     currentEvent: room.currentEvent,
     playedCards: room.playedCards,
     playOrder: room.playOrder,
+    submittedCount: room.submittedCount,
     players: Object.fromEntries(
       Object.entries(room.players).map(([id, p]) => [
-        id, { name: p.name, score: p.score, hasPlayed: !!room.playedCards[id] }
+        id, { name: p.name, score: p.score, hasPlayed: !!room.playedCards[id], hasSubmitted: !!room.playerEvents[id] }
       ])
     ),
   };
+}
+
+function buildEventDeck(room) {
+  const playerEventList = Object.values(room.playerEvents);
+  const playerCount = Object.keys(room.players).length;
+  // base rounds = player count, plus one per player event
+  room.maxRounds = playerCount + playerEventList.length;
+  // shuffle presets and take enough to fill non-player-event rounds
+  const presetShuffled = shuffle(PRESET_EVENTS).slice(0, playerCount);
+  // interleave: shuffle player events into the deck randomly
+  const allEvents = shuffle([...presetShuffled, ...playerEventList]);
+  room.eventDeck = allEvents;
 }
 
 function nextRound(room) {
@@ -266,9 +281,35 @@ io.on('connection', (socket) => {
   socket.on('start_game', () => {
     const room = rooms[socket.data.roomCode];
     if (!room) return;
-    nextRound(room);
-    Object.entries(room.players).forEach(([sid, p]) => io.to(sid).emit('new_hand', { hand: p.hand }));
+    // move to event submission phase
+    room.phase = 'submitting';
+    room.playerEvents = {};
+    room.submittedCount = 0;
     io.to(room.code).emit('room_update', getPublicRoom(room));
+  });
+
+  socket.on('submit_event', ({ event }) => {
+    const code = socket.data.roomCode;
+    const room = rooms[code];
+    if (!room || room.phase !== 'submitting') return;
+    if (room.playerEvents[socket.id]) return; // already submitted
+
+    const trimmed = event.trim();
+    if (!trimmed) return;
+
+    room.playerEvents[socket.id] = trimmed;
+    room.submittedCount = Object.keys(room.playerEvents).length;
+
+    io.to(code).emit('room_update', getPublicRoom(room));
+
+    const totalPlayers = Object.keys(room.players).length;
+    if (room.submittedCount >= totalPlayers) {
+      // everyone submitted — build deck and start
+      buildEventDeck(room);
+      nextRound(room);
+      Object.entries(room.players).forEach(([sid, p]) => io.to(sid).emit('new_hand', { hand: p.hand }));
+      io.to(code).emit('room_update', getPublicRoom(room));
+    }
   });
 
   socket.on('play_card', ({ card }) => {
@@ -286,9 +327,7 @@ io.on('connection', (socket) => {
     io.to(code).emit('card_played', {
       playerId: socket.id,
       playerName: room.players[socket.id]?.name,
-      card,
-      totalPlayed,
-      totalPlayers,
+      card, totalPlayed, totalPlayers,
     });
 
     if (totalPlayed >= totalPlayers) {
@@ -319,7 +358,6 @@ io.on('connection', (socket) => {
 
     io.to(code).emit('vote_update', { totalVotes, totalPlayers });
 
-    // everyone voted (players who can't vote for themselves still count)
     if (totalVotes >= totalPlayers) {
       const tally = {};
       Object.values(room.votes).forEach(vid => { tally[vid] = (tally[vid] || 0) + 1; });
@@ -363,6 +401,7 @@ io.on('connection', (socket) => {
       delete rooms[code].players[socket.id];
       delete rooms[code].playedCards[socket.id];
       delete rooms[code].votes[socket.id];
+      delete rooms[code].playerEvents[socket.id];
       if (Object.keys(rooms[code].players).length === 0) {
         delete rooms[code];
       } else {
