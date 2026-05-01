@@ -6,9 +6,9 @@ const path = require('path');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ── Preset events ──────────────────────────────────────────────────────────
 const PRESET_EVENTS = [
   "Tau ant galvos atsisėdo storas senis...",
   "Prie tavęs verkia tavo geriausias draugas...",
@@ -64,230 +64,53 @@ const PRESET_EVENTS = [
   "Pažiuri į dangu ir matai kaip iš lėktuvo krenta gyvuliai...",
 ];
 
-const MEME_CARDS = [
-  { id: 1, url: "/images/me1.png" },
-  { id: 2, url: "/images/me2.png" },
-  { id: 3, url: "/images/me3.png" },
-  { id: 4, url: "/images/me4.png" },
-  { id: 5, url: "/images/me5.png" },
-  { id: 6, url: "/images/me6.png" },
-  { id: 7, url: "/images/me7.png" },
-  { id: 8, url: "/images/me8.png" },
-  { id: 9, url: "/images/me9.png" },
-  { id: 10, url: "/images/me10.png" },
-  { id: 11, url: "/images/me11.png" },
-  { id: 12, url: "/images/me12.png" },
-  { id: 13, url: "/images/me13.png" },
-  { id: 14, url: "/images/me14.png" },
-  { id: 15, url: "/images/me15.png" },
-  { id: 16, url: "/images/me16.png" },
-  { id: 17, url: "/images/me17.png" },
-  { id: 18, url: "/images/me18.png" },
-  { id: 19, url: "/images/me19.png" },
-  { id: 20, url: "/images/me20.png" },
-  { id: 21, url: "/images/me21.png" },
-  { id: 22, url: "/images/me22.png" },
-  { id: 23, url: "/images/me23.png" },
-  { id: 24, url: "/images/me24.png" },
-  { id: 25, url: "/images/me25.png" },
-  { id: 26, url: "/images/me26.png" },
-  { id: 27, url: "/images/me27.png" },
-  { id: 28, url: "/images/me28.png" },
-  { id: 29, url: "/images/me29.png" },
-  { id: 30, url: "/images/me30.png" },
-  { id: 31, url: "/images/me31.png" },
-  { id: 32, url: "/images/me32.png" },
-  { id: 33, url: "/images/me33.png" },
-  { id: 34, url: "/images/me34.png" },
-  { id: 35, url: "/images/me35.png" },
-  { id: 36, url: "/images/me36.png" },
-  { id: 37, url: "/images/me37.png" },
-  { id: 38, url: "/images/me38.png" },
-  { id: 39, url: "/images/me39.png" },
-  { id: 40, url: "/images/me40.png" },
-  { id: 41, url: "/images/me41.png" },
-  { id: 42, url: "/images/me42.png" },
-  { id: 43, url: "/images/me43.png" },
-  { id: 44, url: "/images/me44.png" },
-  { id: 45, url: "/images/me45.png" },
-  { id: 46, url: "/images/me46.png" },
-  { id: 47, url: "/images/me47.png" },
-  { id: 48, url: "/images/me48.png" },
-  { id: 49, url: "/images/me49.png" },
-  { id: 50, url: "/images/me50.png" },
-  { id: 51, url: "/images/me51.png" },
-  { id: 52, url: "/images/me52.png" },
-  { id: 53, url: "/images/me53.png" },
-  { id: 54, url: "/images/me54.png" },
-  { id: 55, url: "/images/me55.png" },
-  { id: 56, url: "/images/me56.png" },
-  { id: 57, url: "/images/me57.png" },
-  { id: 58, url: "/images/me58.png" },
-  { id: 59, url: "/images/me59.png" },
-  { id: 60, url: "/images/me60.png" },
-  { id: 61, url: "/images/me61.png" },
-  { id: 62, url: "/images/me62.png" },
-  { id: 63, url: "/images/me63.png" },
-  { id: 64, url: "/images/me64.png" },
-  { id: 65, url: "/images/me65.png" },
-  { id: 66, url: "/images/me66.png" },
-  { id: 67, url: "/images/me67.png" },
-  { id: 68, url: "/images/me68.png" },
-  { id: 69, url: "/images/me69.png" },
-  { id: 70, url: "/images/me70.png" },
-  { id: 71, url: "/images/me71.png" },
-  { id: 72, url: "/images/me72.png" },
-  { id: 73, url: "/images/me73.png" },
-  { id: 74, url: "/images/me74.png" },
-  { id: 75, url: "/images/me75.png" },
-  { id: 76, url: "/images/me76.png" },
-  { id: 77, url: "/images/me77.png" },
-  { id: 78, url: "/images/me78.png" },
-  { id: 79, url: "/images/me79.png" },
-  { id: 80, url: "/images/me80.png" },
-  { id: 81, url: "/images/me81.png" },
-  { id: 82, url: "/images/me82.png" },
-  { id: 83, url: "/images/me83.png" },
-  { id: 84, url: "/images/me84.png" },
-  { id: 85, url: "/images/me85.png" },
-  { id: 86, url: "/images/me86.png" },
-  { id: 87, url: "/images/me87.png" },
-  { id: 88, url: "/images/me88.png" },
-  { id: 89, url: "/images/me89.png" },
-  { id: 90, url: "/images/me90.png" },
-  { id: 91, url: "/images/me91.png" },
-  { id: 92, url: "/images/me92.png" },
-  { id: 93, url: "/images/me93.png" },
-  { id: 94, url: "/images/me94.png" },
-  { id: 95, url: "/images/me95.png" },
-  { id: 96, url: "/images/me96.png" },
-  { id: 97, url: "/images/me97.png" },
-  { id: 98, url: "/images/me98.png" },
-  { id: 99, url: "/images/me99.png" },
-  { id: 100, url: "/images/me100.png" },
-  { id: 101, url: "/images/me101.png" },
-  { id: 102, url: "/images/me102.png" },
-  { id: 103, url: "/images/me103.png" },
-  { id: 104, url: "/images/me104.png" },
-  { id: 105, url: "/images/me105.png" },
-  { id: 106, url: "/images/me106.png" },
-  { id: 107, url: "/images/me107.png" },
-  { id: 108, url: "/images/me108.png" },
-  { id: 109, url: "/images/me109.png" },
-  { id: 110, url: "/images/me110.png" },
-  { id: 111, url: "/images/me111.png" },
-  { id: 112, url: "/images/me112.png" },
-  { id: 113, url: "/images/me113.png" },
-  { id: 114, url: "/images/me114.png" },
-  { id: 115, url: "/images/me115.png" },
-  { id: 116, url: "/images/me116.png" },
-  { id: 117, url: "/images/me117.png" },
-  { id: 118, url: "/images/me118.png" },
-  { id: 119, url: "/images/me119.png" },
-  { id: 120, url: "/images/me120.png" },
-  { id: 121, url: "/images/me121.png" },
-  { id: 122, url: "/images/me122.png" },
-  { id: 123, url: "/images/me123.png" },
-  { id: 124, url: "/images/me124.png" },
-  { id: 125, url: "/images/me125.png" },
-  { id: 126, url: "/images/me126.png" },
-  { id: 127, url: "/images/me127.png" },
-  { id: 128, url: "/images/me128.png" },
-  { id: 129, url: "/images/me129.png" },
-  { id: 130, url: "/images/me130.png" },
-  { id: 131, url: "/images/me131.png" },
-  { id: 132, url: "/images/me132.png" },
-  { id: 133, url: "/images/me133.png" },
-  { id: 134, url: "/images/me134.png" },
-  { id: 135, url: "/images/me135.png" },
-  { id: 136, url: "/images/me136.png" },
-  { id: 137, url: "/images/me137.png" },
-  { id: 138, url: "/images/me138.png" },
-  { id: 139, url: "/images/me139.png" },
-  { id: 140, url: "/images/me140.png" },
-  { id: 141, url: "/images/me141.png" },
-  { id: 142, url: "/images/me142.png" },
-  { id: 143, url: "/images/me143.png" },
-  { id: 144, url: "/images/me144.png" },
-  { id: 145, url: "/images/me145.png" },
-  { id: 146, url: "/images/me146.png" },
-  { id: 147, url: "/images/me147.png" },
-  { id: 148, url: "/images/me148.png" },
-  { id: 149, url: "/images/me149.png" },
-  { id: 150, url: "/images/me150.png" },
-  { id: 151, url: "/images/me151.png" },
-  { id: 152, url: "/images/me152.png" },
-  { id: 153, url: "/images/me153.png" },
-  { id: 154, url: "/images/me154.png" },
-  { id: 155, url: "/images/me155.png" },
-  { id: 156, url: "/images/me156.png" },
-  { id: 157, url: "/images/me157.png" },
-  { id: 158, url: "/images/me158.png" },
-  { id: 159, url: "/images/me159.png" },
-  { id: 160, url: "/images/me160.png" },
-  { id: 161, url: "/images/me161.png" },
-  { id: 162, url: "/images/me162.png" },
-  { id: 163, url: "/images/me163.png" },
-  { id: 164, url: "/images/me164.png" },
-  { id: 165, url: "/images/me165.png" },
-  { id: 166, url: "/images/me166.png" },
-  { id: 167, url: "/images/me167.png" },
-  { id: 168, url: "/images/me168.png" },
-  { id: 169, url: "/images/me169.png" },
-  { id: 170, url: "/images/me170.png" },
-  { id: 171, url: "/images/me171.png" },
-  { id: 172, url: "/images/me172.png" },
-  { id: 173, url: "/images/me173.png" },
-  { id: 174, url: "/images/me174.png" },
-  { id: 175, url: "/images/me175.png" },
-  { id: 176, url: "/images/me176.png" },
-  { id: 177, url: "/images/me177.png" },
-  { id: 178, url: "/images/me178.png" },
-  { id: 179, url: "/images/me179.png" },
-  { id: 180, url: "/images/me180.png" },
-  { id: 181, url: "/images/me181.png" },
-  { id: 182, url: "/images/me182.png" },
-  { id: 183, url: "/images/me183.png" },
-  { id: 184, url: "/images/me184.png" },
-  { id: 185, url: "/images/me185.png" },
-  { id: 186, url: "/images/me186.png" },
-  { id: 187, url: "/images/me187.png" },
-  { id: 188, url: "/images/me188.png" },
-  { id: 189, url: "/images/me189.png" },
-  { id: 190, url: "/images/me190.png" },
-  { id: 191, url: "/images/me191.png" },
-  { id: 192, url: "/images/me192.png" },
-];
+// ── Meme cards (192 images) ────────────────────────────────────────────────
+const MEME_CARDS = Array.from({length: 192}, (_, i) => ({ id: i+1, url: `/images/me${i+1}.png` }));
 
 function shuffle(arr) {
   const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
   }
   return a;
 }
+function dealCards(n=4) { return shuffle(MEME_CARDS).slice(0,n); }
+function randomCard() { return MEME_CARDS[Math.floor(Math.random()*MEME_CARDS.length)]; }
+function numericCode() { return String(Math.floor(10000+Math.random()*90000)); }
 
-function dealCards(count = 4) {
-  return shuffle(MEME_CARDS).slice(0, count);
-}
-
+// ── Room ───────────────────────────────────────────────────────────────────
 const rooms = {};
 
 function createRoom(code) {
   return {
     code,
-    players: {},
-    phase: 'lobby',       // lobby | submitting | playing | voting | results | gameover
+    players: {},           // id -> {name,score,hand}
+    hostId: null,
+    phase: 'lobby',
+    baseRounds: 3,         // host-set default
     round: 0,
-    maxRounds: 0,         // set after event submission
-    eventDeck: [],        // built after submission
+    maxRounds: 0,
+    eventDeck: [],
     currentEvent: null,
     playedCards: {},
     playOrder: [],
     votes: {},
-    playerEvents: {},     // socketId -> event string submitted
+    playerEvents: {},      // id -> [ev1, ev2]
     submittedCount: 0,
+    // minigame state
+    minigameType: null,    // 'caption' | 'reaction'
+    minigameRound: 0,      // counts normal rounds to know when to trigger minigame
+    // caption chain
+    captionImage: null,
+    captionOrder: [],
+    captionParts: [],
+    captionCurrentIdx: 0,
+    // reaction description
+    reactionAssignments: {},  // id -> card
+    reactionTexts: {},        // id -> text
+    reactionOrder: [],
+    reactionRevealIdx: 0,
   };
 }
 
@@ -297,95 +120,127 @@ function getPublicRoom(room) {
     phase: room.phase,
     round: room.round,
     maxRounds: room.maxRounds,
+    baseRounds: room.baseRounds,
     currentEvent: room.currentEvent,
     playedCards: room.playedCards,
     playOrder: room.playOrder,
     submittedCount: room.submittedCount,
+    hostId: room.hostId,
+    minigameType: room.minigameType,
+    // caption
+    captionImage: room.captionImage,
+    captionParts: room.captionParts,
+    captionCurrentIdx: room.captionCurrentIdx,
+    captionOrder: room.captionOrder,
+    // reaction
+    reactionOrder: room.reactionOrder,
+    reactionRevealIdx: room.reactionRevealIdx,
     players: Object.fromEntries(
-      Object.entries(room.players).map(([id, p]) => [
-        id, { name: p.name, score: p.score, hasPlayed: !!room.playedCards[id], hasSubmitted: !!room.playerEvents[id] }
-      ])
+      Object.entries(room.players).map(([id,p]) => [id, {
+        name: p.name, score: p.score,
+        hasPlayed: !!room.playedCards[id],
+        hasSubmitted: !!(room.playerEvents[id] && room.playerEvents[id].length === 2),
+      }])
     ),
   };
 }
 
 function buildEventDeck(room) {
-  const playerEventList = Object.values(room.playerEvents);
+  const playerEvs = Object.values(room.playerEvents).flat();
   const playerCount = Object.keys(room.players).length;
-  // base rounds = player count, plus one per player event
-  room.maxRounds = playerCount + playerEventList.length;
-  // shuffle presets and take enough to fill non-player-event rounds
-  const presetShuffled = shuffle(PRESET_EVENTS).slice(0, playerCount);
-  // interleave: shuffle player events into the deck randomly
-  const allEvents = shuffle([...presetShuffled, ...playerEventList]);
-  room.eventDeck = allEvents;
+  const needed = room.baseRounds;
+  const presets = shuffle(PRESET_EVENTS).slice(0, Math.max(0, needed - playerEvs.length));
+  room.eventDeck = shuffle([...presets, ...playerEvs]);
+  room.maxRounds = room.eventDeck.length;
 }
 
-function nextRound(room) {
+function nextNormalRound(room) {
   room.round++;
+  room.minigameRound++;
   room.playedCards = {};
   room.playOrder = [];
   room.votes = {};
-  room.currentEvent = room.eventDeck[(room.round - 1) % room.eventDeck.length];
   room.phase = 'playing';
+  room.currentEvent = room.eventDeck[(room.round-1) % room.eventDeck.length];
   Object.values(room.players).forEach(p => { p.hand = dealCards(4); });
 }
 
-io.on('connection', (socket) => {
+// ── Minigame helpers ───────────────────────────────────────────────────────
+function startCaptionMinigame(room) {
+  room.phase = 'minigame_caption';
+  room.minigameType = 'caption';
+  room.captionImage = randomCard();
+  room.captionOrder = shuffle(Object.keys(room.players));
+  room.captionParts = [];
+  room.captionCurrentIdx = 0;
+}
 
-  socket.on('create_room', ({ name }) => {
-    const code = Math.random().toString(36).substring(2, 7).toUpperCase();
+function startReactionMinigame(room) {
+  room.phase = 'minigame_reaction_write';
+  room.minigameType = 'reaction';
+  room.reactionTexts = {};
+  room.reactionOrder = Object.keys(room.players);
+  room.reactionRevealIdx = 0;
+  // assign each player a unique random card
+  const cards = shuffle(MEME_CARDS);
+  room.reactionAssignments = {};
+  room.reactionOrder.forEach((id, i) => {
+    room.reactionAssignments[id] = cards[i % cards.length];
+  });
+}
+
+// ── Socket ─────────────────────────────────────────────────────────────────
+io.on('connection', socket => {
+
+  socket.on('create_room', ({ name, baseRounds }) => {
+    const code = numericCode();
     rooms[code] = createRoom(code);
-    rooms[code].players[socket.id] = { name, hand: dealCards(4), score: 0 };
+    const room = rooms[code];
+    room.hostId = socket.id;
+    room.baseRounds = Math.max(1, Math.min(20, parseInt(baseRounds) || 3));
+    room.players[socket.id] = { name, hand: dealCards(4), score: 0 };
     socket.join(code);
     socket.data.roomCode = code;
-    socket.data.isHost = true;
-    socket.emit('room_joined', { code, hand: rooms[code].players[socket.id].hand, isHost: true });
-    io.to(code).emit('room_update', getPublicRoom(rooms[code]));
+    socket.emit('room_joined', { code, hand: room.players[socket.id].hand, isHost: true });
+    io.to(code).emit('room_update', getPublicRoom(room));
   });
 
   socket.on('join_room', ({ name, code }) => {
-    const room = rooms[code.toUpperCase()];
+    const room = rooms[code];
     if (!room) { socket.emit('error', 'Kambarys nerastas'); return; }
     if (room.phase !== 'lobby') { socket.emit('error', 'Žaidimas jau prasidėjo'); return; }
     room.players[socket.id] = { name, hand: dealCards(4), score: 0 };
-    socket.join(code.toUpperCase());
-    socket.data.roomCode = code.toUpperCase();
-    socket.data.isHost = false;
-    socket.emit('room_joined', { code: code.toUpperCase(), hand: room.players[socket.id].hand, isHost: false });
-    io.to(code.toUpperCase()).emit('room_update', getPublicRoom(room));
+    socket.join(code);
+    socket.data.roomCode = code;
+    socket.emit('room_joined', { code, hand: room.players[socket.id].hand, isHost: false });
+    io.to(code).emit('room_update', getPublicRoom(room));
   });
 
   socket.on('start_game', () => {
     const room = rooms[socket.data.roomCode];
-    if (!room) return;
-    // move to event submission phase
+    if (!room || socket.id !== room.hostId) return;
     room.phase = 'submitting';
     room.playerEvents = {};
     room.submittedCount = 0;
+    room.minigameRound = 0;
     io.to(room.code).emit('room_update', getPublicRoom(room));
   });
 
-  socket.on('submit_event', ({ event }) => {
+  socket.on('submit_events', ({ events }) => {
     const code = socket.data.roomCode;
     const room = rooms[code];
     if (!room || room.phase !== 'submitting') return;
-    if (room.playerEvents[socket.id]) return; // already submitted
-
-    const trimmed = event.trim();
-    if (!trimmed) return;
-
-    room.playerEvents[socket.id] = trimmed;
+    if (room.playerEvents[socket.id]) return;
+    const cleaned = events.map(e => e.trim()).filter(e => e.length >= 3).slice(0, 2);
+    if (cleaned.length < 2) { socket.emit('error', 'Reikia dviejų situacijų!'); return; }
+    room.playerEvents[socket.id] = cleaned;
     room.submittedCount = Object.keys(room.playerEvents).length;
-
     io.to(code).emit('room_update', getPublicRoom(room));
-
-    const totalPlayers = Object.keys(room.players).length;
-    if (room.submittedCount >= totalPlayers) {
-      // everyone submitted — build deck and start
+    const total = Object.keys(room.players).length;
+    if (room.submittedCount >= total) {
       buildEventDeck(room);
-      nextRound(room);
-      Object.entries(room.players).forEach(([sid, p]) => io.to(sid).emit('new_hand', { hand: p.hand }));
+      nextNormalRound(room);
+      Object.entries(room.players).forEach(([sid,p]) => io.to(sid).emit('new_hand', { hand: p.hand }));
       io.to(code).emit('room_update', getPublicRoom(room));
     }
   });
@@ -395,28 +250,20 @@ io.on('connection', (socket) => {
     const room = rooms[code];
     if (!room || room.phase !== 'playing') return;
     if (room.playedCards[socket.id]) return;
-
     room.playedCards[socket.id] = card;
     room.playOrder.push(socket.id);
-
-    const totalPlayers = Object.keys(room.players).length;
-    const totalPlayed = Object.keys(room.playedCards).length;
-
+    const total = Object.keys(room.players).length;
+    const played = Object.keys(room.playedCards).length;
     io.to(code).emit('card_played', {
-      playerId: socket.id,
-      playerName: room.players[socket.id]?.name,
-      card, totalPlayed, totalPlayers,
+      playerId: socket.id, playerName: room.players[socket.id]?.name,
+      card, totalPlayed: played, totalPlayers: total,
     });
-
-    if (totalPlayed >= totalPlayers) {
+    if (played >= total) {
       room.phase = 'voting';
       setTimeout(() => {
         io.to(code).emit('start_voting', {
-          playedCards: room.playedCards,
-          playOrder: room.playOrder,
-          players: Object.fromEntries(
-            Object.entries(room.players).map(([id, p]) => [id, { name: p.name }])
-          ),
+          playedCards: room.playedCards, playOrder: room.playOrder,
+          players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}])),
         });
       }, 2500);
     }
@@ -426,31 +273,20 @@ io.on('connection', (socket) => {
     const code = socket.data.roomCode;
     const room = rooms[code];
     if (!room || room.phase !== 'voting') return;
-    if (room.votes[socket.id]) return;
-    if (votedFor === socket.id) return;
-
+    if (room.votes[socket.id] || votedFor === socket.id) return;
     room.votes[socket.id] = votedFor;
-
-    const totalPlayers = Object.keys(room.players).length;
-    const totalVotes = Object.keys(room.votes).length;
-
-    io.to(code).emit('vote_update', { totalVotes, totalPlayers });
-
-    if (totalVotes >= totalPlayers) {
+    const total = Object.keys(room.players).length;
+    const voted = Object.keys(room.votes).length;
+    io.to(code).emit('vote_update', { totalVotes: voted, totalPlayers: total });
+    if (voted >= total) {
       const tally = {};
-      Object.values(room.votes).forEach(vid => { tally[vid] = (tally[vid] || 0) + 1; });
-      Object.entries(tally).forEach(([pid, pts]) => { if (room.players[pid]) room.players[pid].score += pts; });
-
+      Object.values(room.votes).forEach(v => { tally[v] = (tally[v]||0)+1; });
+      Object.entries(tally).forEach(([pid,pts]) => { if (room.players[pid]) room.players[pid].score += pts; });
       room.phase = 'results';
       io.to(code).emit('round_results', {
-        playedCards: room.playedCards,
-        playOrder: room.playOrder,
-        players: Object.fromEntries(
-          Object.entries(room.players).map(([id, p]) => [id, { name: p.name, score: p.score }])
-        ),
-        votes: tally,
-        round: room.round,
-        maxRounds: room.maxRounds,
+        playedCards: room.playedCards, playOrder: room.playOrder,
+        players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name,score:p.score}])),
+        votes: tally, round: room.round, maxRounds: room.maxRounds,
       });
     }
   });
@@ -458,20 +294,139 @@ io.on('connection', (socket) => {
   socket.on('next_round', () => {
     const code = socket.data.roomCode;
     const room = rooms[code];
-    if (!room) return;
+    if (!room || socket.id !== room.hostId) return;
+
+    // check if minigame should fire (every 2 normal rounds)
+    if (room.minigameRound > 0 && room.minigameRound % 2 === 0 && room.phase === 'results') {
+      // alternate between caption and reaction
+      const mgType = Math.floor(room.minigameRound / 2) % 2 === 1 ? 'caption' : 'reaction';
+      if (mgType === 'caption') {
+        startCaptionMinigame(room);
+        io.to(code).emit('minigame_start', { type: 'caption', image: room.captionImage, order: room.captionOrder,
+          players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}])) });
+      } else {
+        startReactionMinigame(room);
+        // send each player their private image
+        room.reactionOrder.forEach(pid => {
+          io.to(pid).emit('reaction_assignment', { card: room.reactionAssignments[pid] });
+        });
+        io.to(code).emit('minigame_start', { type: 'reaction',
+          players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}])) });
+      }
+      io.to(code).emit('room_update', getPublicRoom(room));
+      return;
+    }
+
     if (room.round >= room.maxRounds) {
       room.phase = 'gameover';
       io.to(code).emit('game_over', {
-        players: Object.fromEntries(
-          Object.entries(room.players).map(([id, p]) => [id, { name: p.name, score: p.score }])
-        ),
+        players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name,score:p.score}])),
       });
       return;
     }
-    nextRound(room);
-    Object.entries(room.players).forEach(([sid, p]) => io.to(sid).emit('new_hand', { hand: p.hand }));
+
+    nextNormalRound(room);
+    Object.entries(room.players).forEach(([sid,p]) => io.to(sid).emit('new_hand', { hand: p.hand }));
     io.to(code).emit('room_update', getPublicRoom(room));
   });
+
+  // ── Caption chain ──────────────────────────────────────────────────────
+
+  socket.on('caption_submit', ({ text }) => {
+    const code = socket.data.roomCode;
+    const room = rooms[code];
+    if (!room || room.phase !== 'minigame_caption') return;
+    const currentPlayer = room.captionOrder[room.captionCurrentIdx];
+    if (socket.id !== currentPlayer) return;
+    const words = text.trim().split(/\s+/).slice(0, 3).join(' ');
+    room.captionParts.push({ playerId: socket.id, playerName: room.players[socket.id]?.name, text: words });
+    room.captionCurrentIdx++;
+    io.to(code).emit('caption_update', {
+      parts: room.captionParts, currentIdx: room.captionCurrentIdx,
+      captionOrder: room.captionOrder,
+      players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}])),
+    });
+    if (room.captionCurrentIdx >= room.captionOrder.length) {
+      room.phase = 'minigame_caption_reveal';
+      setTimeout(() => {
+        io.to(code).emit('caption_reveal', {
+          image: room.captionImage, parts: room.captionParts,
+          players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}])),
+        });
+      }, 800);
+    }
+  });
+
+  socket.on('caption_done', () => {
+    // host moves on from caption reveal
+    const code = socket.data.roomCode;
+    const room = rooms[code];
+    if (!room || socket.id !== room.hostId) return;
+    if (room.round >= room.maxRounds) {
+      room.phase = 'gameover';
+      io.to(code).emit('game_over', {
+        players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name,score:p.score}])),
+      });
+      return;
+    }
+    nextNormalRound(room);
+    Object.entries(room.players).forEach(([sid,p]) => io.to(sid).emit('new_hand', { hand: p.hand }));
+    io.to(code).emit('room_update', getPublicRoom(room));
+  });
+
+  // ── Reaction description ───────────────────────────────────────────────
+
+  socket.on('reaction_submit', ({ text }) => {
+    const code = socket.data.roomCode;
+    const room = rooms[code];
+    if (!room || room.phase !== 'minigame_reaction_write') return;
+    if (room.reactionTexts[socket.id]) return;
+    room.reactionTexts[socket.id] = text.trim().slice(0, 200);
+    const total = Object.keys(room.players).length;
+    const done = Object.keys(room.reactionTexts).length;
+    io.to(code).emit('reaction_progress', { done, total });
+    if (done >= total) {
+      room.phase = 'minigame_reaction_reveal';
+      room.reactionRevealIdx = 0;
+      setTimeout(() => {
+        io.to(code).emit('reaction_reveal_next', buildReactionReveal(room));
+      }, 800);
+    }
+  });
+
+  socket.on('reaction_next', () => {
+    const code = socket.data.roomCode;
+    const room = rooms[code];
+    if (!room || socket.id !== room.hostId) return;
+    room.reactionRevealIdx++;
+    if (room.reactionRevealIdx >= room.reactionOrder.length) {
+      // all revealed — move on
+      if (room.round >= room.maxRounds) {
+        room.phase = 'gameover';
+        io.to(code).emit('game_over', {
+          players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name,score:p.score}])),
+        });
+        return;
+      }
+      nextNormalRound(room);
+      Object.entries(room.players).forEach(([sid,p]) => io.to(sid).emit('new_hand', { hand: p.hand }));
+      io.to(code).emit('room_update', getPublicRoom(room));
+    } else {
+      io.to(code).emit('reaction_reveal_next', buildReactionReveal(room));
+    }
+  });
+
+  function buildReactionReveal(room) {
+    const pid = room.reactionOrder[room.reactionRevealIdx];
+    return {
+      playerId: pid,
+      playerName: room.players[pid]?.name,
+      card: room.reactionAssignments[pid],
+      text: room.reactionTexts[pid],
+      idx: room.reactionRevealIdx,
+      total: room.reactionOrder.length,
+    };
+  }
 
   socket.on('disconnect', () => {
     const code = socket.data.roomCode;
@@ -480,14 +435,11 @@ io.on('connection', (socket) => {
       delete rooms[code].playedCards[socket.id];
       delete rooms[code].votes[socket.id];
       delete rooms[code].playerEvents[socket.id];
-      if (Object.keys(rooms[code].players).length === 0) {
-        delete rooms[code];
-      } else {
-        io.to(code).emit('room_update', getPublicRoom(rooms[code]));
-      }
+      if (Object.keys(rooms[code].players).length === 0) delete rooms[code];
+      else io.to(code).emit('room_update', getPublicRoom(rooms[code]));
     }
   });
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`MemeReact running on port ${PORT}`));
+server.listen(PORT, () => console.log(`MANO REAKCIJA KAI running on port ${PORT}`));
