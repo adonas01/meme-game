@@ -1,492 +1,316 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="lt">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meme React 🃏</title>
+<title>MemeReact 🃏</title>
 <script src="/socket.io/socket.io.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0f0f13;
+  --surface: #1a1a24;
+  --surface2: #22222f;
+  --border: rgba(255,255,255,0.08);
+  --text: #f0f0f5;
+  --muted: #888899;
+  --accent: #7c6ff7;
+  --accent2: #f7c96f;
+  --green: #5dca8a;
+  --red: #f76f6f;
+  --r: 14px;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.screen { display: none; width: 100%; max-width: 720px; padding: 2rem 1rem; }
+.screen.active { display: flex; flex-direction: column; align-items: center; }
 
-  :root {
-    --bg: #0f0f13;
-    --surface: #1a1a24;
-    --surface2: #22222f;
-    --border: rgba(255,255,255,0.08);
-    --text: #f0f0f5;
-    --muted: #888899;
-    --accent: #7c6ff7;
-    --accent2: #f7c96f;
-    --green: #5dca8a;
-    --red: #f76f6f;
-    --radius: 14px;
-  }
+/* home */
+.logo { font-size: 2.8rem; font-weight: 800; letter-spacing: -1px; margin-bottom: .25rem; }
+.logo span { color: var(--accent); }
+.tagline { color: var(--muted); font-size: .95rem; margin-bottom: 2rem; }
+.card-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.75rem; width: 100%; max-width: 380px; margin-bottom: 1rem; }
+.card-box h2 { font-size: .85rem; font-weight: 600; margin-bottom: 1.25rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+input[type="text"] { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: .75rem 1rem; color: var(--text); font-size: 1rem; margin-bottom: .75rem; outline: none; transition: border-color .2s; }
+input[type="text"]:focus { border-color: var(--accent); }
+input[type="text"]::placeholder { color: var(--muted); }
+button { cursor: pointer; border: none; border-radius: 8px; font-size: .95rem; font-weight: 600; padding: .75rem 1.5rem; transition: opacity .15s, transform .1s; }
+button:active { transform: scale(.97); }
+button:disabled { opacity: .4; cursor: default; }
+.btn-primary { background: var(--accent); color: #fff; width: 100%; }
+.btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); width: 100%; }
+.error-msg { color: var(--red); font-size: .85rem; margin-top: .5rem; min-height: 1.2rem; }
+.divider { color: var(--muted); font-size: .9rem; margin: .25rem 0; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+/* lobby */
+#screen-lobby { gap: 1.25rem; }
+.code-display { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.5rem; width: 100%; text-align: center; }
+.code-display .lbl { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+.code-display .code { font-size: 3.2rem; font-weight: 800; letter-spacing: .15em; color: var(--accent2); }
+.code-display .hint { font-size: .8rem; color: var(--muted); margin-top: .4rem; }
+.player-list { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.25rem 1.75rem; width: 100%; }
+.player-list h3 { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .75rem; }
+.pill { display: inline-flex; align-items: center; gap: .4rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 99px; padding: .35rem .85rem; font-size: .9rem; margin: .25rem; }
+.pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.badge { display: inline-block; font-size: .7rem; background: rgba(124,111,247,.15); color: var(--accent); border: 1px solid rgba(124,111,247,.25); border-radius: 99px; padding: .15rem .6rem; margin-left: .4rem; }
 
-  /* ── screens ── */
-  .screen { display: none; width: 100%; max-width: 700px; padding: 2rem 1rem; }
-  .screen.active { display: flex; flex-direction: column; align-items: center; }
+/* game */
+#screen-game { gap: 0; padding-top: 0; }
+.game-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: .65rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--border); font-size: .85rem; color: var(--muted); margin-bottom: 1.5rem; }
+.game-bar strong { color: var(--text); }
 
-  /* ── lobby / join ── */
-  .logo { font-size: 2.8rem; font-weight: 800; letter-spacing: -1px; margin-bottom: .25rem; }
-  .logo span { color: var(--accent); }
-  .tagline { color: var(--muted); font-size: .95rem; margin-bottom: 2rem; }
+.event-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.5rem 1.75rem; width: 100%; margin-bottom: 1.5rem; text-align: center; }
+.event-label { font-size: .7rem; color: var(--accent); text-transform: uppercase; letter-spacing: .1em; margin-bottom: .6rem; }
+.event-text { font-size: 1.25rem; font-weight: 700; line-height: 1.5; }
 
-  .card-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.75rem;
-    width: 100%;
-    max-width: 380px;
-    margin-bottom: 1rem;
-  }
-  .card-box h2 { font-size: 1rem; font-weight: 600; margin-bottom: 1.25rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+/* spotlight */
+.spotlight-wrap { width: 100%; display: flex; flex-direction: column; align-items: center; margin-bottom: 1rem; min-height: 340px; justify-content: center; }
+.spotlight-card { background: var(--surface); border: 2px solid var(--border); border-radius: 16px; overflow: hidden; width: 100%; max-width: 440px; animation: cardFlyIn .45s cubic-bezier(.22,1,.36,1); }
+.spotlight-card img { width: 100%; height: 340px; object-fit: cover; display: block; }
+.spotlight-player { padding: .65rem 1rem; font-size: 1.05rem; font-weight: 700; color: var(--accent2); text-align: center; }
 
-  input[type="text"] {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: .75rem 1rem;
-    color: var(--text);
-    font-size: 1rem;
-    margin-bottom: .75rem;
-    outline: none;
-    transition: border-color .2s;
-  }
-  input[type="text"]:focus { border-color: var(--accent); }
-  input[type="text"]::placeholder { color: var(--muted); }
+@keyframes cardFlyIn {
+  from { transform: translateY(70px) scale(.82) rotate(-5deg); opacity: 0; }
+  to   { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes cardFlyOut {
+  from { transform: translateY(0) scale(1); opacity: 1; }
+  to   { transform: translateY(-50px) scale(.82); opacity: 0; }
+}
+.fly-out { animation: cardFlyOut .3s ease forwards; }
 
-  button {
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    font-size: .95rem;
-    font-weight: 600;
-    padding: .75rem 1.5rem;
-    transition: opacity .15s, transform .1s;
-  }
-  button:active { transform: scale(.97); }
-  button:disabled { opacity: .4; cursor: default; }
+/* mini strip */
+.mini-strip { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-bottom: 1rem; width: 100%; }
+.mini-card { border-radius: 8px; overflow: hidden; border: 1.5px solid var(--border); width: 70px; }
+.mini-card img { width: 100%; height: 70px; object-fit: cover; display: block; }
+.mini-name { font-size: .6rem; color: var(--muted); padding: .2rem .3rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  .btn-primary { background: var(--accent); color: #fff; width: 100%; }
-  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); width: 100%; }
-  .btn-small { background: var(--surface2); color: var(--text); border: 1px solid var(--border); padding: .5rem 1.2rem; font-size: .85rem; }
-  .btn-next { background: var(--green); color: #0f0f13; padding: .85rem 2.5rem; font-size: 1.05rem; }
+.waiting-txt { font-size: .95rem; color: var(--muted); text-align: center; }
+.waiting-count { color: var(--accent2); font-weight: 700; }
 
-  .error-msg { color: var(--red); font-size: .85rem; margin-top: .5rem; min-height: 1.2rem; }
+/* hand */
+.hand-area { width: 100%; }
+.hand-area h3 { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .75rem; text-align: center; }
+.hand-grid { display: flex; flex-wrap: wrap; gap: .75rem; justify-content: center; margin-bottom: 1rem; }
+.hand-card { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; overflow: hidden; width: 155px; cursor: pointer; transition: border-color .15s, transform .15s, box-shadow .15s; }
+.hand-card:hover { border-color: var(--accent); transform: translateY(-6px); box-shadow: 0 12px 30px rgba(124,111,247,.3); }
+.hand-card.selected { border-color: var(--accent2); box-shadow: 0 12px 30px rgba(247,201,111,.38); }
+.hand-card img { width: 100%; height: 155px; object-fit: cover; display: block; }
+.play-btn-wrap { text-align: center; margin-top: .5rem; }
+.btn-play { background: var(--accent); color: #fff; padding: .85rem 2.5rem; font-size: 1rem; }
+.played-notice { text-align: center; padding: 1rem; color: var(--green); font-weight: 600; font-size: 1rem; }
 
-  /* ── lobby waiting room ── */
-  #screen-lobby { gap: 1.25rem; }
-  .room-code-display {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem 1.75rem;
-    width: 100%;
-    text-align: center;
-  }
-  .room-code-display .label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
-  .room-code-display .code { font-size: 3rem; font-weight: 800; letter-spacing: .15em; color: var(--accent2); }
-  .room-code-display .hint { font-size: .8rem; color: var(--muted); margin-top: .4rem; }
+/* voting */
+#screen-voting { gap: 1.25rem; }
+.vote-grid { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; width: 100%; }
+.vote-card { background: var(--surface); border: 2px solid var(--border); border-radius: 14px; overflow: hidden; width: 190px; cursor: pointer; transition: border-color .15s, transform .15s, box-shadow .15s; text-align: center; }
+.vote-card:hover { border-color: var(--accent); transform: translateY(-5px); box-shadow: 0 10px 26px rgba(124,111,247,.28); }
+.vote-card.voted-this { border-color: var(--accent2); box-shadow: 0 10px 26px rgba(247,201,111,.42); }
+.vote-card.disabled { opacity: .35; pointer-events: none; }
+.vote-card img { width: 100%; height: 190px; object-fit: cover; display: block; }
+.vote-player { font-size: .95rem; font-weight: 700; color: var(--accent2); padding: .55rem; }
+.vote-count-txt { text-align: center; font-size: .9rem; color: var(--muted); }
 
-  .player-list {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem 1.75rem;
-    width: 100%;
-  }
-  .player-list h3 { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .75rem; }
-  .player-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: .4rem;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    padding: .35rem .85rem;
-    font-size: .9rem;
-    margin: .25rem;
-  }
-  .player-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+/* results */
+#screen-results { gap: 1.25rem; }
+.results-grid { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; width: 100%; }
+.result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; width: 190px; text-align: center; animation: cardFlyIn .4s ease; }
+.result-card img { width: 100%; height: 190px; object-fit: cover; display: block; }
+.result-player { font-size: .95rem; font-weight: 700; color: var(--accent2); padding: .45rem .5rem .1rem; }
+.result-votes { font-size: .8rem; color: var(--green); padding: 0 .5rem .5rem; }
+.result-card.winner { border-color: var(--accent2); box-shadow: 0 0 22px rgba(247,201,111,.42); }
+.winner-crown { font-size: 1.5rem; padding-top: .4rem; }
+.btn-next { background: var(--green); color: #0f0f13; font-weight: 700; padding: .85rem 2.5rem; font-size: 1.05rem; border-radius: 8px; cursor: pointer; border: none; }
 
-  #btn-start { max-width: 380px; width: 100%; }
-
-  /* ── game screen ── */
-  #screen-game {
-    gap: 0;
-    padding-top: 1rem;
-  }
-
-  .game-header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: .6rem 1rem;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    font-size: .85rem;
-    color: var(--muted);
-    margin-bottom: 1.5rem;
-  }
-  .game-header strong { color: var(--text); }
-
-  .event-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem 1.75rem;
-    width: 100%;
-    margin-bottom: 1.5rem;
-    text-align: center;
-  }
-  .event-box .event-label { font-size: .75rem; color: var(--accent); text-transform: uppercase; letter-spacing: .1em; margin-bottom: .75rem; }
-  .event-box .event-text { font-size: 1.2rem; font-weight: 600; line-height: 1.5; }
-
-  .played-area {
-    width: 100%;
-    margin-bottom: 1.5rem;
-  }
-  .played-area h3 { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .75rem; text-align: center; }
-  .played-cards-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .75rem;
-    justify-content: center;
-  }
-
-  .played-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-    width: 130px;
-    text-align: center;
-    animation: popIn .3s ease;
-  }
-  .played-card img { width: 100%; height: 90px; object-fit: cover; display: block; }
-  .played-card .played-name { font-size: .72rem; color: var(--muted); padding: .3rem .4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .played-card .played-by { font-size: .75rem; color: var(--accent2); padding: 0 .4rem .35rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  @keyframes popIn {
-    from { transform: scale(.7) rotate(-5deg); opacity: 0; }
-    to { transform: scale(1) rotate(0deg); opacity: 1; }
-  }
-
-  .waiting-text { font-size: .9rem; color: var(--muted); text-align: center; }
-  .waiting-count { color: var(--accent2); font-weight: 700; }
-
-  .hand-area { width: 100%; }
-  .hand-area h3 { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .75rem; text-align: center; }
-
-  .hand-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .75rem;
-    justify-content: center;
-    margin-bottom: 1rem;
-  }
-
-  .hand-card {
-    background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    width: 140px;
-    cursor: pointer;
-    transition: border-color .15s, transform .15s, box-shadow .15s;
-    position: relative;
-  }
-  .hand-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(124,111,247,.25); }
-  .hand-card.selected { border-color: var(--accent2); box-shadow: 0 8px 24px rgba(247,201,111,.35); }
-  .hand-card.played-out { opacity: .35; pointer-events: none; }
-  .hand-card img { width: 100%; height: 100px; object-fit: cover; display: block; }
-  .hand-card .card-label { font-size: .75rem; color: var(--muted); padding: .4rem .5rem; text-align: center; line-height: 1.3; }
-
-  .play-btn-wrap { text-align: center; margin-top: .5rem; }
-  .btn-play { background: var(--accent); color: #fff; padding: .8rem 2.5rem; font-size: 1rem; }
-
-  .played-notice {
-    text-align: center;
-    padding: 1rem;
-    color: var(--green);
-    font-weight: 600;
-    font-size: 1rem;
-  }
-
-  /* ── results screen ── */
-  #screen-results { gap: 1.25rem; }
-  .results-header { text-align: center; }
-  .results-header h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: .35rem; }
-  .results-header p { color: var(--muted); font-size: .9rem; }
-
-  .results-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-    width: 100%;
-  }
-  .result-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    width: 155px;
-    text-align: center;
-    animation: popIn .4s ease;
-  }
-  .result-card img { width: 100%; height: 110px; object-fit: cover; display: block; }
-  .result-card .r-name { font-size: .72rem; color: var(--muted); padding: .35rem .5rem .1rem; }
-  .result-card .r-player { font-size: .85rem; font-weight: 700; color: var(--accent2); padding: 0 .5rem .5rem; }
-
-  /* ── game over ── */
-  #screen-gameover { gap: 1.25rem; text-align: center; }
-  #screen-gameover h2 { font-size: 2rem; font-weight: 800; }
-  .scoreboard {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem 1.75rem;
-    width: 100%;
-    max-width: 380px;
-  }
-  .score-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: .6rem 0;
-    border-bottom: 1px solid var(--border);
-    font-size: .95rem;
-  }
-  .score-row:last-child { border-bottom: none; }
-  .score-row .rank { color: var(--accent2); font-weight: 800; min-width: 2rem; }
-  .score-row .pts { color: var(--accent); font-weight: 700; }
-
-  .host-badge {
-    display: inline-block;
-    font-size: .7rem;
-    background: rgba(124,111,247,.15);
-    color: var(--accent);
-    border: 1px solid rgba(124,111,247,.25);
-    border-radius: 99px;
-    padding: .15rem .6rem;
-    margin-left: .4rem;
-    vertical-align: middle;
-  }
-
-  .divider { color: var(--muted); font-size: .9rem; margin: .25rem 0; }
+/* gameover */
+#screen-gameover { gap: 1.25rem; text-align: center; }
+#screen-gameover h2 { font-size: 2rem; font-weight: 800; }
+.scoreboard { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.25rem 1.75rem; width: 100%; max-width: 380px; }
+.score-row { display: flex; justify-content: space-between; align-items: center; padding: .6rem 0; border-bottom: 1px solid var(--border); font-size: .95rem; }
+.score-row:last-child { border-bottom: none; }
+.score-row .rank { color: var(--accent2); font-weight: 800; min-width: 2rem; }
+.score-row .pts { color: var(--accent); font-weight: 700; }
 </style>
 </head>
 <body>
 
-<!-- ── SCREEN: join/create ───────────────────────────────────────── -->
+<!-- HOME -->
 <div id="screen-home" class="screen active">
   <div class="logo">Meme<span>React</span> 🃏</div>
-  <div class="tagline">Throw reaction memes at ridiculous events with friends</div>
-
+  <div class="tagline">Meskite reakcijos memus į absurdiškus įvykius</div>
   <div class="card-box">
-    <h2>Create a Room</h2>
-    <input type="text" id="create-name" placeholder="Your name" maxlength="20">
-    <button class="btn-primary" onclick="createRoom()">Create Room</button>
+    <h2>Sukurti kambarį</h2>
+    <input type="text" id="create-name" placeholder="Tavo vardas" maxlength="20">
+    <button class="btn-primary" onclick="createRoom()">Sukurti kambarį</button>
     <div class="error-msg" id="create-error"></div>
   </div>
-
-  <div class="divider">— or —</div>
-
+  <div class="divider">— arba —</div>
   <div class="card-box">
-    <h2>Join a Room</h2>
-    <input type="text" id="join-name" placeholder="Your name" maxlength="20">
-    <input type="text" id="join-code" placeholder="Room code (e.g. AB3XY)" maxlength="6" style="text-transform:uppercase">
-    <button class="btn-secondary" onclick="joinRoom()">Join Room</button>
+    <h2>Prisijungti prie kambario</h2>
+    <input type="text" id="join-name" placeholder="Tavo vardas" maxlength="20">
+    <input type="text" id="join-code" placeholder="Kambario kodas (pvz. AB3XY)" maxlength="6" style="text-transform:uppercase">
+    <button class="btn-secondary" onclick="joinRoom()">Prisijungti</button>
     <div class="error-msg" id="join-error"></div>
   </div>
 </div>
 
-<!-- ── SCREEN: lobby ─────────────────────────────────────────────── -->
+<!-- LOBBY -->
 <div id="screen-lobby" class="screen">
-  <div class="room-code-display">
-    <div class="label">Room Code — share with friends</div>
+  <div class="code-display">
+    <div class="lbl">Kambario kodas — pasidalink su draugais</div>
     <div class="code" id="display-code">—</div>
-    <div class="hint">Everyone opens this site and enters the code</div>
+    <div class="hint">Visi atidaro šį puslapį ir įveda kodą</div>
   </div>
-
   <div class="player-list">
-    <h3>Players in room</h3>
+    <h3>Žaidėjai kambaryje</h3>
     <div id="player-pills"></div>
   </div>
-
-  <button class="btn-primary" id="btn-start" onclick="startGame()" style="display:none">
-    Start Game ▶
-  </button>
-  <div id="waiting-msg" style="color:var(--muted);font-size:.9rem;text-align:center">
-    Waiting for host to start…
-  </div>
+  <button class="btn-primary" id="btn-start" onclick="startGame()" style="display:none;max-width:380px;width:100%">Pradėti žaidimą ▶</button>
+  <div id="lobby-wait" style="color:var(--muted);font-size:.9rem;text-align:center">Laukiame šeimininko pradžios…</div>
 </div>
 
-<!-- ── SCREEN: game ──────────────────────────────────────────────── -->
+<!-- GAME -->
 <div id="screen-game" class="screen">
-  <div class="game-header">
-    <span>Round <strong id="round-num">1</strong> / <strong id="round-max">5</strong></span>
-    <span id="my-name-tag"></span>
+  <div class="game-bar">
+    <span>Raundas <strong id="round-num">1</strong> / <strong id="round-max">5</strong></span>
+    <span id="my-name-tag" style="color:var(--accent2)"></span>
   </div>
-
-  <div style="width:100%;padding:0 .5rem">
+  <div style="width:100%;padding:0 .75rem">
     <div class="event-box">
-      <div class="event-label">⚡ The Event</div>
-      <div class="event-text" id="event-text">Loading…</div>
+      <div class="event-label">⚡ Įvykis</div>
+      <div class="event-text" id="event-text">Kraunama…</div>
     </div>
-
-    <div class="played-area">
-      <h3>Cards on the table</h3>
-      <div class="played-cards-grid" id="played-cards-grid"></div>
-      <div class="waiting-text" id="waiting-count-text"></div>
+    <div class="spotlight-wrap" id="spotlight-wrap">
+      <div class="waiting-txt" id="spotlight-wait">Laukiama kortelių…<br><span class="waiting-count" id="played-count">0</span> / <span id="total-count">?</span> žaidėjų pasirinko</div>
     </div>
-
+    <div class="mini-strip" id="mini-strip"></div>
     <div class="hand-area" id="hand-area">
-      <h3>Your hand — pick one</h3>
+      <h3>Tavo rankoje — pasirink vieną</h3>
       <div class="hand-grid" id="hand-grid"></div>
       <div class="play-btn-wrap">
-        <button class="btn-play" id="btn-play" onclick="playCard()" disabled>Play Selected Card</button>
+        <button class="btn-play" id="btn-play" onclick="playCard()" disabled>Žaisti kortelę</button>
       </div>
     </div>
-
-    <div class="played-notice" id="played-notice" style="display:none">
-      ✓ Card played! Waiting for others…
-    </div>
+    <div class="played-notice" id="played-notice" style="display:none">✓ Kortelė sužaista! Laukiama kitų…</div>
   </div>
 </div>
 
-<!-- ── SCREEN: results ───────────────────────────────────────────── -->
-<div id="screen-results" class="screen">
-  <div class="results-header">
-    <h2>🃏 Round Results</h2>
-    <p id="results-subtext">Everyone's reaction</p>
+<!-- VOTING -->
+<div id="screen-voting" class="screen">
+  <div style="text-align:center;margin-bottom:.5rem">
+    <div style="font-size:1.8rem;margin-bottom:.25rem">😂 Balsuok!</div>
+    <div style="color:var(--muted);font-size:.9rem">Kuris buvo juokingiausia reakcija?</div>
   </div>
-
   <div class="event-box" style="max-width:520px">
-    <div class="event-label">⚡ The Event was</div>
+    <div class="event-label">⚡ Įvykis buvo</div>
+    <div class="event-text" id="voting-event-text"></div>
+  </div>
+  <div class="vote-grid" id="vote-grid"></div>
+  <div class="vote-count-txt" id="vote-count-txt" style="margin-top:.75rem"></div>
+</div>
+
+<!-- RESULTS -->
+<div id="screen-results" class="screen">
+  <div style="text-align:center;margin-bottom:.5rem">
+    <div style="font-size:1.8rem;margin-bottom:.25rem">🏅 Raundo rezultatai</div>
+    <div style="color:var(--muted);font-size:.9rem" id="results-sub"></div>
+  </div>
+  <div class="event-box" style="max-width:520px">
+    <div class="event-label">⚡ Įvykis buvo</div>
     <div class="event-text" id="results-event-text"></div>
   </div>
-
   <div class="results-grid" id="results-grid"></div>
-
-  <button class="btn-next" id="btn-next-round" onclick="nextRound()" style="display:none">
-    Next Round →
-  </button>
-  <div id="results-waiting" style="color:var(--muted);font-size:.9rem">Waiting for host to continue…</div>
+  <button class="btn-next" id="btn-next" onclick="nextRound()" style="display:none;margin-top:.5rem">Kitas raundas →</button>
+  <div id="results-wait" style="color:var(--muted);font-size:.9rem;margin-top:.5rem">Laukiame šeimininko…</div>
 </div>
 
-<!-- ── SCREEN: game over ─────────────────────────────────────────── -->
+<!-- GAME OVER -->
 <div id="screen-gameover" class="screen">
   <div style="font-size:3rem">🏆</div>
-  <h2>Game Over!</h2>
+  <h2>Žaidimas baigtas!</h2>
   <div class="scoreboard" id="scoreboard"></div>
-  <button class="btn-primary" onclick="location.reload()" style="max-width:280px;width:100%">Play Again</button>
+  <button class="btn-primary" onclick="location.reload()" style="max-width:280px;width:100%;margin-top:.5rem">Žaisti dar kartą</button>
 </div>
 
 <script>
 const socket = io();
-
-let myId = null;
-let myName = '';
-let myHand = [];
-let selectedCard = null;
-let isHost = false;
-let currentEvent = '';
-let hasPlayed = false;
-let roomCode = '';
-
-// ── helpers ──────────────────────────────────────────────────────────────
+let myId = null, myName = '', myHand = [], selectedCard = null;
+let isHost = false, currentEvent = '', hasPlayed = false, hasVoted = false;
+let revealQueue = [], isRevealing = false, revealedCards = [];
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
 }
-
-function setError(id, msg) {
-  document.getElementById(id).textContent = msg;
-}
-
-// ── socket events ─────────────────────────────────────────────────────────
+function setError(id, msg) { document.getElementById(id).textContent = msg; }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 socket.on('connect', () => { myId = socket.id; });
+socket.on('error', msg => { setError('join-error', msg); setError('create-error', msg); });
 
-socket.on('error', (msg) => {
-  setError('join-error', msg);
-  setError('create-error', msg);
-});
-
-socket.on('room_joined', ({ code, hand }) => {
-  roomCode = code;
+socket.on('room_joined', ({ code, hand, isHost: host }) => {
+  isHost = host;
   myHand = hand;
   document.getElementById('display-code').textContent = code;
   showScreen('screen-lobby');
 });
 
-socket.on('room_update', (room) => {
-  renderPlayerPills(room.players);
-
-  const players = Object.values(room.players);
-  if (myId === Object.keys(room.players)[0]) {
-    isHost = true;
-    document.getElementById('btn-start').style.display = players.length >= 2 ? 'block' : 'none';
-    document.getElementById('waiting-msg').style.display = players.length >= 2 ? 'none' : 'block';
-    if (players.length < 2) document.getElementById('waiting-msg').textContent = 'Need at least 2 players to start';
+socket.on('room_update', room => {
+  renderPills(room.players);
+  const count = Object.keys(room.players).length;
+  if (isHost) {
+    document.getElementById('btn-start').style.display = count >= 2 ? 'block' : 'none';
+    document.getElementById('lobby-wait').style.display = count >= 2 ? 'none' : 'block';
   }
-
-  if (room.phase === 'playing') {
-    enterGameScreen(room);
-  }
+  if (room.phase === 'playing') enterGame(room);
 });
 
 socket.on('new_hand', ({ hand }) => {
   myHand = hand;
-  hasPlayed = false;
-  selectedCard = null;
+  hasPlayed = false; hasVoted = false; selectedCard = null;
+  revealQueue = []; revealedCards = []; isRevealing = false;
   renderHand();
   document.getElementById('played-notice').style.display = 'none';
   document.getElementById('hand-area').style.display = 'block';
-  document.getElementById('played-cards-grid').innerHTML = '';
-  document.getElementById('waiting-count-text').textContent = '';
-  document.getElementById('round-num').textContent = '?';
+  document.getElementById('mini-strip').innerHTML = '';
+  document.getElementById('spotlight-wrap').innerHTML = `<div class="waiting-txt" id="spotlight-wait">Laukiama kortelių…<br><span class="waiting-count" id="played-count">0</span> / <span id="total-count">?</span> žaidėjų pasirinko</div>`;
 });
 
 socket.on('card_played', ({ playerId, playerName, card, totalPlayed, totalPlayers }) => {
-  addPlayedCard(card, playerName);
-  document.getElementById('waiting-count-text').textContent =
-    totalPlayed >= totalPlayers
-      ? ''
-      : `${totalPlayed} / ${totalPlayers} cards played…`;
+  const pc = document.getElementById('played-count');
+  const tc = document.getElementById('total-count');
+  if (pc) pc.textContent = totalPlayed;
+  if (tc) tc.textContent = totalPlayers;
+  revealQueue.push({ card, playerName, playerId });
+  if (!isRevealing) processRevealQueue();
 });
 
-socket.on('round_results', ({ playedCards, players, round, maxRounds }) => {
-  document.getElementById('round-num').textContent = round;
-  document.getElementById('round-max').textContent = maxRounds;
-  showResults(playedCards, players, round, maxRounds);
+socket.on('start_voting', ({ playedCards, playOrder, players }) => {
+  renderVoting(playedCards, playOrder, players);
 });
 
-socket.on('game_over', ({ players }) => {
-  showGameOver(players);
+socket.on('vote_update', ({ totalVotes, totalPlayers }) => {
+  const el = document.getElementById('vote-count-txt');
+  if (el) el.textContent = `${totalVotes} / ${totalPlayers} balsavo`;
 });
 
-// ── actions ───────────────────────────────────────────────────────────────
+socket.on('round_results', ({ playedCards, playOrder, players, votes, round, maxRounds }) => {
+  showResults(playedCards, playOrder, players, votes, round, maxRounds);
+});
+
+socket.on('game_over', ({ players }) => { showGameOver(players); });
 
 function createRoom() {
   const name = document.getElementById('create-name').value.trim();
-  if (!name) { setError('create-error', 'Enter your name'); return; }
+  if (!name) { setError('create-error', 'Įvesk savo vardą'); return; }
   myName = name;
   document.getElementById('my-name-tag').textContent = name;
   socket.emit('create_room', { name });
@@ -495,15 +319,14 @@ function createRoom() {
 function joinRoom() {
   const name = document.getElementById('join-name').value.trim();
   const code = document.getElementById('join-code').value.trim().toUpperCase();
-  if (!name) { setError('join-error', 'Enter your name'); return; }
-  if (!code) { setError('join-error', 'Enter a room code'); return; }
+  if (!name) { setError('join-error', 'Įvesk savo vardą'); return; }
+  if (!code) { setError('join-error', 'Įvesk kambario kodą'); return; }
   myName = name;
   document.getElementById('my-name-tag').textContent = name;
   socket.emit('join_room', { name, code });
 }
 
 function startGame() { socket.emit('start_game'); }
-
 function nextRound() { socket.emit('next_round'); }
 
 function playCard() {
@@ -514,31 +337,79 @@ function playCard() {
   document.getElementById('played-notice').style.display = 'block';
 }
 
-// ── render helpers ────────────────────────────────────────────────────────
+function vote(votedFor) {
+  if (hasVoted) return;
+  hasVoted = true;
+  socket.emit('vote', { votedFor });
+  document.querySelectorAll('.vote-card').forEach(c => {
+    if (c.dataset.id === votedFor) c.classList.add('voted-this');
+    else c.classList.add('disabled');
+  });
+}
 
-function renderPlayerPills(players) {
+function processRevealQueue() {
+  if (revealQueue.length === 0) { isRevealing = false; return; }
+  isRevealing = true;
+  const item = revealQueue.shift();
+  const prevSpot = document.getElementById('current-spotlight');
+  if (prevSpot) {
+    prevSpot.classList.add('fly-out');
+    setTimeout(() => {
+      addToMiniStrip(prevSpot._card, prevSpot._playerName);
+      prevSpot.remove();
+      showSpotlight(item);
+    }, 300);
+  } else {
+    const wait = document.getElementById('spotlight-wait');
+    if (wait) wait.remove();
+    showSpotlight(item);
+  }
+}
+
+function showSpotlight(item) {
+  const wrap = document.getElementById('spotlight-wrap');
+  const el = document.createElement('div');
+  el.className = 'spotlight-card';
+  el.id = 'current-spotlight';
+  el._card = item.card;
+  el._playerName = item.playerName;
+  el.innerHTML = `<img src="${esc(item.card.url)}" alt="meme" onerror="this.src='https://placehold.co/440x340/1a1a24/888?text=?'"><div class="spotlight-player">${esc(item.playerName)}</div>`;
+  wrap.appendChild(el);
+  revealedCards.push(item);
+  setTimeout(() => processRevealQueue(), 2500);
+}
+
+function addToMiniStrip(card, playerName) {
+  const strip = document.getElementById('mini-strip');
+  const el = document.createElement('div');
+  el.className = 'mini-card';
+  el.innerHTML = `<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/70x70/1a1a24/888?text=?'"><div class="mini-name">${esc(playerName)}</div>`;
+  strip.appendChild(el);
+}
+
+function renderPills(players) {
   const wrap = document.getElementById('player-pills');
   wrap.innerHTML = '';
   Object.entries(players).forEach(([id, p]) => {
     const pill = document.createElement('div');
-    pill.className = 'player-pill';
-    pill.innerHTML = `<div class="dot"></div>${escHtml(p.name)}${id === myId ? ' <span class="host-badge">you</span>' : ''}`;
+    pill.className = 'pill';
+    pill.innerHTML = `<div class="dot"></div>${esc(p.name)}${id === myId ? '<span class="badge">tu</span>' : ''}`;
     wrap.appendChild(pill);
   });
 }
 
-function enterGameScreen(room) {
+function enterGame(room) {
   currentEvent = room.currentEvent;
   document.getElementById('round-num').textContent = room.round;
   document.getElementById('round-max').textContent = room.maxRounds;
   document.getElementById('event-text').textContent = room.currentEvent;
-  document.getElementById('results-event-text').textContent = room.currentEvent;
-  hasPlayed = false;
-  selectedCard = null;
-  document.getElementById('played-cards-grid').innerHTML = '';
-  document.getElementById('waiting-count-text').textContent = `0 / ${Object.keys(room.players).length} cards played…`;
+  revealQueue = []; revealedCards = []; isRevealing = false;
+  document.getElementById('mini-strip').innerHTML = '';
+  const playerCount = Object.keys(room.players).length;
+  document.getElementById('spotlight-wrap').innerHTML = `<div class="waiting-txt" id="spotlight-wait">Laukiama kortelių…<br><span class="waiting-count" id="played-count">0</span> / <span id="total-count">${playerCount}</span> žaidėjų pasirinko</div>`;
   document.getElementById('played-notice').style.display = 'none';
   document.getElementById('hand-area').style.display = 'block';
+  hasPlayed = false; selectedCard = null;
   renderHand();
   showScreen('screen-game');
 }
@@ -549,82 +420,83 @@ function renderHand() {
   myHand.forEach(card => {
     const el = document.createElement('div');
     el.className = 'hand-card';
-    el.dataset.id = card.id;
-    el.innerHTML = `<img src="${card.url}" alt="${escHtml(card.label)}" onerror="this.src='https://placehold.co/140x100/1a1a24/888?text=meme'"><div class="card-label">${escHtml(card.label)}</div>`;
-    el.onclick = () => selectCard(card, el);
+    el.innerHTML = `<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/155x155/1a1a24/888?text=?'">`;
+    el.onclick = () => {
+      if (hasPlayed) return;
+      selectedCard = card;
+      document.querySelectorAll('.hand-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('btn-play').disabled = false;
+    };
     grid.appendChild(el);
   });
   document.getElementById('btn-play').disabled = true;
 }
 
-function selectCard(card, el) {
-  if (hasPlayed) return;
-  selectedCard = card;
-  document.querySelectorAll('.hand-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('btn-play').disabled = false;
-}
-
-function addPlayedCard(card, playerName) {
-  const grid = document.getElementById('played-cards-grid');
-  const el = document.createElement('div');
-  el.className = 'played-card';
-  el.innerHTML = `<img src="${card.url}" alt="${escHtml(card.label)}" onerror="this.src='https://placehold.co/130x90/1a1a24/888?text=meme'"><div class="played-name">${escHtml(card.label)}</div><div class="played-by">${escHtml(playerName)}</div>`;
-  grid.appendChild(el);
-}
-
-function showResults(playedCards, players, round, maxRounds) {
-  document.getElementById('results-event-text').textContent = currentEvent;
-  const grid = document.getElementById('results-grid');
+function renderVoting(playedCards, playOrder, players) {
+  document.getElementById('voting-event-text').textContent = currentEvent;
+  const grid = document.getElementById('vote-grid');
   grid.innerHTML = '';
-  Object.entries(playedCards).forEach(([pid, card]) => {
-    const name = players[pid]?.name || 'Unknown';
+  hasVoted = false;
+  playOrder.forEach(pid => {
+    const card = playedCards[pid];
+    const name = players[pid]?.name || '?';
     const el = document.createElement('div');
-    el.className = 'result-card';
-    el.innerHTML = `<img src="${card.url}" alt="${escHtml(card.label)}" onerror="this.src='https://placehold.co/155x110/1a1a24/888?text=meme'"><div class="r-name">${escHtml(card.label)}</div><div class="r-player">${escHtml(name)}</div>`;
+    el.className = 'vote-card' + (pid === myId ? ' disabled' : '');
+    el.dataset.id = pid;
+    el.innerHTML = `<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/190x190/1a1a24/888?text=?'"><div class="vote-player">${esc(name)}</div>`;
+    el.onclick = () => vote(pid);
     grid.appendChild(el);
   });
+  document.getElementById('vote-count-txt').textContent = '';
+  showScreen('screen-voting');
+}
 
-  document.getElementById('results-subtext').textContent = `Round ${round} of ${maxRounds}`;
-
-  const isLastRound = round >= maxRounds;
+function showResults(playedCards, playOrder, players, votes, round, maxRounds) {
+  document.getElementById('results-event-text').textContent = currentEvent;
+  document.getElementById('results-sub').textContent = `Raundas ${round} iš ${maxRounds}`;
+  const grid = document.getElementById('results-grid');
+  grid.innerHTML = '';
+  const maxVotes = Math.max(0, ...Object.values(votes));
+  playOrder.forEach(pid => {
+    const card = playedCards[pid];
+    const name = players[pid]?.name || '?';
+    const voteCount = votes[pid] || 0;
+    const isWinner = voteCount === maxVotes && maxVotes > 0;
+    const el = document.createElement('div');
+    el.className = 'result-card' + (isWinner ? ' winner' : '');
+    el.innerHTML = `${isWinner ? '<div class="winner-crown">👑</div>' : ''}<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/190x190/1a1a24/888?text=?'"><div class="result-player">${esc(name)}</div><div class="result-votes">${voteCount} ${voteCount === 1 ? 'balsas' : 'balsai'} · ${players[pid]?.score ?? 0} tšk.</div>`;
+    grid.appendChild(el);
+  });
+  const isLast = round >= maxRounds;
   if (isHost) {
-    document.getElementById('btn-next-round').style.display = 'block';
-    document.getElementById('btn-next-round').textContent = isLastRound ? 'See Final Results 🏆' : 'Next Round →';
-    document.getElementById('results-waiting').style.display = 'none';
+    document.getElementById('btn-next').style.display = 'block';
+    document.getElementById('btn-next').textContent = isLast ? 'Galutiniai rezultatai 🏆' : 'Kitas raundas →';
+    document.getElementById('results-wait').style.display = 'none';
   } else {
-    document.getElementById('btn-next-round').style.display = 'none';
-    document.getElementById('results-waiting').style.display = 'block';
-    document.getElementById('results-waiting').textContent = isLastRound
-      ? 'Waiting for host to show results…'
-      : 'Waiting for host to start next round…';
+    document.getElementById('btn-next').style.display = 'none';
+    document.getElementById('results-wait').style.display = 'block';
   }
-
   showScreen('screen-results');
 }
 
 function showGameOver(players) {
   const sorted = Object.entries(players).sort((a, b) => b[1].score - a[1].score);
-  const medals = ['🥇', '🥈', '🥉'];
+  const medals = ['🥇','🥈','🥉'];
   const board = document.getElementById('scoreboard');
   board.innerHTML = '';
   sorted.forEach(([id, p], i) => {
     const row = document.createElement('div');
     row.className = 'score-row';
-    row.innerHTML = `<span class="rank">${medals[i] || (i + 1)}</span><span>${escHtml(p.name)}${id === myId ? ' <span class="host-badge">you</span>' : ''}</span><span class="pts">${p.score} pts</span>`;
+    row.innerHTML = `<span class="rank">${medals[i] || i+1}</span><span>${esc(p.name)}${id === myId ? '<span class="badge">tu</span>' : ''}</span><span class="pts">${p.score} tšk.</span>`;
     board.appendChild(row);
   });
   showScreen('screen-gameover');
 }
 
-function escHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-// ── enter key support ─────────────────────────────────────────────────────
 document.getElementById('create-name').addEventListener('keydown', e => { if (e.key === 'Enter') createRoom(); });
-document.getElementById('join-code').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
 document.getElementById('join-name').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
+document.getElementById('join-code').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
 </script>
 </body>
 </html>
