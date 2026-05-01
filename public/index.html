@@ -5,271 +5,268 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MemeReact 🃏</title>
 <script src="/socket.io/socket.io.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --cream: #f5f0e0;
-  --brown: #2b1a0e;
-  --orange: #e8621a;
-  --yellow: #f5c842;
-  --red: #c0392b;
-  --teal: #1a7a6e;
-  --paper: #ede8d5;
-  --ink: #1a1008;
+  --bg: #1a1208;
+  --surface: #241a0a;
+  --surface2: #2e2210;
+  --paper: #2a1e0c;
+  --border: #5a3e1a;
+  --text: #f0e6cc;
+  --muted: #8a7050;
+  --orange: #e8721a;
+  --orange-dim: #a04d10;
+  --yellow: #d4a820;
+  --teal: #1a8a78;
+  --teal-dim: #0f5a50;
+  --red: #c03020;
+  --ink: #f0e6cc;
   --stripe: repeating-linear-gradient(
-    -45deg,
-    transparent,
-    transparent 6px,
-    rgba(0,0,0,0.04) 6px,
-    rgba(0,0,0,0.04) 12px
+    -45deg, transparent, transparent 8px,
+    rgba(255,255,255,0.015) 8px, rgba(255,255,255,0.015) 16px
   );
 }
 
 body {
-  background: var(--cream);
+  background: var(--bg);
   background-image: var(--stripe);
-  color: var(--ink);
+  color: var(--text);
   font-family: 'Nunito', sans-serif;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow-x: hidden;
 }
 
-h1, h2, .logo, .code { font-family: 'Alfa Slab One', serif; }
+/* ── transition overlay ── */
+#transition-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle, #e8721a 0%, #1a1208 70%);
+  opacity: 0;
+}
+#transition-overlay.swirl-in {
+  animation: swirlIn 0.55s cubic-bezier(.4,0,.2,1) forwards;
+}
+#transition-overlay.swirl-out {
+  animation: swirlOut 0.55s cubic-bezier(.4,0,.2,1) forwards;
+}
+#transition-overlay .swirl-star {
+  font-size: 5rem;
+  opacity: 0;
+  transform: rotate(0deg) scale(0);
+}
+#transition-overlay.swirl-in .swirl-star {
+  animation: starSpin 0.55s ease forwards;
+}
+#transition-overlay.swirl-out .swirl-star {
+  animation: starSpinOut 0.55s ease forwards;
+}
+
+@keyframes swirlIn {
+  0%   { opacity: 0; clip-path: circle(0% at 50% 50%); }
+  100% { opacity: 1; clip-path: circle(150% at 50% 50%); }
+}
+@keyframes swirlOut {
+  0%   { opacity: 1; clip-path: circle(150% at 50% 50%); }
+  100% { opacity: 0; clip-path: circle(0% at 50% 50%); }
+}
+@keyframes starSpin {
+  0%   { opacity: 0; transform: rotate(0deg) scale(0); }
+  50%  { opacity: 1; transform: rotate(180deg) scale(1.3); }
+  100% { opacity: 0.5; transform: rotate(360deg) scale(1); }
+}
+@keyframes starSpinOut {
+  0%   { opacity: 0.5; transform: rotate(0deg) scale(1); }
+  100% { opacity: 0; transform: rotate(-360deg) scale(0); }
+}
+
+/* ── top rainbow bar ── */
+.retro-border {
+  width: 100%; height: 8px;
+  background: repeating-linear-gradient(90deg,
+    var(--orange) 0 20px, var(--yellow) 20px 40px,
+    var(--teal) 40px 60px, var(--red) 60px 80px);
+  position: fixed; top: 0; left: 0; z-index: 100;
+}
+body { padding-top: 8px; }
 
 /* ── screens ── */
 .screen { display: none; width: 100%; max-width: 720px; padding: 2rem 1rem 3rem; }
 .screen.active { display: flex; flex-direction: column; align-items: center; }
 
-/* ── retro top border ── */
-.retro-border {
-  width: 100%;
-  height: 10px;
-  background: repeating-linear-gradient(90deg, var(--orange) 0 20px, var(--yellow) 20px 40px, var(--teal) 40px 60px, var(--red) 60px 80px);
-  position: fixed; top: 0; left: 0; z-index: 100;
-}
-body { padding-top: 10px; }
-
 /* ── logo ── */
 .logo-wrap { text-align: center; margin-bottom: 2rem; margin-top: 1rem; }
 .logo {
-  font-size: 3.2rem;
+  font-family: 'Alfa Slab One', serif;
+  font-size: 3.4rem;
   color: var(--orange);
-  text-shadow: 4px 4px 0 var(--brown), 6px 6px 0 rgba(0,0,0,0.15);
-  letter-spacing: 2px;
-  line-height: 1;
+  text-shadow: 4px 4px 0 #000, 6px 6px 0 rgba(232,114,26,0.3);
+  letter-spacing: 3px; line-height: 1;
 }
 .logo span { color: var(--teal); }
 .tagline {
-  font-size: .95rem; color: var(--brown); margin-top: .4rem;
-  letter-spacing: .05em; font-weight: 700; text-transform: uppercase;
+  font-size: .85rem; color: var(--muted); margin-top: .5rem;
+  letter-spacing: .12em; font-weight: 700; text-transform: uppercase;
 }
 
-/* ── retro card box ── */
+/* ── retro box ── */
 .rbox {
   background: var(--paper);
-  border: 3px solid var(--brown);
-  border-radius: 4px;
-  box-shadow: 5px 5px 0 var(--brown);
+  border: 2px solid var(--border);
+  border-radius: 3px;
+  box-shadow: 5px 5px 0 #000, inset 0 0 0 1px rgba(255,255,255,0.04);
   padding: 1.75rem;
   width: 100%; max-width: 400px;
   margin-bottom: 1.25rem;
-  position: relative;
-}
-.rbox::before {
-  content: '';
-  position: absolute; top: 6px; left: 6px; right: -6px; bottom: -6px;
-  background: var(--brown); border-radius: 4px; z-index: -1;
 }
 .rbox h2 {
   font-family: 'Alfa Slab One', serif;
-  font-size: 1rem; color: var(--orange);
-  text-transform: uppercase; letter-spacing: .08em;
+  font-size: .95rem; color: var(--orange);
+  text-transform: uppercase; letter-spacing: .1em;
   margin-bottom: 1.25rem;
-  border-bottom: 2px dashed var(--brown);
+  border-bottom: 1px dashed var(--border);
   padding-bottom: .5rem;
 }
 
 input[type="text"], textarea {
   width: 100%;
-  background: #fff;
-  border: 2px solid var(--brown);
+  background: var(--surface2);
+  border: 2px solid var(--border);
   border-radius: 3px;
   padding: .7rem 1rem;
-  color: var(--ink);
+  color: var(--text);
   font-size: 1rem;
   font-family: 'Nunito', sans-serif;
+  font-weight: 600;
   margin-bottom: .75rem;
   outline: none;
   transition: border-color .2s, box-shadow .2s;
-  box-shadow: 2px 2px 0 var(--brown);
+  box-shadow: 2px 2px 0 #000;
 }
 input[type="text"]:focus, textarea:focus {
   border-color: var(--orange);
-  box-shadow: 2px 2px 0 var(--orange);
+  box-shadow: 2px 2px 0 var(--orange-dim);
 }
-input[type="text"]::placeholder, textarea::placeholder { color: #aaa; }
-textarea { resize: vertical; min-height: 80px; }
+input::placeholder, textarea::placeholder { color: var(--muted); }
+textarea { resize: vertical; min-height: 90px; }
 
 button {
-  cursor: pointer; border: 2px solid var(--brown);
+  cursor: pointer; border: 2px solid #000;
   border-radius: 3px; font-family: 'Nunito', sans-serif;
   font-size: .95rem; font-weight: 900;
   padding: .75rem 1.5rem;
-  transition: transform .1s, box-shadow .1s;
-  text-transform: uppercase; letter-spacing: .05em;
-  position: relative;
+  transition: transform .08s, box-shadow .08s;
+  text-transform: uppercase; letter-spacing: .06em;
 }
-button:active { transform: translate(2px, 2px); box-shadow: none !important; }
-button:disabled { opacity: .45; cursor: default; }
+button:active:not(:disabled) { transform: translate(2px, 2px) !important; box-shadow: none !important; }
+button:disabled { opacity: .4; cursor: default; }
 
-.btn-primary {
-  background: var(--orange); color: #fff; width: 100%;
-  box-shadow: 3px 3px 0 var(--brown);
-}
-.btn-primary:hover:not(:disabled) { box-shadow: 4px 4px 0 var(--brown); transform: translate(-1px,-1px); }
-
-.btn-secondary {
-  background: var(--teal); color: #fff; width: 100%;
-  box-shadow: 3px 3px 0 var(--brown);
-}
-.btn-secondary:hover:not(:disabled) { box-shadow: 4px 4px 0 var(--brown); transform: translate(-1px,-1px); }
-
-.btn-yellow {
-  background: var(--yellow); color: var(--brown); width: 100%;
-  box-shadow: 3px 3px 0 var(--brown);
-}
-.btn-yellow:hover:not(:disabled) { box-shadow: 4px 4px 0 var(--brown); transform: translate(-1px,-1px); }
-
-.btn-play {
-  background: var(--red); color: #fff;
-  padding: .85rem 2.5rem;
-  box-shadow: 3px 3px 0 var(--brown);
-  font-size: 1rem;
-}
-.btn-play:hover:not(:disabled) { box-shadow: 4px 4px 0 var(--brown); transform: translate(-1px,-1px); }
-
+.btn-primary { background: var(--orange); color: #fff; width: 100%; box-shadow: 4px 4px 0 #000; }
+.btn-primary:hover:not(:disabled) { box-shadow: 5px 5px 0 #000; transform: translate(-1px,-1px); }
+.btn-secondary { background: var(--teal); color: #fff; width: 100%; box-shadow: 4px 4px 0 #000; }
+.btn-secondary:hover:not(:disabled) { box-shadow: 5px 5px 0 #000; transform: translate(-1px,-1px); }
+.btn-play { background: var(--red); color: #fff; padding: .85rem 2.5rem; font-size: 1rem; box-shadow: 4px 4px 0 #000; }
+.btn-play:hover:not(:disabled) { box-shadow: 5px 5px 0 #000; transform: translate(-1px,-1px); }
 .btn-next {
-  background: var(--teal); color: #fff;
-  padding: .85rem 2.5rem; font-size: 1rem;
-  box-shadow: 3px 3px 0 var(--brown);
-  border: 2px solid var(--brown);
-  border-radius: 3px; cursor: pointer;
-  font-family: 'Nunito', sans-serif; font-weight: 900;
-  text-transform: uppercase; letter-spacing: .05em;
+  background: var(--teal); color: #fff; padding: .85rem 2.5rem; font-size: 1rem;
+  box-shadow: 4px 4px 0 #000; border: 2px solid #000; border-radius: 3px;
+  cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 900;
+  text-transform: uppercase; letter-spacing: .06em;
+  transition: transform .08s, box-shadow .08s;
 }
-.btn-next:hover { box-shadow: 4px 4px 0 var(--brown); transform: translate(-1px,-1px); }
+.btn-next:hover { box-shadow: 5px 5px 0 #000; transform: translate(-1px,-1px); }
+.btn-next:active { transform: translate(2px,2px); box-shadow: none; }
 
-.error-msg { color: var(--red); font-size: .85rem; margin-top: .5rem; min-height: 1.2rem; font-weight: 700; }
-.divider { color: var(--brown); font-size: .9rem; margin: .4rem 0; font-weight: 900; font-family: 'Alfa Slab One', serif; }
+.error-msg { color: #e05040; font-size: .85rem; margin-top: .5rem; min-height: 1.2rem; font-weight: 700; }
+.divider { color: var(--muted); font-size: .9rem; margin: .4rem 0; font-family: 'Alfa Slab One', serif; }
 
 /* ── lobby ── */
 #screen-lobby { gap: 1.25rem; }
 .code-display {
-  background: var(--orange); border: 3px solid var(--brown);
-  border-radius: 4px; box-shadow: 5px 5px 0 var(--brown);
-  padding: 1.5rem; width: 100%; text-align: center;
-  position: relative;
+  background: var(--orange-dim); border: 2px solid #000;
+  border-radius: 3px; box-shadow: 5px 5px 0 #000;
+  padding: 1.5rem; width: 100%; max-width: 400px; text-align: center;
 }
-.code-display::before {
-  content: ''; position: absolute; top: 6px; left: 6px; right: -6px; bottom: -6px;
-  background: var(--brown); border-radius: 4px; z-index: -1;
-}
-.code-display .lbl { font-size: .75rem; color: rgba(255,255,255,.8); text-transform: uppercase; letter-spacing: .1em; margin-bottom: .4rem; font-weight: 700; }
-.code-display .code { font-size: 3.5rem; color: #fff; letter-spacing: .2em; line-height: 1; text-shadow: 3px 3px 0 rgba(0,0,0,.2); }
-.code-display .hint { font-size: .8rem; color: rgba(255,255,255,.75); margin-top: .5rem; font-weight: 700; }
+.code-display .lbl { font-size: .7rem; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .12em; margin-bottom: .4rem; font-weight: 700; }
+.code-display .code { font-family: 'Alfa Slab One', serif; font-size: 3.5rem; color: #fff; letter-spacing: .2em; line-height: 1; text-shadow: 3px 3px 0 rgba(0,0,0,.4); }
+.code-display .hint { font-size: .75rem; color: rgba(255,255,255,.6); margin-top: .5rem; font-weight: 700; }
 
 .player-list {
-  background: var(--paper); border: 3px solid var(--brown);
-  border-radius: 4px; box-shadow: 5px 5px 0 var(--brown);
-  padding: 1.25rem 1.5rem; width: 100%;
-  position: relative;
-}
-.player-list::before {
-  content: ''; position: absolute; top: 6px; left: 6px; right: -6px; bottom: -6px;
-  background: var(--brown); border-radius: 4px; z-index: -1;
+  background: var(--paper); border: 2px solid var(--border);
+  border-radius: 3px; box-shadow: 5px 5px 0 #000;
+  padding: 1.25rem 1.5rem; width: 100%; max-width: 400px;
 }
 .player-list h3 { font-family: 'Alfa Slab One', serif; font-size: .85rem; color: var(--orange); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .75rem; }
 .pill {
   display: inline-flex; align-items: center; gap: .4rem;
-  background: var(--yellow); border: 2px solid var(--brown);
+  background: var(--surface2); border: 2px solid var(--border);
   border-radius: 3px; padding: .3rem .75rem; font-size: .9rem;
-  margin: .25rem; font-weight: 700; box-shadow: 2px 2px 0 var(--brown);
+  margin: .25rem; font-weight: 700; box-shadow: 2px 2px 0 #000;
+  color: var(--yellow);
 }
 .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); }
 .badge {
   display: inline-block; font-size: .65rem; background: var(--teal); color: #fff;
-  border: 1px solid var(--brown); border-radius: 2px; padding: .1rem .5rem;
+  border: 1px solid #000; border-radius: 2px; padding: .1rem .5rem;
   margin-left: .4rem; font-weight: 900; text-transform: uppercase;
 }
 
-/* ── submitting phase ── */
+/* ── submitting ── */
 #screen-submitting { gap: 1.25rem; }
 .submit-status {
-  background: var(--yellow); border: 3px solid var(--brown);
-  border-radius: 4px; box-shadow: 4px 4px 0 var(--brown);
+  background: var(--surface2); border: 2px solid var(--border);
+  border-radius: 3px; box-shadow: 3px 3px 0 #000;
   padding: .75rem 1.25rem; width: 100%; max-width: 400px;
-  text-align: center; font-weight: 700; font-size: .95rem;
-  position: relative;
+  text-align: center; font-weight: 700; font-size: .95rem; color: var(--yellow);
 }
 
 /* ── game bar ── */
 .game-bar {
   width: 100%; display: flex; justify-content: space-between; align-items: center;
   padding: .65rem 1.25rem;
-  background: var(--brown); color: var(--yellow);
+  background: #000; color: var(--yellow);
   font-family: 'Alfa Slab One', serif; font-size: .9rem;
   margin-bottom: 1.5rem; letter-spacing: .05em;
+  border-bottom: 2px solid var(--orange);
 }
 
 /* ── event box ── */
 .event-box {
-  background: var(--teal); border: 3px solid var(--brown);
-  border-radius: 4px; box-shadow: 5px 5px 0 var(--brown);
+  background: var(--teal-dim); border: 2px solid #000;
+  border-radius: 3px; box-shadow: 5px 5px 0 #000;
   padding: 1.5rem 1.75rem; width: 100%; margin-bottom: 1.5rem; text-align: center;
-  position: relative;
 }
-.event-box::before {
-  content: ''; position: absolute; top: 6px; left: 6px; right: -6px; bottom: -6px;
-  background: var(--brown); border-radius: 4px; z-index: -1;
-}
-.event-label {
-  font-size: .7rem; color: rgba(255,255,255,.7); text-transform: uppercase;
-  letter-spacing: .12em; margin-bottom: .6rem; font-weight: 700;
-}
-.event-text { font-size: 1.2rem; font-weight: 900; line-height: 1.5; color: #fff; font-family: 'Alfa Slab One', serif; }
-
-/* ── player event badge ── */
-.player-event-tag {
-  display: inline-block;
-  background: var(--orange); color: #fff;
-  font-size: .65rem; font-weight: 900; text-transform: uppercase;
-  letter-spacing: .08em; padding: .2rem .6rem;
-  border: 1px solid var(--brown); border-radius: 2px;
-  margin-bottom: .5rem;
+.event-label { font-size: .7rem; color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: .12em; margin-bottom: .6rem; font-weight: 700; }
+.event-text {
+  /* thinner, easier to read */
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.25rem; font-weight: 700;
+  line-height: 1.6; color: #fff;
+  letter-spacing: .01em;
 }
 
 /* ── spotlight ── */
 .spotlight-wrap {
   width: 100%; display: flex; flex-direction: column; align-items: center;
-  margin-bottom: 1rem; min-height: 360px; justify-content: center;
+  margin-bottom: 1rem; min-height: 370px; justify-content: center;
 }
 .spotlight-card {
-  background: var(--paper); border: 4px solid var(--brown);
-  border-radius: 4px; overflow: hidden;
+  background: var(--paper); border: 3px solid var(--border);
+  border-radius: 3px; overflow: hidden;
   width: 100%; max-width: 440px;
-  box-shadow: 8px 8px 0 var(--brown);
-  animation: cardFlyIn .45s cubic-bezier(.22,1,.36,1);
-  position: relative;
+  box-shadow: 8px 8px 0 #000;
+  animation: cardFlyIn .48s cubic-bezier(.22,1,.36,1);
 }
-.spotlight-card img { width: 100%; height: 340px; object-fit: cover; display: block; }
+.spotlight-card img { width: 100%; height: 350px; object-fit: cover; display: block; }
 .spotlight-player {
-  padding: .65rem 1rem; font-family: 'Alfa Slab One', serif;
+  padding: .7rem 1rem; font-family: 'Alfa Slab One', serif;
   font-size: 1.1rem; color: var(--orange); text-align: center;
-  background: var(--paper); border-top: 3px solid var(--brown);
-  text-shadow: 1px 1px 0 rgba(0,0,0,.1);
+  background: var(--paper); border-top: 2px solid var(--border);
 }
 
 @keyframes cardFlyIn {
@@ -277,32 +274,32 @@ button:disabled { opacity: .45; cursor: default; }
   to   { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
 }
 @keyframes cardFlyOut {
-  from { transform: translateY(0) scale(1); opacity: 1; }
-  to   { transform: translateY(-60px) scale(.8) rotate(4deg); opacity: 0; }
+  from { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+  to   { transform: translateY(-60px) scale(.8) rotate(5deg); opacity: 0; }
 }
 .fly-out { animation: cardFlyOut .3s ease forwards; }
 
 /* mini strip */
 .mini-strip { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-bottom: 1rem; width: 100%; }
-.mini-card { border-radius: 3px; overflow: hidden; border: 2px solid var(--brown); width: 70px; box-shadow: 2px 2px 0 var(--brown); }
+.mini-card { border-radius: 2px; overflow: hidden; border: 2px solid var(--border); width: 70px; box-shadow: 2px 2px 0 #000; }
 .mini-card img { width: 100%; height: 70px; object-fit: cover; display: block; }
-.mini-name { font-size: .6rem; color: var(--brown); padding: .2rem .3rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--yellow); font-weight: 700; }
+.mini-name { font-size: .6rem; color: var(--yellow); padding: .2rem .3rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--surface2); font-weight: 700; }
 
-.waiting-txt { font-size: .95rem; color: var(--brown); text-align: center; font-weight: 700; }
+.waiting-txt { font-size: .95rem; color: var(--muted); text-align: center; font-weight: 700; }
 .waiting-count { color: var(--orange); font-family: 'Alfa Slab One', serif; }
 
 /* ── hand ── */
 .hand-area { width: 100%; }
-.hand-label { font-family: 'Alfa Slab One', serif; font-size: .85rem; color: var(--brown); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .75rem; text-align: center; }
+.hand-label { font-family: 'Alfa Slab One', serif; font-size: .85rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .75rem; text-align: center; }
 .hand-grid { display: flex; flex-wrap: wrap; gap: .85rem; justify-content: center; margin-bottom: 1rem; }
 .hand-card {
-  background: var(--paper); border: 3px solid var(--brown);
+  background: var(--paper); border: 2px solid var(--border);
   border-radius: 3px; overflow: hidden; width: 155px;
-  cursor: pointer; box-shadow: 4px 4px 0 var(--brown);
-  transition: transform .15s, box-shadow .15s;
+  cursor: pointer; box-shadow: 4px 4px 0 #000;
+  transition: transform .15s, box-shadow .15s, border-color .15s;
 }
-.hand-card:hover { transform: translate(-2px,-4px) rotate(-1deg); box-shadow: 6px 8px 0 var(--brown); }
-.hand-card.selected { transform: translate(-2px,-6px) rotate(-2deg); box-shadow: 8px 10px 0 var(--orange); border-color: var(--orange); }
+.hand-card:hover { transform: translate(-2px,-5px) rotate(-1deg); box-shadow: 6px 9px 0 #000; border-color: var(--orange); }
+.hand-card.selected { transform: translate(-2px,-7px) rotate(-2deg); box-shadow: 8px 11px 0 var(--orange-dim); border-color: var(--orange); }
 .hand-card img { width: 100%; height: 155px; object-fit: cover; display: block; }
 
 .play-btn-wrap { text-align: center; margin-top: .5rem; }
@@ -312,65 +309,59 @@ button:disabled { opacity: .45; cursor: default; }
 #screen-voting { gap: 1.25rem; }
 .vote-grid { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; width: 100%; }
 .vote-card {
-  background: var(--paper); border: 3px solid var(--brown);
+  background: var(--paper); border: 2px solid var(--border);
   border-radius: 3px; overflow: hidden; width: 185px;
-  cursor: pointer; box-shadow: 4px 4px 0 var(--brown);
-  transition: transform .15s, box-shadow .15s; text-align: center;
+  cursor: pointer; box-shadow: 4px 4px 0 #000;
+  transition: transform .15s, box-shadow .15s, border-color .15s; text-align: center;
 }
-.vote-card:hover { transform: translate(-2px,-4px); box-shadow: 6px 8px 0 var(--brown); }
-.vote-card.voted-this { transform: translate(-2px,-6px); box-shadow: 8px 10px 0 var(--orange); border-color: var(--orange); }
-.vote-card.disabled { opacity: .35; pointer-events: none; }
+.vote-card:hover { transform: translate(-2px,-5px); box-shadow: 6px 9px 0 #000; border-color: var(--orange); }
+.vote-card.voted-this { transform: translate(-2px,-7px); box-shadow: 8px 11px 0 var(--orange-dim); border-color: var(--orange); }
+.vote-card.disabled { opacity: .3; pointer-events: none; }
 .vote-card img { width: 100%; height: 185px; object-fit: cover; display: block; }
-.vote-player { font-family: 'Alfa Slab One', serif; font-size: .95rem; color: var(--orange); padding: .55rem; border-top: 2px solid var(--brown); background: var(--paper); }
-.vote-count-txt { text-align: center; font-size: .9rem; color: var(--brown); font-weight: 700; }
+.vote-player { font-family: 'Alfa Slab One', serif; font-size: .95rem; color: var(--orange); padding: .55rem; border-top: 2px solid var(--border); background: var(--paper); }
+.vote-count-txt { text-align: center; font-size: .9rem; color: var(--muted); font-weight: 700; }
 
 /* ── results ── */
 #screen-results { gap: 1.25rem; }
 .results-grid { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; width: 100%; }
 .result-card {
-  background: var(--paper); border: 3px solid var(--brown);
+  background: var(--paper); border: 2px solid var(--border);
   border-radius: 3px; overflow: hidden; width: 185px;
-  text-align: center; box-shadow: 4px 4px 0 var(--brown);
+  text-align: center; box-shadow: 4px 4px 0 #000;
   animation: cardFlyIn .4s ease;
 }
 .result-card img { width: 100%; height: 185px; object-fit: cover; display: block; }
-.result-player { font-family: 'Alfa Slab One', serif; font-size: .95rem; color: var(--orange); padding: .45rem .5rem .1rem; border-top: 2px solid var(--brown); }
+.result-player { font-family: 'Alfa Slab One', serif; font-size: .95rem; color: var(--orange); padding: .45rem .5rem .1rem; border-top: 2px solid var(--border); }
 .result-votes { font-size: .8rem; color: var(--teal); padding: 0 .5rem .5rem; font-weight: 700; }
-.result-card.winner { border-color: var(--orange); box-shadow: 6px 6px 0 var(--orange); }
+.result-card.winner { border-color: var(--orange); box-shadow: 6px 6px 0 var(--orange-dim); }
 .winner-crown { font-size: 1.6rem; padding-top: .4rem; }
 
 /* ── gameover ── */
 #screen-gameover { gap: 1.25rem; text-align: center; }
-#screen-gameover h2 { font-family: 'Alfa Slab One', serif; font-size: 2.2rem; color: var(--orange); text-shadow: 3px 3px 0 var(--brown); }
+#screen-gameover h2 { font-family: 'Alfa Slab One', serif; font-size: 2.4rem; color: var(--orange); text-shadow: 4px 4px 0 #000; }
 .scoreboard {
-  background: var(--paper); border: 3px solid var(--brown);
-  border-radius: 4px; box-shadow: 5px 5px 0 var(--brown);
+  background: var(--paper); border: 2px solid var(--border);
+  border-radius: 3px; box-shadow: 5px 5px 0 #000;
   padding: 1.25rem 1.75rem; width: 100%; max-width: 380px;
-  position: relative;
 }
-.scoreboard::before {
-  content: ''; position: absolute; top: 6px; left: 6px; right: -6px; bottom: -6px;
-  background: var(--brown); border-radius: 4px; z-index: -1;
-}
-.score-row { display: flex; justify-content: space-between; align-items: center; padding: .6rem 0; border-bottom: 2px dashed var(--brown); font-size: .95rem; font-weight: 700; }
+.score-row { display: flex; justify-content: space-between; align-items: center; padding: .6rem 0; border-bottom: 1px dashed var(--border); font-size: .95rem; font-weight: 700; }
 .score-row:last-child { border-bottom: none; }
 .score-row .rank { font-family: 'Alfa Slab One', serif; color: var(--orange); min-width: 2.5rem; font-size: 1.1rem; }
 .score-row .pts { font-family: 'Alfa Slab One', serif; color: var(--teal); }
 
-/* ── section title ── */
-.section-title {
-  font-family: 'Alfa Slab One', serif; font-size: 1.4rem;
-  color: var(--brown); text-align: center; margin-bottom: .25rem;
-  text-shadow: 2px 2px 0 rgba(0,0,0,.08);
-}
-.section-sub { color: var(--brown); font-size: .9rem; text-align: center; margin-bottom: 1rem; font-weight: 700; opacity: .7; }
-
-/* ── decorative stars ── */
-.star-row { text-align: center; font-size: 1.2rem; letter-spacing: .5rem; margin-bottom: .5rem; color: var(--orange); }
+/* ── section titles ── */
+.section-title { font-family: 'Alfa Slab One', serif; font-size: 1.5rem; color: var(--orange); text-align: center; margin-bottom: .25rem; text-shadow: 2px 2px 0 #000; }
+.section-sub { color: var(--muted); font-size: .9rem; text-align: center; margin-bottom: 1rem; font-weight: 700; }
+.star-row { text-align: center; font-size: 1rem; letter-spacing: .6rem; margin-bottom: .5rem; color: var(--orange); opacity: .7; }
 </style>
 </head>
 <body>
 <div class="retro-border"></div>
+
+<!-- SWIRL OVERLAY -->
+<div id="transition-overlay">
+  <div class="swirl-star">✦</div>
+</div>
 
 <!-- HOME -->
 <div id="screen-home" class="screen active">
@@ -400,22 +391,22 @@ button:disabled { opacity: .45; cursor: default; }
   <div class="star-row">★ ★ ★</div>
   <div class="section-title">Kambarys</div>
   <div class="section-sub" style="margin-bottom:1.25rem">Pasidalink kodu su draugais</div>
-  <div class="code-display" style="max-width:400px;width:100%;margin-bottom:1.25rem">
+  <div class="code-display" style="margin-bottom:1.25rem">
     <div class="lbl">Kambario kodas</div>
     <div class="code" id="display-code">—</div>
     <div class="hint">Visi atidaro šį puslapį ir įveda kodą</div>
   </div>
-  <div class="player-list" style="max-width:400px">
+  <div class="player-list">
     <h3>Žaidėjai</h3>
     <div id="player-pills"></div>
   </div>
   <div style="max-width:400px;width:100%;margin-top:1rem">
     <button class="btn-primary" id="btn-start" onclick="startGame()" style="display:none">Pradėti žaidimą ▶</button>
-    <div id="lobby-wait" style="color:var(--brown);font-size:.9rem;text-align:center;font-weight:700">Laukiame šeimininko pradžios…</div>
+    <div id="lobby-wait" style="color:var(--muted);font-size:.9rem;text-align:center;font-weight:700">Laukiame šeimininko pradžios…</div>
   </div>
 </div>
 
-<!-- SUBMITTING EVENTS -->
+<!-- SUBMITTING -->
 <div id="screen-submitting" class="screen">
   <div class="star-row">★ ★ ★</div>
   <div class="section-title">Sugalvok situaciją!</div>
@@ -427,7 +418,7 @@ button:disabled { opacity: .45; cursor: default; }
     <div class="error-msg" id="submit-error"></div>
   </div>
   <div class="submit-status" id="submit-status">Laukiama visų žaidėjų…</div>
-  <div class="player-list" style="max-width:400px;margin-top:.5rem">
+  <div class="player-list" style="max-width:400px;margin-top:.75rem">
     <h3>Kas jau pateikė</h3>
     <div id="submit-pills"></div>
   </div>
@@ -437,10 +428,10 @@ button:disabled { opacity: .45; cursor: default; }
 <div id="screen-game" class="screen">
   <div class="game-bar">
     <span>Raundas <span id="round-num">1</span> / <span id="round-max">?</span></span>
-    <span id="my-name-tag"></span>
+    <span id="my-name-tag" style="color:var(--yellow)"></span>
   </div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="event-box" id="event-box">
+    <div class="event-box">
       <div class="event-label">⚡ Situacija</div>
       <div class="event-text" id="event-text">Kraunama…</div>
     </div>
@@ -484,7 +475,7 @@ button:disabled { opacity: .45; cursor: default; }
   <div class="results-grid" id="results-grid"></div>
   <div style="margin-top:1.25rem">
     <button class="btn-next" id="btn-next" onclick="nextRound()" style="display:none">Kitas raundas →</button>
-    <div id="results-wait" style="color:var(--brown);font-size:.9rem;font-weight:700">Laukiame šeimininko…</div>
+    <div id="results-wait" style="color:var(--muted);font-size:.9rem;font-weight:700">Laukiame šeimininko…</div>
   </div>
 </div>
 
@@ -498,84 +489,137 @@ button:disabled { opacity: .45; cursor: default; }
 </div>
 
 <script>
-// ── sounds (Web Audio API — no files needed) ──────────────────────────────
+// ── Audio ─────────────────────────────────────────────────────────────────
 const AC = new (window.AudioContext || window.webkitAudioContext)();
+document.addEventListener('click', () => { if (AC.state === 'suspended') AC.resume(); }, { once: true });
 
 function playSound(type) {
   try {
-    const g = AC.createGain();
-    g.connect(AC.destination);
-    const o = AC.createOscillator();
-    o.connect(g);
-
     if (type === 'click') {
-      o.type = 'square';
-      o.frequency.setValueAtTime(440, AC.currentTime);
-      o.frequency.exponentialRampToValueAtTime(220, AC.currentTime + 0.08);
-      g.gain.setValueAtTime(0.15, AC.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.1);
-      o.start(); o.stop(AC.currentTime + 0.1);
+      // soft wooden thock
+      const buf = AC.createBuffer(1, AC.sampleRate * 0.06, AC.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) {
+        d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (AC.sampleRate * 0.012));
+      }
+      const src = AC.createBufferSource();
+      const g = AC.createGain();
+      const f = AC.createBiquadFilter();
+      f.type = 'bandpass'; f.frequency.value = 600; f.Q.value = 1.5;
+      src.buffer = buf;
+      src.connect(f); f.connect(g); g.connect(AC.destination);
+      g.gain.setValueAtTime(0.4, AC.currentTime);
+      src.start(); src.stop(AC.currentTime + 0.06);
+
     } else if (type === 'card') {
-      o.type = 'triangle';
-      o.frequency.setValueAtTime(330, AC.currentTime);
-      o.frequency.exponentialRampToValueAtTime(660, AC.currentTime + 0.12);
-      g.gain.setValueAtTime(0.2, AC.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.18);
-      o.start(); o.stop(AC.currentTime + 0.18);
-    } else if (type === 'round') {
-      // fanfare — two notes
-      [0, 0.15].forEach((t, i) => {
-        const o2 = AC.createOscillator();
-        const g2 = AC.createGain();
-        o2.connect(g2); g2.connect(AC.destination);
-        o2.type = 'sawtooth';
-        o2.frequency.setValueAtTime(i === 0 ? 523 : 659, AC.currentTime + t);
-        g2.gain.setValueAtTime(0.18, AC.currentTime + t);
-        g2.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + t + 0.25);
-        o2.start(AC.currentTime + t); o2.stop(AC.currentTime + t + 0.25);
-      });
-      o.disconnect();
-    } else if (type === 'win') {
-      [0, 0.1, 0.2, 0.35].forEach((t, i) => {
-        const freqs = [523, 659, 784, 1047];
-        const o2 = AC.createOscillator();
-        const g2 = AC.createGain();
-        o2.connect(g2); g2.connect(AC.destination);
-        o2.type = 'triangle';
-        o2.frequency.setValueAtTime(freqs[i], AC.currentTime + t);
-        g2.gain.setValueAtTime(0.2, AC.currentTime + t);
-        g2.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + t + 0.3);
-        o2.start(AC.currentTime + t); o2.stop(AC.currentTime + t + 0.3);
-      });
-      o.disconnect();
-    } else if (type === 'vote') {
+      // smooth card whoosh + soft thud
+      const o = AC.createOscillator();
+      const g = AC.createGain();
+      const f = AC.createBiquadFilter();
+      f.type = 'lowpass'; f.frequency.value = 800;
+      o.connect(f); f.connect(g); g.connect(AC.destination);
       o.type = 'sine';
-      o.frequency.setValueAtTime(880, AC.currentTime);
-      o.frequency.exponentialRampToValueAtTime(440, AC.currentTime + 0.15);
-      g.gain.setValueAtTime(0.18, AC.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.18);
-      o.start(); o.stop(AC.currentTime + 0.18);
+      o.frequency.setValueAtTime(200, AC.currentTime);
+      o.frequency.exponentialRampToValueAtTime(80, AC.currentTime + 0.15);
+      g.gain.setValueAtTime(0.25, AC.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.2);
+      o.start(); o.stop(AC.currentTime + 0.2);
+
+    } else if (type === 'swirl') {
+      // rising swirly whoosh
+      const o = AC.createOscillator();
+      const g = AC.createGain();
+      const lfo = AC.createOscillator();
+      const lfoG = AC.createGain();
+      lfo.frequency.value = 8;
+      lfoG.gain.value = 60;
+      lfo.connect(lfoG); lfoG.connect(o.frequency);
+      o.connect(g); g.connect(AC.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(150, AC.currentTime);
+      o.frequency.exponentialRampToValueAtTime(800, AC.currentTime + 0.5);
+      g.gain.setValueAtTime(0.0, AC.currentTime);
+      g.gain.linearRampToValueAtTime(0.18, AC.currentTime + 0.15);
+      g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.55);
+      lfo.start(); lfo.stop(AC.currentTime + 0.55);
+      o.start(); o.stop(AC.currentTime + 0.55);
+
+    } else if (type === 'round') {
+      // warm bell chord
+      [[523, 0], [659, 0.08], [784, 0.16]].forEach(([freq, delay]) => {
+        const o = AC.createOscillator();
+        const g = AC.createGain();
+        o.connect(g); g.connect(AC.destination);
+        o.type = 'sine';
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.0, AC.currentTime + delay);
+        g.gain.linearRampToValueAtTime(0.15, AC.currentTime + delay + 0.04);
+        g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + delay + 0.6);
+        o.start(AC.currentTime + delay);
+        o.stop(AC.currentTime + delay + 0.65);
+      });
+
+    } else if (type === 'vote') {
+      // satisfying pop
+      const o = AC.createOscillator();
+      const g = AC.createGain();
+      o.connect(g); g.connect(AC.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(600, AC.currentTime);
+      o.frequency.exponentialRampToValueAtTime(300, AC.currentTime + 0.12);
+      g.gain.setValueAtTime(0.22, AC.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.15);
+      o.start(); o.stop(AC.currentTime + 0.15);
+
+    } else if (type === 'win') {
+      // triumphant arpeggio
+      [[523,0],[659,0.1],[784,0.2],[1047,0.32],[1319,0.44]].forEach(([freq,delay]) => {
+        const o = AC.createOscillator();
+        const g = AC.createGain();
+        o.connect(g); g.connect(AC.destination);
+        o.type = 'triangle';
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.0, AC.currentTime + delay);
+        g.gain.linearRampToValueAtTime(0.18, AC.currentTime + delay + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + delay + 0.5);
+        o.start(AC.currentTime + delay);
+        o.stop(AC.currentTime + delay + 0.55);
+      });
     }
   } catch(e) {}
 }
 
-// resume audio context on first interaction
-document.addEventListener('click', () => { if (AC.state === 'suspended') AC.resume(); }, { once: true });
+// ── Swirl transition ──────────────────────────────────────────────────────
+function swirlTo(screenId, callback) {
+  const overlay = document.getElementById('transition-overlay');
+  playSound('swirl');
+  overlay.className = 'swirl-in';
+  setTimeout(() => {
+    if (callback) callback();
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    window.scrollTo(0, 0);
+    overlay.className = 'swirl-out';
+    setTimeout(() => { overlay.className = ''; }, 560);
+  }, 280);
+}
 
-// ── socket ────────────────────────────────────────────────────────────────
+function showScreen(id, animate) {
+  if (animate) { swirlTo(id); return; }
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function setError(id, msg) { document.getElementById(id).textContent = msg; }
+function esc(s) { return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ── Socket ────────────────────────────────────────────────────────────────
 const socket = io();
 let myId = null, myName = '', myHand = [], selectedCard = null;
 let isHost = false, currentEvent = '', hasPlayed = false, hasVoted = false;
 let revealQueue = [], isRevealing = false, revealedCards = [];
 let hasSubmittedEvent = false;
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0, 0);
-}
-function setError(id, msg) { document.getElementById(id).textContent = msg; }
-function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 socket.on('connect', () => { myId = socket.id; });
 socket.on('error', msg => { setError('join-error', msg); setError('create-error', msg); });
@@ -584,7 +628,7 @@ socket.on('room_joined', ({ code, hand, isHost: host }) => {
   isHost = host;
   myHand = hand;
   document.getElementById('display-code').textContent = code;
-  showScreen('screen-lobby');
+  showScreen('screen-lobby', true);
 });
 
 socket.on('room_update', room => {
@@ -600,8 +644,8 @@ socket.on('room_update', room => {
 
   if (room.phase === 'submitting') {
     renderSubmitPills(room.players, room.submittedCount, count);
-    if (document.getElementById('screen-submitting').classList.contains('active') === false) {
-      showScreen('screen-submitting');
+    if (!document.getElementById('screen-submitting').classList.contains('active')) {
+      showScreen('screen-submitting', true);
     }
   }
 
@@ -647,7 +691,7 @@ socket.on('game_over', ({ players }) => {
   showGameOver(players);
 });
 
-// ── actions ───────────────────────────────────────────────────────────────
+// ── Actions ───────────────────────────────────────────────────────────────
 
 function createRoom() {
   playSound('click');
@@ -669,27 +713,21 @@ function joinRoom() {
   socket.emit('join_room', { name, code });
 }
 
-function startGame() {
-  playSound('click');
-  socket.emit('start_game');
-}
+function startGame() { playSound('click'); socket.emit('start_game'); }
 
 function submitEvent() {
-  playSound('click');
   if (hasSubmittedEvent) return;
   const val = document.getElementById('event-input').value.trim();
   if (!val) { setError('submit-error', 'Parašyk situaciją!'); return; }
-  if (val.length < 10) { setError('submit-error', 'Per trumpa! Parašyk daugiau.'); return; }
+  if (val.length < 5) { setError('submit-error', 'Per trumpa!'); return; }
+  playSound('swirl');
   hasSubmittedEvent = true;
   document.getElementById('btn-submit-event').disabled = true;
   document.getElementById('btn-submit-event').textContent = '✓ Pateikta!';
   socket.emit('submit_event', { event: val });
 }
 
-function nextRound() {
-  playSound('click');
-  socket.emit('next_round');
-}
+function nextRound() { playSound('click'); socket.emit('next_round'); }
 
 function playCard() {
   if (!selectedCard || hasPlayed) return;
@@ -711,20 +749,16 @@ function vote(votedFor) {
   });
 }
 
-// ── sequential reveal ─────────────────────────────────────────────────────
+// ── Reveal ────────────────────────────────────────────────────────────────
 
 function processRevealQueue() {
   if (revealQueue.length === 0) { isRevealing = false; return; }
   isRevealing = true;
   const item = revealQueue.shift();
-  const prevSpot = document.getElementById('current-spotlight');
-  if (prevSpot) {
-    prevSpot.classList.add('fly-out');
-    setTimeout(() => {
-      addToMiniStrip(prevSpot._card, prevSpot._playerName);
-      prevSpot.remove();
-      showSpotlight(item);
-    }, 300);
+  const prev = document.getElementById('current-spotlight');
+  if (prev) {
+    prev.classList.add('fly-out');
+    setTimeout(() => { addToMiniStrip(prev._card, prev._playerName); prev.remove(); showSpotlight(item); }, 300);
   } else {
     const wait = document.getElementById('spotlight-wait');
     if (wait) wait.remove();
@@ -740,7 +774,7 @@ function showSpotlight(item) {
   el.id = 'current-spotlight';
   el._card = item.card;
   el._playerName = item.playerName;
-  el.innerHTML = `<img src="${esc(item.card.url)}" alt="meme" onerror="this.src='https://placehold.co/440x340/ede8d5/2b1a0e?text=?'"><div class="spotlight-player">${esc(item.playerName)}</div>`;
+  el.innerHTML = `<img src="${esc(item.card.url)}" alt="meme" onerror="this.src='https://placehold.co/440x350/2a1e0c/5a3e1a?text=?'"><div class="spotlight-player">${esc(item.playerName)}</div>`;
   wrap.appendChild(el);
   revealedCards.push(item);
   setTimeout(() => processRevealQueue(), 2500);
@@ -750,11 +784,11 @@ function addToMiniStrip(card, playerName) {
   const strip = document.getElementById('mini-strip');
   const el = document.createElement('div');
   el.className = 'mini-card';
-  el.innerHTML = `<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/70x70/ede8d5/2b1a0e?text=?'"><div class="mini-name">${esc(playerName)}</div>`;
+  el.innerHTML = `<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/70x70/2a1e0c/5a3e1a?text=?'"><div class="mini-name">${esc(playerName)}</div>`;
   strip.appendChild(el);
 }
 
-// ── render ────────────────────────────────────────────────────────────────
+// ── Render ────────────────────────────────────────────────────────────────
 
 function renderPills(players) {
   const wrap = document.getElementById('player-pills');
@@ -776,9 +810,9 @@ function renderSubmitPills(players, submittedCount, total) {
     const done = p.hasSubmitted;
     const pill = document.createElement('div');
     pill.className = 'pill';
-    pill.style.background = done ? 'var(--teal)' : 'var(--yellow)';
-    pill.style.color = done ? '#fff' : 'var(--brown)';
-    pill.innerHTML = `<div class="dot" style="background:${done ? '#fff' : 'var(--orange)'}"></div>${esc(p.name)} ${done ? '✓' : '…'}`;
+    pill.style.borderColor = done ? 'var(--teal)' : 'var(--border)';
+    pill.style.color = done ? 'var(--teal)' : 'var(--muted)';
+    pill.innerHTML = `<div class="dot" style="background:${done ? 'var(--teal)' : 'var(--muted)'}"></div>${esc(p.name)} ${done ? '✓' : '…'}`;
     wrap.appendChild(pill);
   });
   const status = document.getElementById('submit-status');
@@ -798,7 +832,7 @@ function enterGame(room) {
   document.getElementById('hand-area').style.display = 'block';
   hasPlayed = false; selectedCard = null;
   renderHand();
-  showScreen('screen-game');
+  showScreen('screen-game', true);
 }
 
 function renderHand() {
@@ -807,7 +841,7 @@ function renderHand() {
   myHand.forEach(card => {
     const el = document.createElement('div');
     el.className = 'hand-card';
-    el.innerHTML = `<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/155x155/ede8d5/2b1a0e?text=?'">`;
+    el.innerHTML = `<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/155x155/2a1e0c/5a3e1a?text=?'">`;
     el.onclick = () => {
       if (hasPlayed) return;
       playSound('click');
@@ -832,12 +866,12 @@ function renderVoting(playedCards, playOrder, players) {
     const el = document.createElement('div');
     el.className = 'vote-card' + (pid === myId ? ' disabled' : '');
     el.dataset.id = pid;
-    el.innerHTML = `<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/185x185/ede8d5/2b1a0e?text=?'"><div class="vote-player">${esc(name)}</div>`;
+    el.innerHTML = `<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/185x185/2a1e0c/5a3e1a?text=?'"><div class="vote-player">${esc(name)}</div>`;
     el.onclick = () => vote(pid);
     grid.appendChild(el);
   });
   document.getElementById('vote-count-txt').textContent = '';
-  showScreen('screen-voting');
+  showScreen('screen-voting', true);
 }
 
 function showResults(playedCards, playOrder, players, votes, round, maxRounds) {
@@ -853,7 +887,7 @@ function showResults(playedCards, playOrder, players, votes, round, maxRounds) {
     const isWinner = voteCount === maxVotes && maxVotes > 0;
     const el = document.createElement('div');
     el.className = 'result-card' + (isWinner ? ' winner' : '');
-    el.innerHTML = `${isWinner ? '<div class="winner-crown">👑</div>' : ''}<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/185x185/ede8d5/2b1a0e?text=?'"><div class="result-player">${esc(name)}</div><div class="result-votes">${voteCount} ${voteCount === 1 ? 'balsas' : 'balsai'} · ${players[pid]?.score ?? 0} tšk.</div>`;
+    el.innerHTML = `${isWinner ? '<div class="winner-crown">👑</div>' : ''}<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/185x185/2a1e0c/5a3e1a?text=?'"><div class="result-player">${esc(name)}</div><div class="result-votes">${voteCount} ${voteCount === 1 ? 'balsas' : 'balsai'} · ${players[pid]?.score ?? 0} tšk.</div>`;
     grid.appendChild(el);
   });
   const isLast = round >= maxRounds;
@@ -865,7 +899,7 @@ function showResults(playedCards, playOrder, players, votes, round, maxRounds) {
     document.getElementById('btn-next').style.display = 'none';
     document.getElementById('results-wait').style.display = 'block';
   }
-  showScreen('screen-results');
+  showScreen('screen-results', true);
 }
 
 function showGameOver(players) {
@@ -879,13 +913,13 @@ function showGameOver(players) {
     row.innerHTML = `<span class="rank">${medals[i] || i+1}</span><span>${esc(p.name)}${id === myId ? '<span class="badge">tu</span>' : ''}</span><span class="pts">${p.score} tšk.</span>`;
     board.appendChild(row);
   });
-  showScreen('screen-gameover');
+  showScreen('screen-gameover', true);
 }
 
-document.getElementById('create-name').addEventListener('keydown', e => { if (e.key === 'Enter') createRoom(); });
-document.getElementById('join-name').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
-document.getElementById('join-code').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
-document.getElementById('event-input').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitEvent(); } });
+document.getElementById('create-name').addEventListener('keydown', e => { if (e.key==='Enter') createRoom(); });
+document.getElementById('join-name').addEventListener('keydown', e => { if (e.key==='Enter') joinRoom(); });
+document.getElementById('join-code').addEventListener('keydown', e => { if (e.key==='Enter') joinRoom(); });
+document.getElementById('event-input').addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); submitEvent(); } });
 </script>
 </body>
 </html>
