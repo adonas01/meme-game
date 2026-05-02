@@ -314,9 +314,9 @@ button:disabled{opacity:.4;cursor:default;}
     <div class="caption-img-wrap" id="caption-img-wrap">
       <img id="caption-img" src="" alt="meme">
     </div>
-    <div class="caption-text-build" id="caption-build">Aš kai...</div>
+    <div class="caption-text-build" id="caption-build">…</div>
     <div id="caption-your-turn" class="caption-your-turn" style="display:none">
-      ✏️ Tavo eilė! Pridėk 2-3 žodžius (baik žodžiu: <strong>jeigu / ir / tada / kaip / dėl to</strong>)
+      <span id="caption-hint"></span>
       <div style="margin-top:.75rem;display:flex;gap:.5rem">
         <input type="text" id="caption-input" placeholder="tavo žodžiai..." maxlength="40" style="flex:1;margin-bottom:0">
         <button class="btn-p" style="width:auto" onclick="submitCaption()">Pridėti</button>
@@ -580,7 +580,7 @@ socket.on('minigame_start', ({type,image,order,players})=>{
   playSound('mg');
   if(type==='caption'){
     document.getElementById('caption-img').src=image.url;
-    document.getElementById('caption-build').textContent='Aš kai...';
+    document.getElementById('caption-build').textContent='…';
     document.getElementById('caption-your-turn').style.display='none';
     document.getElementById('caption-wait').textContent='';
     document.getElementById('mg-name-tag').textContent=myName;
@@ -608,15 +608,32 @@ socket.on('reaction_progress', ({done,total})=>{
 });
 
 socket.on('caption_update', ({parts,currentIdx,captionOrder,players})=>{
-  // update build text
   const buildEl=document.getElementById('caption-build');
-  const fullText='Aš kai... ' + parts.map(p=>p.text).join(' ');
-  buildEl.innerHTML='Aš kai... ' + parts.map((p,i)=>`<span class="caption-part${i===parts.length-1?' new':''}">${esc(p.text)} </span>`).join('');
+  if(parts.length===0){
+    buildEl.textContent='…';
+  } else {
+    buildEl.innerHTML=parts.map((p,i)=>`<span class="caption-part${i===parts.length-1?' new':''}">${esc(p.text)} </span>`).join('');
+  }
 
   const myTurn = captionOrder[currentIdx]===myId;
   const done = currentIdx>=captionOrder.length;
+  const isFirst = currentIdx===0;
+  const isLast = currentIdx===captionOrder.length-1;
+
   document.getElementById('caption-your-turn').style.display=(!done&&myTurn)?'flex':'none';
   document.getElementById('caption-your-turn').style.flexDirection='column';
+
+  if(!done && myTurn) {
+    const hint = document.getElementById('caption-hint');
+    if(isFirst) {
+      hint.innerHTML='✏️ Tavo eilė — pradėk sakinį! (2-3 žodžiai, baik žodžiu: <strong>jeigu / ir / tada / kaip / dėl to</strong>)';
+    } else if(isLast) {
+      hint.innerHTML='✏️ Tavo eilė — užbaik sakinį! (2-3 žodžiai, galima baigti kaip nori)';
+    } else {
+      hint.innerHTML='✏️ Tavo eilė! Pridėk 2-3 žodžius (baik žodžiu: <strong>jeigu / ir / tada / kaip / dėl to</strong>)';
+    }
+    document.getElementById('caption-input').focus();
+  }
 
   if(!done&&!myTurn){
     const name=players[captionOrder[currentIdx]]?.name||'?';
@@ -624,14 +641,11 @@ socket.on('caption_update', ({parts,currentIdx,captionOrder,players})=>{
   } else {
     document.getElementById('caption-wait').textContent='';
   }
-  if(myTurn && !done) {
-    document.getElementById('caption-input').focus();
-  }
 });
 
 socket.on('caption_reveal', ({image,parts,players})=>{
   document.getElementById('reveal-caption-img').src=image.url;
-  const fullText='Aš kai... ' + parts.map(p=>`<strong>${esc(p.text)}</strong>`).join(' ');
+  const fullText=parts.map(p=>`<strong>${esc(p.text)}</strong>`).join(' ');
   document.getElementById('reveal-caption-text').innerHTML=fullText;
   if(isHost){
     document.getElementById('btn-caption-done').style.display='block';
