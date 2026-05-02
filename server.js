@@ -302,8 +302,16 @@ io.on('connection', socket => {
       const mgType = Math.floor(room.minigameRound / 2) % 2 === 1 ? 'caption' : 'reaction';
       if (mgType === 'caption') {
         startCaptionMinigame(room);
-        io.to(code).emit('minigame_start', { type: 'caption', image: room.captionImage, order: room.captionOrder,
-          players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}])) });
+        const captionPlayers = Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}]));
+        io.to(code).emit('minigame_start', { type: 'caption', image: room.captionImage, order: room.captionOrder, players: captionPlayers });
+        // immediately tell everyone whose turn it is
+        setTimeout(() => {
+          io.to(code).emit('caption_update', {
+            parts: [], currentIdx: 0,
+            captionOrder: room.captionOrder,
+            players: captionPlayers,
+          });
+        }, 800);
       } else {
         startReactionMinigame(room);
         // send each player their private image
