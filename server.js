@@ -8,7 +8,17 @@ const server = http.createServer(app);
 const io = new Server(server);
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ── Preset events ──────────────────────────────────────────────────────────
+// ── Themes for situation writing ───────────────────────────────────────────
+const THEMES = [
+  "🍕 Maistas", "👃 Kvapas", "💪 Smurtas", "🚿 Higiena", "🐛 Vabzdžiai",
+  "👴 Seni žmonės", "🚌 Viešasis transportas", "🏥 Ligoninė", "💩 Tualetas",
+  "👗 Apranga", "🐶 Gyvūnai", "🌙 Naktis", "🏖️ Paplūdimys", "🍺 Alkoholis",
+  "💔 Meilė", "👻 Baimė", "🎓 Mokykla", "💼 Darbas", "🛒 Parduotuvė",
+  "🚗 Automobilis", "📱 Telefonas", "🎉 Vakarėlis", "🏋️ Sportas", "💰 Pinigai",
+  "🌧️ Oras", "🍄 Grybai", "🔊 Garsas", "👁️ Regėjimas", "🕷️ Vorai",
+  "🧓 Kaimynai",
+];
+
 const PRESET_EVENTS = [
   "Tau ant galvos atsisėdo storas senis...",
   "Prie tavęs verkia tavo geriausias draugas...",
@@ -64,390 +74,465 @@ const PRESET_EVENTS = [
   "Pažiuri į dangu ir matai kaip iš lėktuvo krenta gyvuliai...",
 ];
 
-// ── Meme cards (192 images) ────────────────────────────────────────────────
-const MEME_CARDS = Array.from({length: 192}, (_, i) => ({ id: i+1, url: `/images/me${i+1}.png` }));
+const MEME_CARDS = Array.from({length:192},(_,i)=>({id:i+1,url:`/images/me${i+1}.png`}));
 
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length-1; i > 0; i--) {
-    const j = Math.floor(Math.random()*(i+1));
-    [a[i],a[j]] = [a[j],a[i]];
-  }
-  return a;
-}
-function dealCards(n=4) { return shuffle(MEME_CARDS).slice(0,n); }
-function randomCard() { return MEME_CARDS[Math.floor(Math.random()*MEME_CARDS.length)]; }
-function numericCode() { return String(Math.floor(10000+Math.random()*90000)); }
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function dealCards(n=4){return shuffle(MEME_CARDS).slice(0,n);}
+function randomCard(){return MEME_CARDS[Math.floor(Math.random()*MEME_CARDS.length)];}
+function numericCode(){return String(Math.floor(10000+Math.random()*90000));}
+function pickThemes(n=2){return shuffle(THEMES).slice(0,n);}
 
-// ── Room ───────────────────────────────────────────────────────────────────
 const rooms = {};
+const roomTimers = {}; // code -> timeout handle
 
-function createRoom(code) {
-  return {
-    code,
-    players: {},           // id -> {name,score,hand}
-    hostId: null,
-    phase: 'lobby',
-    baseRounds: 3,         // host-set default
-    round: 0,
-    maxRounds: 0,
-    eventDeck: [],
-    currentEvent: null,
-    playedCards: {},
-    playOrder: [],
-    votes: {},
-    playerEvents: {},      // id -> [ev1, ev2]
-    submittedCount: 0,
-    // minigame state
-    minigameType: null,    // 'caption' | 'reaction'
-    minigameRound: 0,      // counts normal rounds to know when to trigger minigame
-    // caption chain
-    captionImage: null,
-    captionOrder: [],
-    captionParts: [],
-    captionCurrentIdx: 0,
-    // reaction description
-    reactionAssignments: {},  // id -> card
-    reactionTexts: {},        // id -> text
-    reactionOrder: [],
-    reactionRevealIdx: 0,
-  };
+function clearRoomTimer(code){
+  if(roomTimers[code]){ clearTimeout(roomTimers[code]); delete roomTimers[code]; }
+}
+function setRoomTimer(code, ms, cb){
+  clearRoomTimer(code);
+  roomTimers[code] = setTimeout(cb, ms);
 }
 
-function getPublicRoom(room) {
+function createRoom(code){
   return {
-    code: room.code,
-    phase: room.phase,
-    round: room.round,
-    maxRounds: room.maxRounds,
-    baseRounds: room.baseRounds,
-    currentEvent: room.currentEvent,
-    playedCards: room.playedCards,
-    playOrder: room.playOrder,
-    submittedCount: room.submittedCount,
-    hostId: room.hostId,
-    minigameType: room.minigameType,
+    code, players:{}, hostId:null,
+    phase:'lobby',
+    baseRounds:3, round:0, maxRounds:0,
+    eventDeck:[], currentEvent:null,
+    playedCards:{}, playOrder:[], votes:{},
+    playerEvents:{}, submittedCount:0,
+    themes:[],
+    // minigame scheduling: caption shows more (weight 2)
+    minigameRound:0,
+    mgQueue:[], // pre-shuffled queue of minigame types
     // caption
-    captionImage: room.captionImage,
-    captionParts: room.captionParts,
-    captionCurrentIdx: room.captionCurrentIdx,
-    captionOrder: room.captionOrder,
+    captionImage:null, captionOrder:[], captionParts:[], captionCurrentIdx:0,
     // reaction
-    reactionOrder: room.reactionOrder,
-    reactionRevealIdx: room.reactionRevealIdx,
-    players: Object.fromEntries(
-      Object.entries(room.players).map(([id,p]) => [id, {
-        name: p.name, score: p.score,
-        hasPlayed: !!room.playedCards[id],
-        hasSubmitted: !!(room.playerEvents[id] && room.playerEvents[id].length === 2),
-      }])
-    ),
+    reactionAssignments:{}, reactionTexts:{}, reactionOrder:[], reactionRevealIdx:0,
+    // this-or-that
+    totItems:[], totCurrentIdx:0, totVotes:{}, totResults:[],
   };
 }
 
-function buildEventDeck(room) {
-  const playerEvs = Object.values(room.playerEvents).flat();
-  const playerCount = Object.keys(room.players).length;
-  const needed = room.baseRounds;
-  const presets = shuffle(PRESET_EVENTS).slice(0, Math.max(0, needed - playerEvs.length));
-  room.eventDeck = shuffle([...presets, ...playerEvs]);
-  room.maxRounds = room.eventDeck.length;
+function buildMgQueue(){
+  // caption appears twice as often as others
+  return shuffle(['caption','caption','reaction','thisorthat']);
 }
 
-function nextNormalRound(room) {
+function getPublicRoom(room){
+  return {
+    code:room.code, phase:room.phase, round:room.round, maxRounds:room.maxRounds,
+    baseRounds:room.baseRounds, currentEvent:room.currentEvent,
+    playedCards:room.playedCards, playOrder:room.playOrder,
+    submittedCount:room.submittedCount, hostId:room.hostId,
+    themes:room.themes,
+    captionImage:room.captionImage, captionParts:room.captionParts,
+    captionCurrentIdx:room.captionCurrentIdx, captionOrder:room.captionOrder,
+    reactionOrder:room.reactionOrder, reactionRevealIdx:room.reactionRevealIdx,
+    totCurrentIdx:room.totCurrentIdx,
+    players:Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{
+      name:p.name, score:p.score,
+      hasPlayed:!!room.playedCards[id],
+      hasSubmitted:!!(room.playerEvents[id]&&room.playerEvents[id].length===2),
+    }])),
+  };
+}
+
+function buildEventDeck(room){
+  const playerEvs=Object.values(room.playerEvents).flat();
+  const needed=room.baseRounds;
+  const presets=shuffle(PRESET_EVENTS).slice(0,Math.max(0,needed-playerEvs.length));
+  room.eventDeck=shuffle([...presets,...playerEvs]);
+  room.maxRounds=room.eventDeck.length;
+  room.mgQueue=buildMgQueue();
+}
+
+function nextNormalRound(room){
   room.round++;
   room.minigameRound++;
-  room.playedCards = {};
-  room.playOrder = [];
-  room.votes = {};
-  room.phase = 'playing';
-  room.currentEvent = room.eventDeck[(room.round-1) % room.eventDeck.length];
-  Object.values(room.players).forEach(p => { p.hand = dealCards(4); });
+  room.playedCards={}; room.playOrder=[]; room.votes={};
+  room.phase='playing';
+  room.currentEvent=room.eventDeck[(room.round-1)%room.eventDeck.length];
+  Object.values(room.players).forEach(p=>{p.hand=dealCards(4);});
 }
 
-// ── Minigame helpers ───────────────────────────────────────────────────────
-function startCaptionMinigame(room) {
-  room.phase = 'minigame_caption';
-  room.minigameType = 'caption';
-  room.captionImage = randomCard();
-  room.captionOrder = shuffle(Object.keys(room.players));
-  room.captionParts = [];
-  room.captionCurrentIdx = 0;
+// ── Caption ────────────────────────────────────────────────────────────────
+function startCaptionMinigame(room){
+  room.phase='minigame_caption';
+  room.captionImage=randomCard();
+  room.captionOrder=shuffle(Object.keys(room.players));
+  room.captionParts=[];
+  room.captionCurrentIdx=0;
 }
 
-function startReactionMinigame(room) {
-  room.phase = 'minigame_reaction_write';
-  room.minigameType = 'reaction';
-  room.reactionTexts = {};
-  room.reactionOrder = Object.keys(room.players);
-  room.reactionRevealIdx = 0;
-  // assign each player a unique random card
-  const cards = shuffle(MEME_CARDS);
-  room.reactionAssignments = {};
-  room.reactionOrder.forEach((id, i) => {
-    room.reactionAssignments[id] = cards[i % cards.length];
+function advanceCaptionTurn(room){
+  const code=room.code;
+  clearRoomTimer(code);
+  // auto-submit blank if timer runs out
+  setRoomTimer(code, 20000, ()=>{
+    if(room.phase!=='minigame_caption') return;
+    const pid=room.captionOrder[room.captionCurrentIdx];
+    room.captionParts.push({playerId:pid, playerName:room.players[pid]?.name||'?', text:'...'});
+    room.captionCurrentIdx++;
+    const playerMap=Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}]));
+    io.to(code).emit('caption_update',{parts:room.captionParts,currentIdx:room.captionCurrentIdx,captionOrder:room.captionOrder,players:playerMap,timeLeft:20});
+    if(room.captionCurrentIdx>=room.captionOrder.length){
+      room.phase='minigame_caption_reveal';
+      setTimeout(()=>io.to(code).emit('caption_reveal',{image:room.captionImage,parts:room.captionParts,players:playerMap}),800);
+    } else {
+      advanceCaptionTurn(room);
+    }
   });
+}
+
+// ── Reaction ───────────────────────────────────────────────────────────────
+function startReactionMinigame(room){
+  room.phase='minigame_reaction_write';
+  room.reactionTexts={}; room.reactionRevealIdx=0;
+  room.reactionOrder=Object.keys(room.players);
+  const cards=shuffle(MEME_CARDS);
+  room.reactionAssignments={};
+  room.reactionOrder.forEach((id,i)=>{room.reactionAssignments[id]=cards[i%cards.length];});
+}
+
+// ── This or That ───────────────────────────────────────────────────────────
+function startThisOrThatMinigame(room){
+  room.phase='minigame_tot_create';
+  room.totItems=[];
+  room.totCurrentIdx=0;
+  room.totVotes={};
+  room.totResults=[];
+}
+
+function buildReactionReveal(room){
+  const pid=room.reactionOrder[room.reactionRevealIdx];
+  return {playerId:pid,playerName:room.players[pid]?.name,card:room.reactionAssignments[pid],text:room.reactionTexts[pid],idx:room.reactionRevealIdx,total:room.reactionOrder.length};
+}
+
+function afterMinigame(room){
+  clearRoomTimer(room.code);
+  if(room.round>=room.maxRounds){
+    room.phase='gameover';
+    io.to(room.code).emit('game_over',{players:Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name,score:p.score}]))});
+    return;
+  }
+  nextNormalRound(room);
+  Object.entries(room.players).forEach(([sid,p])=>io.to(sid).emit('new_hand',{hand:p.hand}));
+  io.to(room.code).emit('room_update',getPublicRoom(room));
+}
+
+function pickNextMinigame(room){
+  if(!room.mgQueue||room.mgQueue.length===0) room.mgQueue=buildMgQueue();
+  return room.mgQueue.shift();
 }
 
 // ── Socket ─────────────────────────────────────────────────────────────────
-io.on('connection', socket => {
+io.on('connection', socket=>{
 
-  socket.on('create_room', ({ name, baseRounds }) => {
-    const code = numericCode();
-    rooms[code] = createRoom(code);
-    const room = rooms[code];
-    room.hostId = socket.id;
-    room.baseRounds = Math.max(1, Math.min(20, parseInt(baseRounds) || 3));
-    room.players[socket.id] = { name, hand: dealCards(4), score: 0 };
-    socket.join(code);
-    socket.data.roomCode = code;
-    socket.emit('room_joined', { code, hand: room.players[socket.id].hand, isHost: true });
-    io.to(code).emit('room_update', getPublicRoom(room));
+  socket.on('create_room',({name,baseRounds})=>{
+    const code=numericCode();
+    rooms[code]=createRoom(code);
+    const room=rooms[code];
+    room.hostId=socket.id;
+    room.baseRounds=Math.max(1,Math.min(20,parseInt(baseRounds)||3));
+    room.players[socket.id]={name,hand:dealCards(4),score:0};
+    socket.join(code); socket.data.roomCode=code;
+    socket.emit('room_joined',{code,hand:room.players[socket.id].hand,isHost:true});
+    io.to(code).emit('room_update',getPublicRoom(room));
   });
 
-  socket.on('join_room', ({ name, code }) => {
-    const room = rooms[code];
-    if (!room) { socket.emit('error', 'Kambarys nerastas'); return; }
-    if (room.phase !== 'lobby') { socket.emit('error', 'Žaidimas jau prasidėjo'); return; }
-    room.players[socket.id] = { name, hand: dealCards(4), score: 0 };
-    socket.join(code);
-    socket.data.roomCode = code;
-    socket.emit('room_joined', { code, hand: room.players[socket.id].hand, isHost: false });
-    io.to(code).emit('room_update', getPublicRoom(room));
+  socket.on('join_room',({name,code})=>{
+    const room=rooms[code];
+    if(!room){socket.emit('error','Kambarys nerastas');return;}
+    if(room.phase!=='lobby'){socket.emit('error','Žaidimas jau prasidėjo');return;}
+    room.players[socket.id]={name,hand:dealCards(4),score:0};
+    socket.join(code); socket.data.roomCode=code;
+    socket.emit('room_joined',{code,hand:room.players[socket.id].hand,isHost:false});
+    io.to(code).emit('room_update',getPublicRoom(room));
   });
 
-  socket.on('start_game', () => {
-    const room = rooms[socket.data.roomCode];
-    if (!room || socket.id !== room.hostId) return;
-    room.phase = 'submitting';
-    room.playerEvents = {};
-    room.submittedCount = 0;
-    room.minigameRound = 0;
-    io.to(room.code).emit('room_update', getPublicRoom(room));
-  });
-
-  socket.on('submit_events', ({ events }) => {
-    const code = socket.data.roomCode;
-    const room = rooms[code];
-    if (!room || room.phase !== 'submitting') return;
-    if (room.playerEvents[socket.id]) return;
-    const cleaned = events.map(e => e.trim()).filter(e => e.length >= 3).slice(0, 2);
-    if (cleaned.length < 2) { socket.emit('error', 'Reikia dviejų situacijų!'); return; }
-    room.playerEvents[socket.id] = cleaned;
-    room.submittedCount = Object.keys(room.playerEvents).length;
-    io.to(code).emit('room_update', getPublicRoom(room));
-    const total = Object.keys(room.players).length;
-    if (room.submittedCount >= total) {
+  socket.on('start_game',()=>{
+    const room=rooms[socket.data.roomCode];
+    if(!room||socket.id!==room.hostId) return;
+    room.phase='submitting';
+    room.playerEvents={}; room.submittedCount=0; room.minigameRound=0;
+    room.themes=pickThemes(2);
+    // 2 minute timer for submission — auto-fill blanks
+    setRoomTimer(room.code, 120000, ()=>{
+      if(room.phase!=='submitting') return;
+      // fill in missing players with preset events
+      Object.keys(room.players).forEach(pid=>{
+        if(!room.playerEvents[pid]){
+          const picks=shuffle(PRESET_EVENTS).slice(0,2);
+          room.playerEvents[pid]=picks;
+          room.submittedCount=Object.keys(room.playerEvents).length;
+        }
+      });
       buildEventDeck(room);
       nextNormalRound(room);
-      Object.entries(room.players).forEach(([sid,p]) => io.to(sid).emit('new_hand', { hand: p.hand }));
-      io.to(code).emit('room_update', getPublicRoom(room));
-    }
-  });
-
-  socket.on('play_card', ({ card }) => {
-    const code = socket.data.roomCode;
-    const room = rooms[code];
-    if (!room || room.phase !== 'playing') return;
-    if (room.playedCards[socket.id]) return;
-    room.playedCards[socket.id] = card;
-    room.playOrder.push(socket.id);
-    const total = Object.keys(room.players).length;
-    const played = Object.keys(room.playedCards).length;
-    io.to(code).emit('card_played', {
-      playerId: socket.id, playerName: room.players[socket.id]?.name,
-      card, totalPlayed: played, totalPlayers: total,
+      Object.entries(room.players).forEach(([sid,p])=>io.to(sid).emit('new_hand',{hand:p.hand}));
+      io.to(room.code).emit('room_update',getPublicRoom(room));
     });
-    if (played >= total) {
-      room.phase = 'voting';
-      setTimeout(() => {
-        io.to(code).emit('start_voting', {
-          playedCards: room.playedCards, playOrder: room.playOrder,
-          players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}])),
-        });
-      }, 2500);
-    }
+    io.to(room.code).emit('room_update',getPublicRoom(room));
+    io.to(room.code).emit('timer_start',{duration:120,label:'submit'});
   });
 
-  socket.on('vote', ({ votedFor }) => {
-    const code = socket.data.roomCode;
-    const room = rooms[code];
-    if (!room || room.phase !== 'voting') return;
-    if (room.votes[socket.id] || votedFor === socket.id) return;
-    room.votes[socket.id] = votedFor;
-    const total = Object.keys(room.players).length;
-    const voted = Object.keys(room.votes).length;
-    io.to(code).emit('vote_update', { totalVotes: voted, totalPlayers: total });
-    if (voted >= total) {
-      const tally = {};
-      Object.values(room.votes).forEach(v => { tally[v] = (tally[v]||0)+1; });
-      Object.entries(tally).forEach(([pid,pts]) => { if (room.players[pid]) room.players[pid].score += pts; });
-      room.phase = 'results';
-      io.to(code).emit('round_results', {
-        playedCards: room.playedCards, playOrder: room.playOrder,
-        players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name,score:p.score}])),
-        votes: tally, round: room.round, maxRounds: room.maxRounds,
-      });
-    }
-  });
-
-  socket.on('next_round', () => {
-    const code = socket.data.roomCode;
-    const room = rooms[code];
-    if (!room || socket.id !== room.hostId) return;
-
-    // check if minigame should fire (every 2 normal rounds)
-    if (room.minigameRound > 0 && room.minigameRound % 2 === 0 && room.phase === 'results') {
-      // alternate between caption and reaction
-      const mgType = Math.floor(room.minigameRound / 2) % 2 === 1 ? 'caption' : 'reaction';
-      if (mgType === 'caption') {
-        startCaptionMinigame(room);
-        const captionPlayers = Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}]));
-        io.to(code).emit('minigame_start', { type: 'caption', image: room.captionImage, order: room.captionOrder, players: captionPlayers });
-        // immediately tell everyone whose turn it is
-        setTimeout(() => {
-          io.to(code).emit('caption_update', {
-            parts: [], currentIdx: 0,
-            captionOrder: room.captionOrder,
-            players: captionPlayers,
-          });
-        }, 800);
-      } else {
-        startReactionMinigame(room);
-        // send each player their private image
-        room.reactionOrder.forEach(pid => {
-          io.to(pid).emit('reaction_assignment', { card: room.reactionAssignments[pid] });
-        });
-        io.to(code).emit('minigame_start', { type: 'reaction',
-          players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}])) });
-      }
-      io.to(code).emit('room_update', getPublicRoom(room));
-      return;
-    }
-
-    if (room.round >= room.maxRounds) {
-      room.phase = 'gameover';
-      io.to(code).emit('game_over', {
-        players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name,score:p.score}])),
-      });
-      return;
-    }
-
-    nextNormalRound(room);
-    Object.entries(room.players).forEach(([sid,p]) => io.to(sid).emit('new_hand', { hand: p.hand }));
-    io.to(code).emit('room_update', getPublicRoom(room));
-  });
-
-  // ── Caption chain ──────────────────────────────────────────────────────
-
-  socket.on('caption_submit', ({ text }) => {
-    const code = socket.data.roomCode;
-    const room = rooms[code];
-    if (!room || room.phase !== 'minigame_caption') return;
-    const currentPlayer = room.captionOrder[room.captionCurrentIdx];
-    if (socket.id !== currentPlayer) return;
-    const words = text.trim().split(/\s+/).slice(0, 3).join(' ');
-    room.captionParts.push({ playerId: socket.id, playerName: room.players[socket.id]?.name, text: words });
-    room.captionCurrentIdx++;
-    io.to(code).emit('caption_update', {
-      parts: room.captionParts, currentIdx: room.captionCurrentIdx,
-      captionOrder: room.captionOrder,
-      players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}])),
-    });
-    if (room.captionCurrentIdx >= room.captionOrder.length) {
-      room.phase = 'minigame_caption_reveal';
-      setTimeout(() => {
-        io.to(code).emit('caption_reveal', {
-          image: room.captionImage, parts: room.captionParts,
-          players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}])),
-        });
-      }, 800);
-    }
-  });
-
-  socket.on('caption_done', () => {
-    // host moves on from caption reveal
-    const code = socket.data.roomCode;
-    const room = rooms[code];
-    if (!room || socket.id !== room.hostId) return;
-    if (room.round >= room.maxRounds) {
-      room.phase = 'gameover';
-      io.to(code).emit('game_over', {
-        players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name,score:p.score}])),
-      });
-      return;
-    }
-    nextNormalRound(room);
-    Object.entries(room.players).forEach(([sid,p]) => io.to(sid).emit('new_hand', { hand: p.hand }));
-    io.to(code).emit('room_update', getPublicRoom(room));
-  });
-
-  // ── Reaction description ───────────────────────────────────────────────
-
-  socket.on('reaction_submit', ({ text }) => {
-    const code = socket.data.roomCode;
-    const room = rooms[code];
-    if (!room || room.phase !== 'minigame_reaction_write') return;
-    if (room.reactionTexts[socket.id]) return;
-    room.reactionTexts[socket.id] = text.trim().slice(0, 200);
-    const total = Object.keys(room.players).length;
-    const done = Object.keys(room.reactionTexts).length;
-    io.to(code).emit('reaction_progress', { done, total });
-    if (done >= total) {
-      room.phase = 'minigame_reaction_reveal';
-      room.reactionRevealIdx = 0;
-      setTimeout(() => {
-        io.to(code).emit('reaction_reveal_next', buildReactionReveal(room));
-      }, 800);
-    }
-  });
-
-  socket.on('reaction_next', () => {
-    const code = socket.data.roomCode;
-    const room = rooms[code];
-    if (!room || socket.id !== room.hostId) return;
-    room.reactionRevealIdx++;
-    if (room.reactionRevealIdx >= room.reactionOrder.length) {
-      // all revealed — move on
-      if (room.round >= room.maxRounds) {
-        room.phase = 'gameover';
-        io.to(code).emit('game_over', {
-          players: Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name,score:p.score}])),
-        });
-        return;
-      }
+  socket.on('submit_events',({events})=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||room.phase!=='submitting') return;
+    if(room.playerEvents[socket.id]) return;
+    const cleaned=events.map(e=>e.trim()).filter(e=>e.length>=3).slice(0,2);
+    if(cleaned.length<2){socket.emit('error','Reikia dviejų situacijų!');return;}
+    room.playerEvents[socket.id]=cleaned;
+    room.submittedCount=Object.keys(room.playerEvents).length;
+    io.to(code).emit('room_update',getPublicRoom(room));
+    const total=Object.keys(room.players).length;
+    if(room.submittedCount>=total){
+      clearRoomTimer(code);
+      buildEventDeck(room);
       nextNormalRound(room);
-      Object.entries(room.players).forEach(([sid,p]) => io.to(sid).emit('new_hand', { hand: p.hand }));
-      io.to(code).emit('room_update', getPublicRoom(room));
-    } else {
-      io.to(code).emit('reaction_reveal_next', buildReactionReveal(room));
+      Object.entries(room.players).forEach(([sid,p])=>io.to(sid).emit('new_hand',{hand:p.hand}));
+      io.to(code).emit('room_update',getPublicRoom(room));
     }
   });
 
-  function buildReactionReveal(room) {
-    const pid = room.reactionOrder[room.reactionRevealIdx];
-    return {
-      playerId: pid,
-      playerName: room.players[pid]?.name,
-      card: room.reactionAssignments[pid],
-      text: room.reactionTexts[pid],
-      idx: room.reactionRevealIdx,
-      total: room.reactionOrder.length,
-    };
-  }
+  socket.on('play_card',({card})=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||room.phase!=='playing') return;
+    if(room.playedCards[socket.id]) return;
+    room.playedCards[socket.id]=card;
+    room.playOrder.push(socket.id);
+    const total=Object.keys(room.players).length;
+    const played=Object.keys(room.playedCards).length;
+    io.to(code).emit('card_played',{playerId:socket.id,playerName:room.players[socket.id]?.name,card,totalPlayed:played,totalPlayers:total});
+    if(played>=total){
+      room.phase='voting';
+      setTimeout(()=>{
+        io.to(code).emit('start_voting',{playedCards:room.playedCards,playOrder:room.playOrder,players:Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}]))});
+      },2500);
+    }
+  });
 
-  socket.on('disconnect', () => {
-    const code = socket.data.roomCode;
-    if (code && rooms[code]) {
+  socket.on('vote',({votedFor})=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||room.phase!=='voting') return;
+    if(room.votes[socket.id]||votedFor===socket.id) return;
+    room.votes[socket.id]=votedFor;
+    const total=Object.keys(room.players).length;
+    const voted=Object.keys(room.votes).length;
+    io.to(code).emit('vote_update',{totalVotes:voted,totalPlayers:total});
+    if(voted>=total){
+      const tally={};
+      Object.values(room.votes).forEach(v=>{tally[v]=(tally[v]||0)+1;});
+      Object.entries(tally).forEach(([pid,pts])=>{if(room.players[pid])room.players[pid].score+=pts;});
+      room.phase='results';
+      io.to(code).emit('round_results',{playedCards:room.playedCards,playOrder:room.playOrder,players:Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name,score:p.score}])),votes:tally,round:room.round,maxRounds:room.maxRounds});
+    }
+  });
+
+  socket.on('next_round',()=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||socket.id!==room.hostId) return;
+
+    // every 2 normal rounds trigger a minigame
+    if(room.minigameRound>0 && room.minigameRound%2===0 && room.phase==='results'){
+      const mgType=pickNextMinigame(room);
+      const playerMap=Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}]));
+
+      if(mgType==='caption'){
+        startCaptionMinigame(room);
+        io.to(code).emit('minigame_start',{type:'caption',image:room.captionImage,order:room.captionOrder,players:playerMap});
+        setTimeout(()=>{
+          io.to(code).emit('caption_update',{parts:[],currentIdx:0,captionOrder:room.captionOrder,players:playerMap,timeLeft:20});
+          advanceCaptionTurn(room);
+        },1000);
+      } else if(mgType==='reaction'){
+        startReactionMinigame(room);
+        room.reactionOrder.forEach(pid=>io.to(pid).emit('reaction_assignment',{card:room.reactionAssignments[pid]}));
+        io.to(code).emit('minigame_start',{type:'reaction',players:playerMap});
+        // no server timer for reaction — host skips
+      } else if(mgType==='thisorthat'){
+        startThisOrThatMinigame(room);
+        const themes=pickThemes(1);
+        io.to(code).emit('minigame_start',{type:'thisorthat',players:playerMap,theme:themes[0]});
+        io.to(code).emit('timer_start',{duration:90,label:'tot_create'});
+        setRoomTimer(code,90000,()=>{
+          if(room.phase!=='minigame_tot_create') return;
+          // auto-fill empty submissions
+          Object.keys(room.players).forEach(pid=>{
+            if(!room.totItems.find(i=>i.playerId===pid)){
+              room.totItems.push({playerId:pid,playerName:room.players[pid]?.name||'?',situation:'(be situacijos)',optionA:'Taip',optionB:'Ne'});
+            }
+          });
+          startTotVoting(room);
+        });
+      }
+      io.to(code).emit('room_update',getPublicRoom(room));
+      return;
+    }
+
+    if(room.round>=room.maxRounds){
+      room.phase='gameover';
+      io.to(code).emit('game_over',{players:Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name,score:p.score}]))});
+      return;
+    }
+    nextNormalRound(room);
+    Object.entries(room.players).forEach(([sid,p])=>io.to(sid).emit('new_hand',{hand:p.hand}));
+    io.to(code).emit('room_update',getPublicRoom(room));
+  });
+
+  // ── Caption ──────────────────────────────────────────────────────────────
+  socket.on('caption_submit',({text})=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||room.phase!=='minigame_caption') return;
+    if(socket.id!==room.captionOrder[room.captionCurrentIdx]) return;
+    clearRoomTimer(code);
+    room.captionParts.push({playerId:socket.id,playerName:room.players[socket.id]?.name||'?',text:text.trim().slice(0,120)||'...'});
+    room.captionCurrentIdx++;
+    const playerMap=Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}]));
+    io.to(code).emit('caption_update',{parts:room.captionParts,currentIdx:room.captionCurrentIdx,captionOrder:room.captionOrder,players:playerMap,timeLeft:20});
+    if(room.captionCurrentIdx>=room.captionOrder.length){
+      room.phase='minigame_caption_reveal';
+      setTimeout(()=>io.to(code).emit('caption_reveal',{image:room.captionImage,parts:room.captionParts,players:playerMap}),800);
+    } else {
+      advanceCaptionTurn(room);
+    }
+  });
+
+  socket.on('caption_done',()=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||socket.id!==room.hostId) return;
+    afterMinigame(room);
+  });
+
+  // ── Reaction ─────────────────────────────────────────────────────────────
+  socket.on('reaction_submit',({text})=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||room.phase!=='minigame_reaction_write') return;
+    if(room.reactionTexts[socket.id]) return;
+    room.reactionTexts[socket.id]=text.trim().slice(0,200);
+    const total=Object.keys(room.players).length;
+    const done=Object.keys(room.reactionTexts).length;
+    io.to(code).emit('reaction_progress',{done,total});
+    if(done>=total){
+      room.phase='minigame_reaction_reveal';
+      room.reactionRevealIdx=0;
+      setTimeout(()=>io.to(code).emit('reaction_reveal_next',buildReactionReveal(room)),800);
+    }
+  });
+
+  socket.on('reaction_next',()=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||socket.id!==room.hostId) return;
+    room.reactionRevealIdx++;
+    if(room.reactionRevealIdx>=room.reactionOrder.length){
+      afterMinigame(room);
+    } else {
+      io.to(code).emit('reaction_reveal_next',buildReactionReveal(room));
+    }
+  });
+
+  // ── This or That ──────────────────────────────────────────────────────────
+  socket.on('tot_submit',({situation,optionA,optionB})=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||room.phase!=='minigame_tot_create') return;
+    if(room.totItems.find(i=>i.playerId===socket.id)) return;
+    room.totItems.push({playerId:socket.id,playerName:room.players[socket.id]?.name||'?',situation:situation.trim().slice(0,200),optionA:optionA.trim().slice(0,80)||'Taip',optionB:optionB.trim().slice(0,80)||'Ne'});
+    const total=Object.keys(room.players).length;
+    const done=room.totItems.length;
+    io.to(code).emit('tot_progress',{done,total});
+    if(done>=total){
+      clearRoomTimer(code);
+      startTotVoting(room);
+    }
+  });
+
+  socket.on('tot_vote',({choice})=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||room.phase!=='minigame_tot_vote') return;
+    if(room.totVotes[socket.id]!==undefined) return;
+    // don't vote on your own situation
+    const currentItem=room.totItems[room.totCurrentIdx];
+    if(currentItem&&currentItem.playerId===socket.id) return;
+    room.totVotes[socket.id]=choice; // 'A' or 'B'
+    broadcastTotVotes(room);
+    const eligible=Object.keys(room.players).filter(pid=>!currentItem||currentItem.playerId!==pid).length;
+    if(Object.keys(room.totVotes).length>=eligible) advanceTot(room);
+  });
+
+  socket.on('tot_skip',()=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||socket.id!==room.hostId) return;
+    advanceTot(room);
+  });
+
+  socket.on('disconnect',()=>{
+    const code=socket.data.roomCode;
+    if(code&&rooms[code]){
       delete rooms[code].players[socket.id];
       delete rooms[code].playedCards[socket.id];
       delete rooms[code].votes[socket.id];
       delete rooms[code].playerEvents[socket.id];
-      if (Object.keys(rooms[code].players).length === 0) delete rooms[code];
-      else io.to(code).emit('room_update', getPublicRoom(rooms[code]));
+      delete rooms[code].reactionTexts[socket.id];
+      delete rooms[code].totVotes[socket.id];
+      if(Object.keys(rooms[code].players).length===0){clearRoomTimer(code);delete rooms[code];}
+      else io.to(code).emit('room_update',getPublicRoom(rooms[code]));
     }
   });
 });
 
+function startTotVoting(room){
+  room.phase='minigame_tot_vote';
+  room.totCurrentIdx=0;
+  room.totVotes={};
+  emitTotQuestion(room);
+}
+
+function emitTotQuestion(room){
+  const code=room.code;
+  clearRoomTimer(code);
+  const item=room.totItems[room.totCurrentIdx];
+  if(!item){afterMinigame(room);return;}
+  io.to(code).emit('tot_question',{item,idx:room.totCurrentIdx,total:room.totItems.length,votes:{A:0,B:0}});
+  io.to(code).emit('timer_start',{duration:15,label:'tot_vote'});
+  setRoomTimer(code,15000,()=>{
+    if(room.phase!=='minigame_tot_vote') return;
+    advanceTot(room);
+  });
+}
+
+function broadcastTotVotes(room){
+  const tally={A:0,B:0};
+  Object.values(room.totVotes).forEach(v=>{if(v==='A')tally.A++;else if(v==='B')tally.B++;});
+  io.to(room.code).emit('tot_votes_update',tally);
+}
+
+function advanceTot(room){
+  clearRoomTimer(room.code);
+  // store results
+  const tally={A:0,B:0};
+  Object.values(room.totVotes).forEach(v=>{if(v==='A')tally.A++;else if(v==='B')tally.B++;});
+  room.totResults.push({...room.totItems[room.totCurrentIdx],tally});
+  room.totCurrentIdx++;
+  room.totVotes={};
+  if(room.totCurrentIdx>=room.totItems.length){
+    room.phase='minigame_tot_results';
+    io.to(room.code).emit('tot_final',{results:room.totResults});
+  } else {
+    emitTotQuestion(room);
+  }
+}
+
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`MANO REAKCIJA KAI running on port ${PORT}`));
+server.listen(PORT,()=>console.log(`MANO REAKCIJA KAI running on port ${PORT}`));

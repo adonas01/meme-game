@@ -12,12 +12,12 @@
   --bg:#1a1208;--surface:#241a0a;--surface2:#2e2210;--paper:#2a1e0c;
   --border:#5a3e1a;--text:#f0e6cc;--muted:#8a7050;
   --orange:#e8721a;--orange-dim:#a04d10;--yellow:#d4a820;
-  --teal:#1a8a78;--teal-dim:#0f5a50;--red:#c03020;
+  --teal:#1a8a78;--teal-dim:#0f5a50;--red:#c03020;--red-dim:#801a10;
   --stripe:repeating-linear-gradient(-45deg,transparent,transparent 8px,rgba(255,255,255,0.015) 8px,rgba(255,255,255,0.015) 16px);
 }
 body{background:var(--bg);background-image:var(--stripe);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
 
-/* ── swirl overlay ── */
+/* overlay */
 #overlay{position:fixed;inset:0;z-index:9999;pointer-events:none;display:flex;align-items:center;justify-content:center;opacity:0;background:radial-gradient(circle,#e8721a 0%,#1a1208 70%);}
 #overlay .star{font-size:5rem;transform:scale(0) rotate(0deg);opacity:0;}
 @keyframes ov-in{0%{opacity:0;clip-path:circle(0% at 50% 50%)}100%{opacity:1;clip-path:circle(150% at 50% 50%)}}
@@ -29,36 +29,48 @@ body{background:var(--bg);background-image:var(--stripe);color:var(--text);font-
 #overlay.out{animation:ov-out .5s cubic-bezier(.4,0,.2,1) forwards;}
 #overlay.out .star{animation:star-out .5s ease forwards;}
 
-/* ── whole-page swirl ── */
-#app{width:100%;display:flex;flex-direction:column;align-items:center;transition:none;}
+/* page swirl */
+#app{width:100%;display:flex;flex-direction:column;align-items:center;}
 @keyframes page-out{0%{transform:rotate(0deg) scale(1) translateY(0);opacity:1}100%{transform:rotate(8deg) scale(.7) translateY(60px);opacity:0}}
 @keyframes page-in{0%{transform:rotate(-8deg) scale(.7) translateY(60px);opacity:0}100%{transform:rotate(0deg) scale(1) translateY(0);opacity:1}}
 #app.page-out{animation:page-out .28s ease-in forwards;}
 #app.page-in{animation:page-in .32s cubic-bezier(.22,1,.36,1) forwards;}
 
-/* ── top bar ── */
 .top-bar{width:100%;height:8px;background:repeating-linear-gradient(90deg,var(--orange) 0 20px,var(--yellow) 20px 40px,var(--teal) 40px 60px,var(--red) 60px 80px);position:fixed;top:0;left:0;z-index:100;}
 body{padding-top:8px;}
 
-/* ── screens ── */
+/* timer widget */
+.timer-wrap{display:flex;align-items:center;gap:.5rem;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.35rem .75rem;box-shadow:2px 2px 0 #000;font-family:'Alfa Slab One',serif;}
+.timer-wrap.urgent{border-color:var(--red);background:var(--red-dim);}
+.timer-clock{font-size:1.1rem;}
+.timer-num{font-size:1rem;color:var(--yellow);min-width:2rem;text-align:center;}
+.timer-wrap.urgent .timer-num{color:#fff;}
+.timer-bar-outer{height:4px;background:var(--surface);border-radius:2px;overflow:hidden;flex:1;min-width:60px;}
+.timer-bar-inner{height:100%;background:var(--teal);border-radius:2px;transition:width .5s linear;}
+.timer-wrap.urgent .timer-bar-inner{background:var(--red);}
+
+/* screens */
 .screen{display:none;width:100%;max-width:720px;padding:2rem 1rem 3rem;}
 .screen.active{display:flex;flex-direction:column;align-items:center;}
 
-/* ── logo ── */
+/* logo */
 .logo-wrap{text-align:center;margin-bottom:2rem;margin-top:1rem;}
-.logo{font-family:'Alfa Slab One',serif;font-size:2.6rem;color:var(--orange);text-shadow:4px 4px 0 #000;letter-spacing:2px;line-height:1.1;}
+.logo{font-family:'Alfa Slab One',serif;font-size:2.4rem;color:var(--orange);text-shadow:4px 4px 0 #000;letter-spacing:2px;line-height:1.1;}
 .logo span{color:var(--teal);}
 .tagline{font-size:.8rem;color:var(--muted);margin-top:.5rem;letter-spacing:.12em;font-weight:700;text-transform:uppercase;}
 .star-row{text-align:center;font-size:1rem;letter-spacing:.6rem;margin-bottom:.5rem;color:var(--orange);opacity:.7;}
 
-/* ── rbox ── */
+/* rbox */
 .rbox{background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:5px 5px 0 #000;padding:1.75rem;width:100%;max-width:400px;margin-bottom:1.25rem;}
-.rbox h2{font-family:'Alfa Slab One',serif;font-size:.9rem;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1.25rem;border-bottom:1px dashed var(--border);padding-bottom:.5rem;}
+.rbox h2{font-family:'Alfa Slab One',serif;font-size:.9rem;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;border-bottom:1px dashed var(--border);padding-bottom:.4rem;}
 
-input[type=text],textarea{width:100%;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.7rem 1rem;color:var(--text);font-size:1rem;font-family:'Nunito',sans-serif;font-weight:600;margin-bottom:.75rem;outline:none;transition:border-color .2s,box-shadow .2s;box-shadow:2px 2px 0 #000;}
-input[type=text]:focus,textarea:focus{border-color:var(--orange);box-shadow:2px 2px 0 var(--orange-dim);}
+/* theme badge */
+.theme-badge{display:inline-block;background:var(--orange);color:#fff;font-family:'Alfa Slab One',serif;font-size:1rem;padding:.4rem 1rem;border:2px solid #000;border-radius:3px;box-shadow:3px 3px 0 #000;margin:.2rem;}
+
+input[type=text],input[type=number],textarea{width:100%;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.7rem 1rem;color:var(--text);font-size:1rem;font-family:'Nunito',sans-serif;font-weight:600;margin-bottom:.75rem;outline:none;transition:border-color .2s;box-shadow:2px 2px 0 #000;}
+input:focus,textarea:focus{border-color:var(--orange);}
 input::placeholder,textarea::placeholder{color:var(--muted);}
-textarea{resize:vertical;min-height:75px;}
+textarea{resize:vertical;min-height:70px;}
 
 button{cursor:pointer;border:2px solid #000;border-radius:3px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:900;padding:.75rem 1.5rem;transition:transform .08s,box-shadow .08s;text-transform:uppercase;letter-spacing:.06em;}
 button:active:not(:disabled){transform:translate(2px,2px)!important;box-shadow:none!important;}
@@ -72,13 +84,15 @@ button:disabled{opacity:.4;cursor:default;}
 .btn-next{background:var(--teal);color:#fff;padding:.85rem 2.5rem;font-size:1rem;box-shadow:4px 4px 0 #000;border:2px solid #000;border-radius:3px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:.06em;transition:transform .08s,box-shadow .08s;}
 .btn-next:hover{box-shadow:5px 5px 0 #000;transform:translate(-1px,-1px);}
 .btn-next:active{transform:translate(2px,2px);box-shadow:none;}
-.btn-yellow{background:var(--yellow);color:#000;padding:.85rem 2.5rem;font-size:1rem;box-shadow:4px 4px 0 #000;border:2px solid #000;border-radius:3px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:.06em;transition:transform .08s,box-shadow .08s;}
-.btn-yellow:hover{box-shadow:5px 5px 0 #000;transform:translate(-1px,-1px);}
+.btn-y{background:var(--yellow);color:#000;padding:.85rem 2.5rem;font-size:1rem;box-shadow:4px 4px 0 #000;border:2px solid #000;border-radius:3px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:.06em;transition:transform .08s,box-shadow .08s;}
+.btn-y:hover{box-shadow:5px 5px 0 #000;transform:translate(-1px,-1px);}
 
-.err{color:#e05040;font-size:.85rem;margin-top:.5rem;min-height:1.2rem;font-weight:700;}
+.err{color:#e05040;font-size:.85rem;margin-top:.4rem;min-height:1.2rem;font-weight:700;}
 .divider{color:var(--muted);font-size:.9rem;margin:.4rem 0;font-family:'Alfa Slab One',serif;}
+.sec-title{font-family:'Alfa Slab One',serif;font-size:1.5rem;color:var(--orange);text-align:center;margin-bottom:.25rem;text-shadow:2px 2px 0 #000;}
+.sec-sub{color:var(--muted);font-size:.9rem;text-align:center;margin-bottom:1rem;font-weight:700;}
 
-/* ── lobby ── */
+/* lobby */
 .code-display{background:var(--orange-dim);border:2px solid #000;border-radius:3px;box-shadow:5px 5px 0 #000;padding:1.5rem;width:100%;max-width:400px;text-align:center;margin-bottom:1.25rem;}
 .code-display .lbl{font-size:.7rem;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.4rem;font-weight:700;}
 .code-display .code{font-family:'Alfa Slab One',serif;font-size:3.5rem;color:#fff;letter-spacing:.2em;line-height:1;text-shadow:3px 3px 0 rgba(0,0,0,.4);}
@@ -89,21 +103,21 @@ button:disabled{opacity:.4;cursor:default;}
 .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);}
 .badge{display:inline-block;font-size:.65rem;background:var(--teal);color:#fff;border:1px solid #000;border-radius:2px;padding:.1rem .5rem;margin-left:.4rem;font-weight:900;text-transform:uppercase;}
 
-/* ── game bar ── */
-.game-bar{width:100%;display:flex;justify-content:space-between;align-items:center;padding:.65rem 1.25rem;background:#000;color:var(--yellow);font-family:'Alfa Slab One',serif;font-size:.9rem;margin-bottom:1.5rem;letter-spacing:.05em;border-bottom:2px solid var(--orange);}
+/* game bar */
+.game-bar{width:100%;display:flex;justify-content:space-between;align-items:center;padding:.55rem 1.25rem;background:#000;color:var(--yellow);font-family:'Alfa Slab One',serif;font-size:.85rem;margin-bottom:1.5rem;border-bottom:2px solid var(--orange);gap:.5rem;flex-wrap:wrap;}
 
-/* ── event box ── */
+/* event box */
 .event-box{background:var(--teal-dim);border:2px solid #000;border-radius:3px;box-shadow:5px 5px 0 #000;padding:1.5rem 1.75rem;width:100%;margin-bottom:1.5rem;text-align:center;}
 .event-label{font-size:.7rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.6rem;font-weight:700;}
 .event-text{font-family:'Nunito',sans-serif;font-size:1.2rem;font-weight:700;line-height:1.6;color:#fff;}
 
-/* ── spotlight ── */
+/* spotlight */
 .spotlight-wrap{width:100%;display:flex;flex-direction:column;align-items:center;margin-bottom:1rem;min-height:370px;justify-content:center;}
 .spotlight-card{background:var(--paper);border:3px solid var(--border);border-radius:3px;overflow:hidden;width:100%;max-width:440px;box-shadow:8px 8px 0 #000;animation:cfi .48s cubic-bezier(.22,1,.36,1);}
 .spotlight-card img{width:100%;height:350px;object-fit:cover;display:block;}
 .spotlight-player{padding:.7rem 1rem;font-family:'Alfa Slab One',serif;font-size:1.1rem;color:var(--orange);text-align:center;background:var(--paper);border-top:2px solid var(--border);}
 @keyframes cfi{from{transform:translateY(80px) scale(.8) rotate(-6deg);opacity:0}to{transform:none;opacity:1}}
-@keyframes cfo{from{transform:none;opacity:1}to{transform:translateY(-60px) scale(.8) rotate(5deg);opacity:0}}
+@keyframes cfo{from{opacity:1}to{transform:translateY(-60px) scale(.8) rotate(5deg);opacity:0}}
 .fly-out{animation:cfo .3s ease forwards;}
 .mini-strip{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:1rem;width:100%;}
 .mini-card{border-radius:2px;overflow:hidden;border:2px solid var(--border);width:70px;box-shadow:2px 2px 0 #000;}
@@ -112,7 +126,7 @@ button:disabled{opacity:.4;cursor:default;}
 .waiting-txt{font-size:.95rem;color:var(--muted);text-align:center;font-weight:700;}
 .waiting-count{color:var(--orange);font-family:'Alfa Slab One',serif;}
 
-/* ── hand ── */
+/* hand */
 .hand-label{font-family:'Alfa Slab One',serif;font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem;text-align:center;}
 .hand-grid{display:flex;flex-wrap:wrap;gap:.85rem;justify-content:center;margin-bottom:1rem;}
 .hand-card{background:var(--paper);border:2px solid var(--border);border-radius:3px;overflow:hidden;width:155px;cursor:pointer;box-shadow:4px 4px 0 #000;transition:transform .15s,box-shadow .15s,border-color .15s;}
@@ -121,7 +135,7 @@ button:disabled{opacity:.4;cursor:default;}
 .hand-card img{width:100%;height:155px;object-fit:cover;display:block;}
 .played-notice{text-align:center;padding:1rem;color:var(--teal);font-weight:900;font-size:1rem;font-family:'Alfa Slab One',serif;}
 
-/* ── voting ── */
+/* voting */
 .vote-grid{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;width:100%;}
 .vote-card{background:var(--paper);border:2px solid var(--border);border-radius:3px;overflow:hidden;width:185px;cursor:pointer;box-shadow:4px 4px 0 #000;transition:transform .15s,box-shadow .15s,border-color .15s;text-align:center;}
 .vote-card:hover{transform:translate(-2px,-5px);box-shadow:6px 9px 0 #000;border-color:var(--orange);}
@@ -130,7 +144,7 @@ button:disabled{opacity:.4;cursor:default;}
 .vote-card img{width:100%;height:185px;object-fit:cover;display:block;}
 .vote-player{font-family:'Alfa Slab One',serif;font-size:.95rem;color:var(--orange);padding:.55rem;border-top:2px solid var(--border);background:var(--paper);}
 
-/* ── results ── */
+/* results */
 .results-grid{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;width:100%;}
 .result-card{background:var(--paper);border:2px solid var(--border);border-radius:3px;overflow:hidden;width:185px;text-align:center;box-shadow:4px 4px 0 #000;animation:cfi .4s ease;}
 .result-card img{width:100%;height:185px;object-fit:cover;display:block;}
@@ -139,46 +153,60 @@ button:disabled{opacity:.4;cursor:default;}
 .result-card.winner{border-color:var(--orange);box-shadow:6px 6px 0 var(--orange-dim);}
 .winner-crown{font-size:1.6rem;padding-top:.4rem;}
 
-/* ── scoreboard ── */
+/* scoreboard */
 .scoreboard{background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:5px 5px 0 #000;padding:1.25rem 1.75rem;width:100%;max-width:380px;}
 .score-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px dashed var(--border);font-size:.95rem;font-weight:700;}
 .score-row:last-child{border-bottom:none;}
 .score-row .rank{font-family:'Alfa Slab One',serif;color:var(--orange);min-width:2.5rem;font-size:1.1rem;}
 .score-row .pts{font-family:'Alfa Slab One',serif;color:var(--teal);}
 
-/* ── section titles ── */
-.sec-title{font-family:'Alfa Slab One',serif;font-size:1.5rem;color:var(--orange);text-align:center;margin-bottom:.25rem;text-shadow:2px 2px 0 #000;}
-.sec-sub{color:var(--muted);font-size:.9rem;text-align:center;margin-bottom:1rem;font-weight:700;}
-
-/* ── minigame banner ── */
+/* minigame banner */
 .mg-banner{background:var(--yellow);border:2px solid #000;border-radius:3px;box-shadow:5px 5px 0 #000;padding:1rem 1.5rem;width:100%;max-width:520px;text-align:center;margin-bottom:1.25rem;}
 .mg-banner h2{font-family:'Alfa Slab One',serif;font-size:1.4rem;color:#000;}
 .mg-banner p{font-size:.9rem;color:#333;margin-top:.3rem;font-weight:700;}
 
-/* ── caption chain ── */
+/* caption */
 .caption-img-wrap{width:100%;max-width:440px;border:3px solid var(--border);border-radius:3px;overflow:hidden;box-shadow:6px 6px 0 #000;margin-bottom:1rem;}
-.caption-img-wrap img{width:100%;height:300px;object-fit:cover;display:block;}
-.caption-text-build{background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:1rem 1.25rem;width:100%;max-width:440px;margin-bottom:1rem;font-size:1.1rem;font-weight:700;color:var(--yellow);min-height:3rem;line-height:1.6;}
-.caption-part{display:inline;}
+.caption-img-wrap img{width:100%;height:290px;object-fit:cover;display:block;}
+.caption-build{background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:1rem 1.25rem;width:100%;max-width:440px;margin-bottom:1rem;font-size:1.1rem;font-weight:700;color:var(--yellow);min-height:3rem;line-height:1.7;}
 .caption-part.new{color:#fff;animation:fadeIn .4s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-.caption-your-turn{background:var(--orange-dim);border:2px solid var(--orange);border-radius:3px;padding:1rem;width:100%;max-width:440px;margin-bottom:1rem;text-align:center;font-weight:700;color:var(--yellow);}
+.caption-your-turn{background:var(--orange-dim);border:2px solid var(--orange);border-radius:3px;padding:1rem;width:100%;max-width:440px;margin-bottom:1rem;font-weight:700;color:var(--yellow);}
 .caption-waiting{color:var(--muted);font-size:.9rem;text-align:center;font-weight:700;margin-bottom:1rem;}
 
-/* ── reaction minigame ── */
+/* reaction */
 .reaction-card-big{background:var(--paper);border:3px solid var(--border);border-radius:3px;overflow:hidden;width:100%;max-width:440px;box-shadow:8px 8px 0 #000;margin-bottom:1rem;animation:cfi .48s cubic-bezier(.22,1,.36,1);}
 .reaction-card-big img{width:100%;height:320px;object-fit:cover;display:block;}
 .reaction-text-reveal{background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:1rem 1.25rem;width:100%;max-width:440px;margin-bottom:1rem;font-size:1.1rem;font-weight:700;color:#fff;line-height:1.6;}
 .reaction-player-tag{font-family:'Alfa Slab One',serif;font-size:1rem;color:var(--orange);text-align:center;margin-bottom:.5rem;}
 
-/* ── submit status ── */
+/* this or that */
+.tot-situation{background:var(--teal-dim);border:2px solid #000;border-radius:3px;box-shadow:4px 4px 0 #000;padding:1.25rem 1.5rem;width:100%;max-width:520px;text-align:center;margin-bottom:1.25rem;}
+.tot-situation .author{font-size:.75rem;color:rgba(255,255,255,.5);margin-bottom:.4rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;}
+.tot-situation .text{font-size:1.2rem;font-weight:700;color:#fff;line-height:1.5;}
+.tot-options{display:flex;gap:1rem;width:100%;max-width:520px;margin-bottom:1rem;}
+.tot-btn{flex:1;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:1rem;font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;cursor:pointer;box-shadow:4px 4px 0 #000;color:var(--text);transition:transform .1s,box-shadow .1s,background .1s,border-color .1s;text-align:center;min-height:80px;line-height:1.4;text-transform:none;}
+.tot-btn:hover{transform:translate(-1px,-2px);box-shadow:5px 6px 0 #000;}
+.tot-btn.choice-A{border-color:var(--orange);background:var(--orange-dim);color:#fff;}
+.tot-btn.choice-B{border-color:var(--teal);background:var(--teal-dim);color:#fff;}
+.tot-btn.voted{opacity:.6;pointer-events:none;}
+.tot-btn.own-item{opacity:.3;pointer-events:none;}
+.tot-bar-wrap{width:100%;max-width:520px;margin-bottom:.75rem;}
+.tot-bar-labels{display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;margin-bottom:.3rem;}
+.tot-bar-labels .la{color:var(--orange);}
+.tot-bar-labels .lb{color:var(--teal);}
+.tot-bar-outer{height:28px;background:var(--teal-dim);border:2px solid #000;border-radius:3px;overflow:hidden;display:flex;box-shadow:3px 3px 0 #000;}
+.tot-bar-a{background:var(--orange);height:100%;transition:width .4s ease;display:flex;align-items:center;justify-content:center;font-family:'Alfa Slab One',serif;font-size:.85rem;color:#fff;min-width:0;overflow:hidden;}
+.tot-bar-b{background:var(--teal);height:100%;transition:width .4s ease;display:flex;align-items:center;justify-content:center;font-family:'Alfa Slab One',serif;font-size:.85rem;color:#fff;flex:1;overflow:hidden;}
+.tot-counter{font-size:.8rem;color:var(--muted);text-align:center;font-weight:700;margin-bottom:.75rem;}
+
+/* submit status */
 .submit-status{background:var(--surface2);border:2px solid var(--border);border-radius:3px;box-shadow:3px 3px 0 #000;padding:.75rem 1.25rem;width:100%;max-width:400px;text-align:center;font-weight:700;font-size:.95rem;color:var(--yellow);}
 </style>
 </head>
 <body>
 <div class="top-bar"></div>
 <div id="overlay"><div class="star">✦</div></div>
-
 <div id="app">
 
 <!-- HOME -->
@@ -191,7 +219,7 @@ button:disabled{opacity:.4;cursor:default;}
   <div class="rbox">
     <h2>Sukurti kambarį</h2>
     <input type="text" id="create-name" placeholder="Tavo vardas" maxlength="20">
-    <input type="number" id="create-rounds" placeholder="Raundų skaičius (numatyta: 3)" min="1" max="20" style="margin-bottom:.75rem;width:100%;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.7rem 1rem;color:var(--text);font-size:1rem;font-family:'Nunito',sans-serif;outline:none;box-shadow:2px 2px 0 #000;">
+    <input type="number" id="create-rounds" placeholder="Raundų skaičius (numatyta: 3)" min="1" max="20">
     <button class="btn-p" onclick="createRoom()">Sukurti kambarį</button>
     <div class="err" id="create-err"></div>
   </div>
@@ -229,12 +257,17 @@ button:disabled{opacity:.4;cursor:default;}
 <div id="s-submit" class="screen">
   <div class="star-row">★ ★ ★</div>
   <div class="sec-title">Sugalvok dvi situacijas!</div>
-  <div class="sec-sub">Jos bus sužaistos žaidimo metu — kuo absurdiškiau tuo geriau!</div>
+  <div class="sec-sub">Jos bus sužaistos žaidimo metu</div>
+  <div style="margin-bottom:1rem;text-align:center;">
+    <div style="font-size:.8rem;color:var(--muted);margin-bottom:.4rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em">Šiandienos temos:</div>
+    <div id="theme-badges"></div>
+  </div>
+  <div id="submit-timer" style="margin-bottom:1rem;display:flex;justify-content:center;"></div>
   <div class="rbox" style="max-width:480px">
     <h2>1-oji situacija</h2>
-    <textarea id="event-input-1" placeholder="Pvz: Tavo katė pradėjo kalbėti ir reikalauja sąskaitos už nuomą..." maxlength="200"></textarea>
-    <h2 style="margin-top:.5rem">2-oji situacija</h2>
-    <textarea id="event-input-2" placeholder="Pvz: Nusipirkai bilietą į koncertą bet ten groja tik tavo tėtis..." maxlength="200"></textarea>
+    <textarea id="ev1" placeholder="Sugalvok situaciją pagal temą..." maxlength="200"></textarea>
+    <h2 style="margin-top:.25rem">2-oji situacija</h2>
+    <textarea id="ev2" placeholder="Dar viena situacija..." maxlength="200"></textarea>
     <button class="btn-p" id="btn-submit" onclick="submitEvents()">Pateikti situacijas ✓</button>
     <div class="err" id="submit-err"></div>
   </div>
@@ -304,21 +337,19 @@ button:disabled{opacity:.4;cursor:default;}
 <div id="s-mg-caption" class="screen">
   <div class="game-bar">
     <span>🎮 Mini žaidimas</span>
-    <span id="mg-name-tag" style="color:var(--yellow)"></span>
+    <div id="caption-timer-wrap"></div>
   </div>
   <div style="width:100%;padding:0 .75rem">
     <div class="mg-banner">
-      <h2>✍️ Bendras paaiškinimas!</h2>
-      <p>Visi kartu rašo vieną sakinį — kiekvienas prideda 2-3 žodžius!</p>
+      <h2>✍️ Bendras sakinys!</h2>
+      <p>Visi kartu rašo vieną sakinį — kiekvienas prideda savo dalį!</p>
     </div>
-    <div class="caption-img-wrap" id="caption-img-wrap">
-      <img id="caption-img" src="" alt="meme">
-    </div>
-    <div class="caption-text-build" id="caption-build">…</div>
+    <div class="caption-img-wrap"><img id="caption-img" src="" alt="meme"></div>
+    <div class="caption-build" id="caption-build">…</div>
     <div id="caption-your-turn" class="caption-your-turn" style="display:none">
-      <span id="caption-hint"></span>
-      <div style="margin-top:.75rem;display:flex;gap:.5rem">
-        <input type="text" id="caption-input" placeholder="tavo žodžiai..." maxlength="40" style="flex:1;margin-bottom:0">
+      <div id="caption-hint" style="margin-bottom:.75rem"></div>
+      <div style="display:flex;gap:.5rem">
+        <input type="text" id="caption-input" placeholder="tavo žodžiai..." maxlength="120" style="flex:1;margin-bottom:0">
         <button class="btn-p" style="width:auto" onclick="submitCaption()">Pridėti</button>
       </div>
       <div class="err" id="caption-err"></div>
@@ -327,17 +358,12 @@ button:disabled{opacity:.4;cursor:default;}
   </div>
 </div>
 
-<!-- MINIGAME CAPTION REVEAL -->
+<!-- CAPTION REVEAL -->
 <div id="s-mg-caption-reveal" class="screen">
   <div class="game-bar"><span>🎮 Rezultatas!</span><span></span></div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="mg-banner">
-      <h2>🎉 Štai kas gavosi!</h2>
-      <p>Bendras grupės paaiškinimas</p>
-    </div>
-    <div class="caption-img-wrap">
-      <img id="reveal-caption-img" src="" alt="meme">
-    </div>
+    <div class="mg-banner"><h2>🎉 Štai kas gavosi!</h2><p>Bendras grupės sakinys</p></div>
+    <div class="caption-img-wrap"><img id="reveal-caption-img" src="" alt="meme"></div>
     <div style="background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:1rem 1.25rem;width:100%;margin-bottom:1rem;font-size:1.15rem;font-weight:700;color:#fff;line-height:1.7;" id="reveal-caption-text"></div>
     <div style="text-align:center">
       <button class="btn-next" id="btn-caption-done" onclick="captionDone()" style="display:none">Tęsti →</button>
@@ -346,20 +372,15 @@ button:disabled{opacity:.4;cursor:default;}
   </div>
 </div>
 
-<!-- MINIGAME REACTION WRITE -->
+<!-- REACTION WRITE -->
 <div id="s-mg-reaction-write" class="screen">
   <div class="game-bar"><span>🎮 Mini žaidimas</span><span id="rw-name-tag" style="color:var(--yellow)"></span></div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="mg-banner">
-      <h2>😱 Tavo reakcija!</h2>
-      <p>Parašyk reakciją į šį paveikslėlį savo žodžiais</p>
-    </div>
-    <div class="reaction-card-big" id="reaction-card-wrap">
-      <img id="reaction-my-img" src="" alt="meme">
-    </div>
+    <div class="mg-banner"><h2>😱 Tavo reakcija!</h2><p>Parašyk reakciją į šį paveikslėlį savo žodžiais</p></div>
+    <div class="reaction-card-big"><img id="reaction-my-img" src="" alt="meme"></div>
     <div class="rbox" style="max-width:440px">
       <h2>Tavo reakcija</h2>
-      <textarea id="reaction-input" placeholder="Aš kai... (aprašyk savo reakciją)" maxlength="200"></textarea>
+      <textarea id="reaction-input" placeholder="Aprašyk savo reakciją..." maxlength="200"></textarea>
       <button class="btn-p" id="btn-reaction-submit" onclick="submitReaction()">Pateikti ✓</button>
       <div class="err" id="reaction-err"></div>
     </div>
@@ -367,22 +388,91 @@ button:disabled{opacity:.4;cursor:default;}
   </div>
 </div>
 
-<!-- MINIGAME REACTION REVEAL -->
+<!-- REACTION REVEAL -->
 <div id="s-mg-reaction-reveal" class="screen">
   <div class="game-bar"><span>🎮 Reakcijos!</span><span></span></div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="mg-banner" id="reaction-reveal-banner">
-      <h2>👀 Žiūrime reakcijas!</h2>
-      <p id="reaction-reveal-counter"></p>
-    </div>
+    <div class="mg-banner"><h2>👀 Žiūrime reakcijas!</h2><p id="reaction-reveal-counter"></p></div>
     <div class="reaction-player-tag" id="reaction-reveal-player"></div>
-    <div class="reaction-card-big">
-      <img id="reaction-reveal-img" src="" alt="meme">
-    </div>
+    <div class="reaction-card-big"><img id="reaction-reveal-img" src="" alt="meme"></div>
     <div class="reaction-text-reveal" id="reaction-reveal-text"></div>
     <div style="text-align:center;margin-top:.5rem">
       <button class="btn-next" id="btn-reaction-next" onclick="reactionNext()" style="display:none">Kitas →</button>
       <div id="reaction-next-wait" style="color:var(--muted);font-size:.9rem;font-weight:700">Laukiame šeimininko…</div>
+    </div>
+  </div>
+</div>
+
+<!-- THIS OR THAT CREATE -->
+<div id="s-mg-tot-create" class="screen">
+  <div class="game-bar">
+    <span>🎮 Mini žaidimas</span>
+    <div id="tot-create-timer-wrap"></div>
+  </div>
+  <div style="width:100%;padding:0 .75rem">
+    <div class="mg-banner">
+      <h2>⚖️ Vienas ar Kitas?</h2>
+      <p>Sukurk situaciją ir du pasirinkimus — visi balsuos!</p>
+    </div>
+    <div style="text-align:center;margin-bottom:1rem">
+      <div style="font-size:.75rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem">Tema:</div>
+      <div id="tot-theme-badge"></div>
+    </div>
+    <div class="rbox" style="max-width:480px">
+      <h2>Situacija</h2>
+      <textarea id="tot-situation" placeholder="Pvz: Randi 100€ ant gatvės bet..." maxlength="200"></textarea>
+      <h2 style="margin-top:.25rem">1-as pasirinkimas (A)</h2>
+      <input type="text" id="tot-a" placeholder="Pvz: Pasiimi ir neklausi" maxlength="80">
+      <h2>2-as pasirinkimas (B)</h2>
+      <input type="text" id="tot-b" placeholder="Pvz: Atiduodi policijai" maxlength="80">
+      <button class="btn-p" id="btn-tot-submit" onclick="submitTot()">Pateikti ✓</button>
+      <div class="err" id="tot-err"></div>
+    </div>
+    <div class="submit-status" id="tot-progress">Laukiama visų žaidėjų…</div>
+  </div>
+</div>
+
+<!-- THIS OR THAT VOTE -->
+<div id="s-mg-tot-vote" class="screen">
+  <div class="game-bar">
+    <span>🎮 <span id="tot-vote-counter"></span></span>
+    <div id="tot-vote-timer-wrap"></div>
+  </div>
+  <div style="width:100%;padding:0 .75rem">
+    <div class="tot-situation" id="tot-vote-situation">
+      <div class="author" id="tot-vote-author"></div>
+      <div class="text" id="tot-vote-text"></div>
+    </div>
+    <div class="tot-options">
+      <button class="tot-btn" id="tot-btn-a" onclick="voteTot('A')"></button>
+      <button class="tot-btn" id="tot-btn-b" onclick="voteTot('B')"></button>
+    </div>
+    <div class="tot-bar-wrap">
+      <div class="tot-bar-labels">
+        <span class="la" id="tot-bar-label-a">A</span>
+        <span class="lb" id="tot-bar-label-b">B</span>
+      </div>
+      <div class="tot-bar-outer">
+        <div class="tot-bar-a" id="tot-bar-a" style="width:50%">0</div>
+        <div class="tot-bar-b" id="tot-bar-b">0</div>
+      </div>
+    </div>
+    <div class="tot-counter" id="tot-vote-count"></div>
+    <div style="text-align:center;margin-top:.5rem">
+      <button class="btn-y" id="btn-tot-skip" onclick="totSkip()" style="display:none">Kitas →</button>
+    </div>
+  </div>
+</div>
+
+<!-- THIS OR THAT RESULTS -->
+<div id="s-mg-tot-results" class="screen">
+  <div class="game-bar"><span>🎮 Rezultatai!</span><span></span></div>
+  <div style="width:100%;padding:0 .75rem">
+    <div class="mg-banner"><h2>⚖️ Kaip balsavo grupė!</h2><p>Štai ką visi pasirinko</p></div>
+    <div id="tot-results-list" style="width:100%;display:flex;flex-direction:column;gap:1rem;margin-bottom:1rem;"></div>
+    <div style="text-align:center">
+      <button class="btn-next" id="btn-tot-done" onclick="totDone()" style="display:none">Tęsti →</button>
+      <div id="tot-done-wait" style="color:var(--muted);font-size:.9rem;font-weight:700">Laukiame šeimininko…</div>
     </div>
   </div>
 </div>
@@ -397,23 +487,36 @@ button:disabled{opacity:.4;cursor:default;}
 </div>
 
 </div><!-- #app -->
-
 <script>
 // ── Audio ─────────────────────────────────────────────────────────────────
 const AC = new (window.AudioContext || window.webkitAudioContext)();
-document.addEventListener('click', () => { if(AC.state==='suspended') AC.resume(); }, {once:true});
+document.addEventListener('click',()=>{if(AC.state==='suspended')AC.resume();},{once:true});
 
-function playSound(type) {
-  try {
-    if (type==='click') {
-      const buf=AC.createBuffer(1,AC.sampleRate*.06,AC.sampleRate);
-      const d=buf.getChannelData(0);
-      for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/(AC.sampleRate*.012));
+function playSound(type){
+  try{
+    if(type==='click'){
+      const buf=AC.createBuffer(1,AC.sampleRate*.06,AC.sampleRate),d=buf.getChannelData(0);
+      for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(AC.sampleRate*.012));
       const src=AC.createBufferSource(),g=AC.createGain(),f=AC.createBiquadFilter();
       f.type='bandpass';f.frequency.value=600;f.Q.value=1.5;
       src.buffer=buf;src.connect(f);f.connect(g);g.connect(AC.destination);
       g.gain.setValueAtTime(.4,AC.currentTime);src.start();src.stop(AC.currentTime+.06);
-    } else if (type==='card') {
+    } else if(type==='tick'){
+      // satisfying tick for timer
+      const buf=AC.createBuffer(1,AC.sampleRate*.04,AC.sampleRate),d=buf.getChannelData(0);
+      for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(AC.sampleRate*.005));
+      const src=AC.createBufferSource(),g=AC.createGain(),f=AC.createBiquadFilter();
+      f.type='bandpass';f.frequency.value=1200;f.Q.value=3;
+      src.buffer=buf;src.connect(f);f.connect(g);g.connect(AC.destination);
+      g.gain.setValueAtTime(.18,AC.currentTime);src.start();src.stop(AC.currentTime+.04);
+    } else if(type==='tick-urgent'){
+      const buf=AC.createBuffer(1,AC.sampleRate*.035,AC.sampleRate),d=buf.getChannelData(0);
+      for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(AC.sampleRate*.004));
+      const src=AC.createBufferSource(),g=AC.createGain(),f=AC.createBiquadFilter();
+      f.type='bandpass';f.frequency.value=1800;f.Q.value=3;
+      src.buffer=buf;src.connect(f);f.connect(g);g.connect(AC.destination);
+      g.gain.setValueAtTime(.28,AC.currentTime);src.start();src.stop(AC.currentTime+.035);
+    } else if(type==='card'){
       const o=AC.createOscillator(),g=AC.createGain();
       o.connect(g);g.connect(AC.destination);o.type='sine';
       o.frequency.setValueAtTime(200,AC.currentTime);
@@ -421,10 +524,9 @@ function playSound(type) {
       g.gain.setValueAtTime(.25,AC.currentTime);
       g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.2);
       o.start();o.stop(AC.currentTime+.2);
-    } else if (type==='swirl') {
+    } else if(type==='swirl'){
       const o=AC.createOscillator(),g=AC.createGain(),lfo=AC.createOscillator(),lg=AC.createGain();
-      lfo.frequency.value=8;lg.gain.value=60;
-      lfo.connect(lg);lg.connect(o.frequency);
+      lfo.frequency.value=8;lg.gain.value=60;lfo.connect(lg);lg.connect(o.frequency);
       o.connect(g);g.connect(AC.destination);o.type='sine';
       o.frequency.setValueAtTime(150,AC.currentTime);
       o.frequency.exponentialRampToValueAtTime(800,AC.currentTime+.5);
@@ -432,19 +534,17 @@ function playSound(type) {
       g.gain.linearRampToValueAtTime(.18,AC.currentTime+.15);
       g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.55);
       lfo.start();lfo.stop(AC.currentTime+.55);o.start();o.stop(AC.currentTime+.55);
-    } else if (type==='jazz') {
-      // soft jazzy thinking chord
+    } else if(type==='jazz'){
       [[261,.0],[329,.05],[392,.1],[523,.15]].forEach(([freq,del])=>{
         const o=AC.createOscillator(),g=AC.createGain();
-        o.connect(g);g.connect(AC.destination);o.type='triangle';
-        o.frequency.value=freq;
+        o.connect(g);g.connect(AC.destination);o.type='triangle';o.frequency.value=freq;
         g.gain.setValueAtTime(0,AC.currentTime+del);
         g.gain.linearRampToValueAtTime(.07,AC.currentTime+del+.1);
         g.gain.linearRampToValueAtTime(.04,AC.currentTime+del+.8);
         g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+del+1.5);
         o.start(AC.currentTime+del);o.stop(AC.currentTime+del+1.6);
       });
-    } else if (type==='fanfare') {
+    } else if(type==='fanfare'){
       [[523,0],[659,.08],[784,.16]].forEach(([freq,del])=>{
         const o=AC.createOscillator(),g=AC.createGain();
         o.connect(g);g.connect(AC.destination);o.type='sine';o.frequency.value=freq;
@@ -453,7 +553,7 @@ function playSound(type) {
         g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+del+.6);
         o.start(AC.currentTime+del);o.stop(AC.currentTime+del+.65);
       });
-    } else if (type==='vote') {
+    } else if(type==='vote'){
       const o=AC.createOscillator(),g=AC.createGain();
       o.connect(g);g.connect(AC.destination);o.type='sine';
       o.frequency.setValueAtTime(600,AC.currentTime);
@@ -461,7 +561,7 @@ function playSound(type) {
       g.gain.setValueAtTime(.22,AC.currentTime);
       g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.15);
       o.start();o.stop(AC.currentTime+.15);
-    } else if (type==='win') {
+    } else if(type==='win'){
       [[523,0],[659,.1],[784,.2],[1047,.32],[1319,.44]].forEach(([freq,del])=>{
         const o=AC.createOscillator(),g=AC.createGain();
         o.connect(g);g.connect(AC.destination);o.type='triangle';o.frequency.value=freq;
@@ -470,8 +570,7 @@ function playSound(type) {
         g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+del+.5);
         o.start(AC.currentTime+del);o.stop(AC.currentTime+del+.55);
       });
-    } else if (type==='mg') {
-      // minigame fanfare — more dramatic
+    } else if(type==='mg'){
       [[392,0],[494,.1],[587,.2],[784,.3],[987,.42]].forEach(([freq,del])=>{
         const o=AC.createOscillator(),g=AC.createGain();
         o.connect(g);g.connect(AC.destination);o.type='sawtooth';o.frequency.value=freq;
@@ -481,71 +580,121 @@ function playSound(type) {
         o.start(AC.currentTime+del);o.stop(AC.currentTime+del+.5);
       });
     }
-  } catch(e){}
+  }catch(e){}
 }
 
-// ── Swirl transition ──────────────────────────────────────────────────────
-function swirlTo(screenId, cb) {
-  const app = document.getElementById('app');
-  const ov = document.getElementById('overlay');
+// ── Timer widget ──────────────────────────────────────────────────────────
+let activeTimers = {};
+function startTimer(containerId, duration, label, onMyTurn){
+  stopTimer(containerId);
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  let left = duration;
+  const urgent = duration <= 20;
+
+  function render(){
+    const pct = (left/duration)*100;
+    const isUrgent = left <= 5;
+    container.innerHTML=`<div class="timer-wrap${isUrgent?' urgent':''}">
+      <span class="timer-clock">⏱</span>
+      <div class="timer-bar-outer"><div class="timer-bar-inner" style="width:${pct}%;background:${isUrgent?'var(--red)':'var(--teal)'}"></div></div>
+      <span class="timer-num">${left}s</span>
+    </div>`;
+  }
+  render();
+
+  const iv = setInterval(()=>{
+    left--;
+    if(left<=0){
+      clearInterval(iv);
+      container.innerHTML='';
+      return;
+    }
+    render();
+    if(onMyTurn){
+      if(left<=5) playSound('tick-urgent');
+      else playSound('tick');
+    }
+  },1000);
+  activeTimers[containerId]=iv;
+}
+function stopTimer(containerId){
+  if(activeTimers[containerId]){clearInterval(activeTimers[containerId]);delete activeTimers[containerId];}
+  const c=document.getElementById(containerId);if(c)c.innerHTML='';
+}
+
+// ── Swirl ─────────────────────────────────────────────────────────────────
+function swirlTo(screenId,cb){
+  const app=document.getElementById('app'),ov=document.getElementById('overlay');
   playSound('swirl');
-  app.className = 'page-out';
-  ov.className = 'in';
-  setTimeout(() => {
-    if(cb) cb();
+  app.className='page-out';ov.className='in';
+  setTimeout(()=>{
+    if(cb)cb();
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
     window.scrollTo(0,0);
-    app.className = 'page-in';
-    ov.className = 'out';
-    setTimeout(() => { app.className=''; ov.className=''; }, 400);
-  }, 300);
+    app.className='page-in';ov.className='out';
+    setTimeout(()=>{app.className='';ov.className='';},400);
+  },300);
 }
-
-function showScreen(id, anim) {
-  if(anim) { swirlTo(id); return; }
+function showScreen(id,anim){
+  if(anim){swirlTo(id);return;}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
 }
-
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function setErr(id,msg){const el=document.getElementById(id);if(el)el.textContent=msg;}
 
 // ── State ─────────────────────────────────────────────────────────────────
-const socket = io();
-let myId=null, myName='', myHand=[], selectedCard=null;
-let isHost=false, currentEvent='', hasPlayed=false, hasVoted=false;
-let revealQueue=[], isRevealing=false;
-let hasSubmitted=false, hasSubmittedReaction=false, hasSubmittedCaption=false;
+const socket=io();
+let myId=null,myName='',myHand=[],selectedCard=null;
+let isHost=false,currentEvent='',hasPlayed=false,hasVoted=false;
+let revealQueue=[],isRevealing=false;
+let hasSubmitted=false,hasSubmittedReaction=false,hasSubmittedTot=false;
+let totMyItem=null,totVoted=false,totCurrentItem=null;
 
-socket.on('connect', ()=>{ myId=socket.id; });
-socket.on('error', msg=>{ setErr('join-err',msg); setErr('create-err',msg); });
+socket.on('connect',()=>{myId=socket.id;});
+socket.on('error',msg=>{setErr('join-err',msg);setErr('create-err',msg);});
 
-socket.on('room_joined', ({code,hand,isHost:host})=>{
-  isHost=host; myHand=hand;
+socket.on('room_joined',({code,hand,isHost:host})=>{
+  isHost=host;myHand=hand;
   document.getElementById('display-code').textContent=code;
   showScreen('s-lobby',true);
 });
 
-socket.on('room_update', room=>{
+socket.on('room_update',room=>{
   renderPills(room.players);
   const count=Object.keys(room.players).length;
-  if(room.phase==='lobby' && isHost){
+  if(room.phase==='lobby'&&isHost){
     document.getElementById('btn-start').style.display=count>=2?'block':'none';
     document.getElementById('lobby-wait').style.display=count>=2?'none':'block';
   }
   if(room.phase==='submitting'){
-    renderSubmitPills(room.players, room.submittedCount, count);
-    if(!document.getElementById('s-submit').classList.contains('active'))
+    renderSubmitPills(room.players,room.submittedCount,count);
+    if(!document.getElementById('s-submit').classList.contains('active')){
+      // show themes
+      const tb=document.getElementById('theme-badges');
+      if(tb&&room.themes){tb.innerHTML=room.themes.map(t=>`<span class="theme-badge">${esc(t)}</span>`).join('');}
       showScreen('s-submit',true);
+    }
   }
   if(room.phase==='playing') enterGame(room);
 });
 
-socket.on('new_hand', ({hand})=>{
-  myHand=hand; hasPlayed=false; hasVoted=false; selectedCard=null;
-  revealQueue=[]; isRevealing=false;
+socket.on('timer_start',({duration,label})=>{
+  if(label==='submit'){
+    startTimer('submit-timer',duration,'submit',true);
+  } else if(label==='tot_create'){
+    startTimer('tot-create-timer-wrap',duration,'tot_create',!hasSubmittedTot);
+  } else if(label==='tot_vote'){
+    startTimer('tot-vote-timer-wrap',duration,'tot_vote',!totVoted&&totCurrentItem?.playerId!==myId);
+  }
+});
+
+socket.on('new_hand',({hand})=>{
+  myHand=hand;hasPlayed=false;hasVoted=false;selectedCard=null;
+  revealQueue=[];isRevealing=false;
   renderHand();
   document.getElementById('played-notice').style.display='none';
   document.getElementById('hand-area').style.display='block';
@@ -553,41 +702,37 @@ socket.on('new_hand', ({hand})=>{
   document.getElementById('spotlight-wrap').innerHTML=`<div class="waiting-txt" id="spotlight-wait">Laukiama kortelių…<br><span class="waiting-count" id="played-count">0</span> / <span id="total-count">?</span></div>`;
 });
 
-socket.on('card_played', ({playerId,playerName,card,totalPlayed,totalPlayers})=>{
-  const pc=document.getElementById('played-count'), tc=document.getElementById('total-count');
-  if(pc) pc.textContent=totalPlayed; if(tc) tc.textContent=totalPlayers;
+socket.on('card_played',({playerId,playerName,card,totalPlayed,totalPlayers})=>{
+  const pc=document.getElementById('played-count'),tc=document.getElementById('total-count');
+  if(pc)pc.textContent=totalPlayed;if(tc)tc.textContent=totalPlayers;
   revealQueue.push({card,playerName});
-  if(!isRevealing) processReveal();
+  if(!isRevealing)processReveal();
 });
 
-socket.on('start_voting', ({playedCards,playOrder,players})=>{
-  playSound('fanfare'); renderVoting(playedCards,playOrder,players);
+socket.on('start_voting',({playedCards,playOrder,players})=>{
+  playSound('fanfare');renderVoting(playedCards,playOrder,players);
 });
 
-socket.on('vote_update', ({totalVotes,totalPlayers})=>{
+socket.on('vote_update',({totalVotes,totalPlayers})=>{
   const el=document.getElementById('vote-count-txt');
-  if(el) el.textContent=`${totalVotes} / ${totalPlayers} balsavo`;
+  if(el)el.textContent=`${totalVotes} / ${totalPlayers} balsavo`;
 });
 
-socket.on('round_results', ({playedCards,playOrder,players,votes,round,maxRounds})=>{
+socket.on('round_results',({playedCards,playOrder,players,votes,round,maxRounds})=>{
   showResults(playedCards,playOrder,players,votes,round,maxRounds);
 });
 
-socket.on('game_over', ({players})=>{ playSound('win'); showGameOver(players); });
+socket.on('game_over',({players})=>{playSound('win');showGameOver(players);});
 
 // ── Minigame events ───────────────────────────────────────────────────────
-socket.on('minigame_start', ({type,image,order,players})=>{
+socket.on('minigame_start',({type,image,order,players,theme})=>{
   playSound('mg');
   if(type==='caption'){
     document.getElementById('caption-img').src=image.url;
     document.getElementById('caption-build').textContent='…';
     document.getElementById('caption-your-turn').style.display='none';
     document.getElementById('caption-wait').textContent='';
-    document.getElementById('mg-name-tag').textContent=myName;
-    hasSubmittedCaption=false;
-    swirlTo('s-mg-caption', ()=>{
-      // will get caption_update to know whose turn it is
-    });
+    swirlTo('s-mg-caption');
   } else if(type==='reaction'){
     document.getElementById('rw-name-tag').textContent=myName;
     document.getElementById('reaction-progress').textContent='';
@@ -595,84 +740,139 @@ socket.on('minigame_start', ({type,image,order,players})=>{
     document.getElementById('btn-reaction-submit').textContent='Pateikti ✓';
     hasSubmittedReaction=false;
     showScreen('s-mg-reaction-write',true);
+  } else if(type==='thisorthat'){
+    hasSubmittedTot=false;totVoted=false;totCurrentItem=null;
+    document.getElementById('btn-tot-submit').disabled=false;
+    document.getElementById('btn-tot-submit').textContent='Pateikti ✓';
+    document.getElementById('tot-situation').value='';
+    document.getElementById('tot-a').value='';
+    document.getElementById('tot-b').value='';
+    const tb=document.getElementById('tot-theme-badge');
+    if(tb)tb.innerHTML=theme?`<span class="theme-badge">${esc(theme)}</span>`:'';
+    showScreen('s-mg-tot-create',true);
   }
 });
 
-socket.on('reaction_assignment', ({card})=>{
-  document.getElementById('reaction-my-img').src=card.url;
-});
+socket.on('reaction_assignment',({card})=>{document.getElementById('reaction-my-img').src=card.url;});
+socket.on('reaction_progress',({done,total})=>{const el=document.getElementById('reaction-progress');if(el)el.textContent=`${done} / ${total} pateikė`;});
 
-socket.on('reaction_progress', ({done,total})=>{
-  const el=document.getElementById('reaction-progress');
-  if(el) el.textContent=`${done} / ${total} pateikė`;
-});
-
-socket.on('caption_update', ({parts,currentIdx,captionOrder,players})=>{
+socket.on('caption_update',({parts,currentIdx,captionOrder,players,timeLeft})=>{
   const buildEl=document.getElementById('caption-build');
-  if(parts.length===0){
-    buildEl.textContent='…';
-  } else {
-    buildEl.innerHTML=parts.map((p,i)=>`<span class="caption-part${i===parts.length-1?' new':''}">${esc(p.text)} </span>`).join('');
-  }
-
-  const myTurn = captionOrder[currentIdx]===myId;
-  const done = currentIdx>=captionOrder.length;
-  const isFirst = currentIdx===0;
-  const isLast = currentIdx===captionOrder.length-1;
-
+  if(parts.length===0){buildEl.textContent='…';}
+  else{buildEl.innerHTML=parts.map((p,i)=>`<span class="caption-part${i===parts.length-1?' new':''}">${esc(p.text)} </span>`).join('');}
+  const myTurn=captionOrder[currentIdx]===myId;
+  const done=currentIdx>=captionOrder.length;
+  const isFirst=currentIdx===0;
+  const isLast=currentIdx===captionOrder.length-1;
   document.getElementById('caption-your-turn').style.display=(!done&&myTurn)?'flex':'none';
   document.getElementById('caption-your-turn').style.flexDirection='column';
-
-  if(!done && myTurn) {
-    const hint = document.getElementById('caption-hint');
-    if(isFirst) {
-      hint.innerHTML='✏️ Tavo eilė — pradėk sakinį! (2-3 žodžiai, baik žodžiu: <strong>jeigu / ir / tada / kaip / dėl to</strong>)';
-    } else if(isLast) {
-      hint.innerHTML='✏️ Tavo eilė — užbaik sakinį! (2-3 žodžiai, galima baigti kaip nori)';
-    } else {
-      hint.innerHTML='✏️ Tavo eilė! Pridėk 2-3 žodžius (baik žodžiu: <strong>jeigu / ir / tada / kaip / dėl to</strong>)';
-    }
+  if(!done&&myTurn){
+    const hint=document.getElementById('caption-hint');
+    if(isFirst)hint.innerHTML='✏️ Tu pradeedi! Parašyk pradžią (baik žodžiu: <strong>jeigu / ir / tada / kaip / dėl to</strong>)';
+    else if(isLast)hint.innerHTML='✏️ Tavo eilė — užbaik sakinį kaip nori!';
+    else hint.innerHTML='✏️ Tavo eilė! Pridėk savo dalį (baik žodžiu: <strong>jeigu / ir / tada / kaip / dėl to</strong>)';
     document.getElementById('caption-input').focus();
+    stopTimer('caption-timer-wrap');
+    startTimer('caption-timer-wrap',20,'caption',true);
   }
-
   if(!done&&!myTurn){
     const name=players[captionOrder[currentIdx]]?.name||'?';
     document.getElementById('caption-wait').textContent=`Laukiame — ${name} rašo…`;
-  } else {
+    stopTimer('caption-timer-wrap');
+    startTimer('caption-timer-wrap',20,'caption',false);
+  } else if(done){
+    stopTimer('caption-timer-wrap');
     document.getElementById('caption-wait').textContent='';
   }
 });
 
-socket.on('caption_reveal', ({image,parts,players})=>{
+socket.on('caption_reveal',({image,parts,players})=>{
+  stopTimer('caption-timer-wrap');
   document.getElementById('reveal-caption-img').src=image.url;
-  const fullText=parts.map(p=>`<strong>${esc(p.text)}</strong>`).join(' ');
-  document.getElementById('reveal-caption-text').innerHTML=fullText;
-  if(isHost){
-    document.getElementById('btn-caption-done').style.display='block';
-    document.getElementById('caption-done-wait').style.display='none';
-  } else {
-    document.getElementById('btn-caption-done').style.display='none';
-    document.getElementById('caption-done-wait').style.display='block';
-  }
+  document.getElementById('reveal-caption-text').innerHTML=parts.map(p=>`<strong>${esc(p.text)}</strong>`).join(' ');
+  if(isHost){document.getElementById('btn-caption-done').style.display='block';document.getElementById('caption-done-wait').style.display='none';}
+  else{document.getElementById('btn-caption-done').style.display='none';document.getElementById('caption-done-wait').style.display='block';}
   showScreen('s-mg-caption-reveal',true);
 });
 
-socket.on('reaction_reveal_next', ({playerId,playerName,card,text,idx,total})=>{
+socket.on('reaction_reveal_next',({playerId,playerName,card,text,idx,total})=>{
   document.getElementById('reaction-reveal-player').textContent=playerName;
   document.getElementById('reaction-reveal-img').src=card.url;
   document.getElementById('reaction-reveal-text').textContent=text;
   document.getElementById('reaction-reveal-counter').textContent=`${idx+1} iš ${total}`;
-  const isLast=idx>=total-1;
-  if(isHost){
-    document.getElementById('btn-reaction-next').style.display='block';
-    document.getElementById('btn-reaction-next').textContent=isLast?'Tęsti →':'Kitas →';
-    document.getElementById('reaction-next-wait').style.display='none';
-  } else {
-    document.getElementById('btn-reaction-next').style.display='none';
-    document.getElementById('reaction-next-wait').style.display='block';
-  }
+  if(isHost){document.getElementById('btn-reaction-next').style.display='block';document.getElementById('btn-reaction-next').textContent=idx>=total-1?'Tęsti →':'Kitas →';document.getElementById('reaction-next-wait').style.display='none';}
+  else{document.getElementById('btn-reaction-next').style.display='none';document.getElementById('reaction-next-wait').style.display='block';}
   showScreen('s-mg-reaction-reveal',true);
 });
+
+// ── This or That socket events ────────────────────────────────────────────
+socket.on('tot_progress',({done,total})=>{
+  const el=document.getElementById('tot-progress');
+  if(el)el.textContent=`${done} / ${total} pateikė`;
+});
+
+socket.on('tot_question',({item,idx,total,votes})=>{
+  totCurrentItem=item;totVoted=false;
+  document.getElementById('tot-vote-counter').textContent=`${idx+1} / ${total}`;
+  document.getElementById('tot-vote-author').textContent=item.playerName+' klausia:';
+  document.getElementById('tot-vote-text').textContent=item.situation;
+  const btnA=document.getElementById('tot-btn-a');
+  const btnB=document.getElementById('tot-btn-b');
+  btnA.textContent='A: '+item.optionA;
+  btnB.textContent='B: '+item.optionB;
+  btnA.className='tot-btn';btnB.className='tot-btn';
+  document.getElementById('tot-bar-label-a').textContent='A: '+item.optionA;
+  document.getElementById('tot-bar-label-b').textContent='B: '+item.optionB;
+  updateTotBar(0,0);
+  document.getElementById('tot-vote-count').textContent='';
+  if(item.playerId===myId){
+    btnA.classList.add('own-item');btnB.classList.add('own-item');
+  }
+  document.getElementById('btn-tot-skip').style.display=isHost?'block':'none';
+  showScreen('s-mg-tot-vote',true);
+});
+
+socket.on('tot_votes_update',(tally)=>{
+  updateTotBar(tally.A||0,tally.B||0);
+  const total=(tally.A||0)+(tally.B||0);
+  document.getElementById('tot-vote-count').textContent=`${total} balsų`;
+});
+
+socket.on('tot_final',({results})=>{
+  const list=document.getElementById('tot-results-list');
+  list.innerHTML='';
+  results.forEach(r=>{
+    const total=(r.tally.A||0)+(r.tally.B||0);
+    const pctA=total?Math.round((r.tally.A/total)*100):50;
+    const pctB=100-pctA;
+    const div=document.createElement('div');
+    div.style.cssText='background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:4px 4px 0 #000;padding:1rem 1.25rem;';
+    div.innerHTML=`
+      <div style="font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:.3rem">${esc(r.playerName)} klausė:</div>
+      <div style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:.75rem">${esc(r.situation)}</div>
+      <div style="display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;margin-bottom:.3rem">
+        <span style="color:var(--orange)">A: ${esc(r.optionA)} — ${r.tally.A||0}</span>
+        <span style="color:var(--teal)">B: ${esc(r.optionB)} — ${r.tally.B||0}</span>
+      </div>
+      <div style="height:22px;background:var(--teal-dim);border:1px solid #000;border-radius:3px;overflow:hidden;display:flex">
+        <div style="width:${pctA}%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Alfa Slab One',serif;font-size:.75rem;color:#fff">${pctA}%</div>
+        <div style="flex:1;background:var(--teal);display:flex;align-items:center;justify-content:center;font-family:'Alfa Slab One',serif;font-size:.75rem;color:#fff">${pctB}%</div>
+      </div>`;
+    list.appendChild(div);
+  });
+  if(isHost){document.getElementById('btn-tot-done').style.display='block';document.getElementById('tot-done-wait').style.display='none';}
+  else{document.getElementById('btn-tot-done').style.display='none';document.getElementById('tot-done-wait').style.display='block';}
+  showScreen('s-mg-tot-results',true);
+});
+
+function updateTotBar(a,b){
+  const total=a+b;
+  const pctA=total?Math.round((a/total)*100):50;
+  const barA=document.getElementById('tot-bar-a');
+  const barB=document.getElementById('tot-bar-b');
+  if(barA){barA.style.width=pctA+'%';barA.textContent=a;}
+  if(barB){barB.textContent=b;}
+}
 
 // ── Actions ───────────────────────────────────────────────────────────────
 function createRoom(){
@@ -681,7 +881,7 @@ function createRoom(){
   const rounds=parseInt(document.getElementById('create-rounds').value)||3;
   if(!name){setErr('create-err','Įvesk savo vardą');return;}
   myName=name;
-  document.getElementById('my-name-tag').textContent=name;
+  ['my-name-tag','rw-name-tag','mg-name-tag'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=name;});
   socket.emit('create_room',{name,baseRounds:rounds});
 }
 
@@ -692,69 +892,99 @@ function joinRoom(){
   if(!name){setErr('join-err','Įvesk savo vardą');return;}
   if(!code){setErr('join-err','Įvesk kambario kodą');return;}
   myName=name;
-  document.getElementById('my-name-tag').textContent=name;
-  document.getElementById('rw-name-tag').textContent=name;
-  document.getElementById('mg-name-tag').textContent=name;
+  ['my-name-tag','rw-name-tag','mg-name-tag'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=name;});
   socket.emit('join_room',{name,code});
 }
 
-function startGame(){ playSound('click'); socket.emit('start_game'); }
+function startGame(){playSound('click');socket.emit('start_game');}
 
 function submitEvents(){
-  if(hasSubmitted) return;
-  const e1=document.getElementById('event-input-1').value.trim();
-  const e2=document.getElementById('event-input-2').value.trim();
+  if(hasSubmitted)return;
+  const e1=document.getElementById('ev1').value.trim();
+  const e2=document.getElementById('ev2').value.trim();
   if(!e1||e1.length<3){setErr('submit-err','Įvesk pirmą situaciją!');return;}
   if(!e2||e2.length<3){setErr('submit-err','Įvesk antrą situaciją!');return;}
-  playSound('click');
-  hasSubmitted=true;
+  playSound('click');hasSubmitted=true;
   const btn=document.getElementById('btn-submit');
-  btn.disabled=true; btn.textContent='✓ Pateikta!';
+  btn.disabled=true;btn.textContent='✓ Pateikta!';
+  stopTimer('submit-timer');
   socket.emit('submit_events',{events:[e1,e2]});
 }
 
-function nextRound(){ playSound('click'); socket.emit('next_round'); }
+function nextRound(){playSound('click');socket.emit('next_round');}
+function captionDone(){playSound('click');socket.emit('caption_done');}
+function reactionNext(){playSound('click');socket.emit('reaction_next');}
+function totSkip(){playSound('click');socket.emit('tot_skip');}
+function totDone(){playSound('click');socket.emit('caption_done');} // reuses afterMinigame path via caption_done on server? No — need separate
+// Actually tot_done just triggers next_round equivalent:
+
+socket.on('tot_continue',()=>{ /* handled via game_over or room_update */ });
+
+function totDone(){playSound('click');socket.emit('tot_done');}
 
 function playCard(){
-  if(!selectedCard||hasPlayed) return;
-  playSound('card'); hasPlayed=true;
+  if(!selectedCard||hasPlayed)return;
+  playSound('card');hasPlayed=true;
   socket.emit('play_card',{card:selectedCard});
   document.getElementById('hand-area').style.display='none';
   document.getElementById('played-notice').style.display='block';
 }
 
 function vote(votedFor){
-  if(hasVoted) return;
-  playSound('vote'); hasVoted=true;
+  if(hasVoted)return;
+  playSound('vote');hasVoted=true;
   socket.emit('vote',{votedFor});
   document.querySelectorAll('.vote-card').forEach(c=>{
-    if(c.dataset.id===votedFor) c.classList.add('voted-this');
+    if(c.dataset.id===votedFor)c.classList.add('voted-this');
     else c.classList.add('disabled');
   });
 }
 
 function submitCaption(){
   const val=document.getElementById('caption-input').value.trim();
-  if(!val){setErr('caption-err','Įvesk žodžius!');return;}
+  if(!val){setErr('caption-err','Įvesk tekstą!');return;}
   playSound('click');
   document.getElementById('caption-input').value='';
   document.getElementById('caption-your-turn').style.display='none';
+  stopTimer('caption-timer-wrap');
   socket.emit('caption_submit',{text:val});
 }
 
-function captionDone(){ playSound('click'); socket.emit('caption_done'); }
-
 function submitReaction(){
-  if(hasSubmittedReaction) return;
+  if(hasSubmittedReaction)return;
   const val=document.getElementById('reaction-input').value.trim();
   if(!val||val.length<3){setErr('reaction-err','Parašyk savo reakciją!');return;}
-  playSound('click'); hasSubmittedReaction=true;
+  playSound('click');hasSubmittedReaction=true;
   document.getElementById('btn-reaction-submit').disabled=true;
   document.getElementById('btn-reaction-submit').textContent='✓ Pateikta!';
   socket.emit('reaction_submit',{text:val});
 }
 
-function reactionNext(){ playSound('click'); socket.emit('reaction_next'); }
+function submitTot(){
+  if(hasSubmittedTot)return;
+  const sit=document.getElementById('tot-situation').value.trim();
+  const a=document.getElementById('tot-a').value.trim();
+  const b=document.getElementById('tot-b').value.trim();
+  if(!sit||sit.length<5){setErr('tot-err','Įvesk situaciją!');return;}
+  if(!a){setErr('tot-err','Įvesk pirmą pasirinkimą!');return;}
+  if(!b){setErr('tot-err','Įvesk antrą pasirinkimą!');return;}
+  playSound('click');hasSubmittedTot=true;
+  document.getElementById('btn-tot-submit').disabled=true;
+  document.getElementById('btn-tot-submit').textContent='✓ Pateikta!';
+  stopTimer('tot-create-timer-wrap');
+  socket.emit('tot_submit',{situation:sit,optionA:a,optionB:b});
+}
+
+function voteTot(choice){
+  if(totVoted||totCurrentItem?.playerId===myId)return;
+  playSound('vote');totVoted=true;
+  const btnA=document.getElementById('tot-btn-a'),btnB=document.getElementById('tot-btn-b');
+  btnA.classList.add('voted');btnB.classList.add('voted');
+  if(choice==='A')btnA.classList.add('choice-A');
+  else btnB.classList.add('choice-B');
+  stopTimer('tot-vote-timer-wrap');
+  socket.emit('tot_vote',{choice});
+}
 
 // ── Reveal ────────────────────────────────────────────────────────────────
 function processReveal(){
@@ -762,21 +992,16 @@ function processReveal(){
   isRevealing=true;
   const item=revealQueue.shift();
   const prev=document.getElementById('current-spotlight');
-  if(prev){
-    prev.classList.add('fly-out');
-    setTimeout(()=>{addMini(prev._card,prev._playerName);prev.remove();showSpotlight(item);},300);
-  } else {
-    const w=document.getElementById('spotlight-wait'); if(w) w.remove();
-    showSpotlight(item);
-  }
+  if(prev){prev.classList.add('fly-out');setTimeout(()=>{addMini(prev._card,prev._playerName);prev.remove();showSpotlight(item);},300);}
+  else{const w=document.getElementById('spotlight-wait');if(w)w.remove();showSpotlight(item);}
 }
 
 function showSpotlight(item){
   playSound('card');
   const wrap=document.getElementById('spotlight-wrap');
   const el=document.createElement('div');
-  el.className='spotlight-card'; el.id='current-spotlight';
-  el._card=item.card; el._playerName=item.playerName;
+  el.className='spotlight-card';el.id='current-spotlight';
+  el._card=item.card;el._playerName=item.playerName;
   el.innerHTML=`<img src="${esc(item.card.url)}" alt="meme" onerror="this.src='https://placehold.co/440x350/2a1e0c/5a3e1a?text=?'"><div class="spotlight-player">${esc(item.playerName)}</div>`;
   wrap.appendChild(el);
   setTimeout(()=>processReveal(),2500);
@@ -784,37 +1009,34 @@ function showSpotlight(item){
 
 function addMini(card,playerName){
   const strip=document.getElementById('mini-strip');
-  const el=document.createElement('div');
-  el.className='mini-card';
+  const el=document.createElement('div');el.className='mini-card';
   el.innerHTML=`<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/70x70/2a1e0c/5a3e1a?text=?'"><div class="mini-name">${esc(playerName)}</div>`;
   strip.appendChild(el);
 }
 
 // ── Render ────────────────────────────────────────────────────────────────
 function renderPills(players){
-  ['player-pills'].forEach(id=>{
-    const w=document.getElementById(id); if(!w) return;
-    w.innerHTML='';
-    Object.entries(players).forEach(([id2,p])=>{
-      const el=document.createElement('div'); el.className='pill';
-      el.innerHTML=`<div class="dot"></div>${esc(p.name)}${id2===myId?'<span class="badge">tu</span>':''}`;
-      w.appendChild(el);
-    });
+  const w=document.getElementById('player-pills');if(!w)return;
+  w.innerHTML='';
+  Object.entries(players).forEach(([id,p])=>{
+    const el=document.createElement('div');el.className='pill';
+    el.innerHTML=`<div class="dot"></div>${esc(p.name)}${id===myId?'<span class="badge">tu</span>':''}`;
+    w.appendChild(el);
   });
 }
 
 function renderSubmitPills(players,done,total){
-  const w=document.getElementById('submit-pills'); if(!w) return;
+  const w=document.getElementById('submit-pills');if(!w)return;
   w.innerHTML='';
   Object.entries(players).forEach(([id,p])=>{
-    const el=document.createElement('div'); el.className='pill';
+    const el=document.createElement('div');el.className='pill';
     el.style.borderColor=p.hasSubmitted?'var(--teal)':'var(--border)';
     el.style.color=p.hasSubmitted?'var(--teal)':'var(--muted)';
     el.innerHTML=`<div class="dot" style="background:${p.hasSubmitted?'var(--teal)':'var(--muted)'}"></div>${esc(p.name)} ${p.hasSubmitted?'✓':'…'}`;
     w.appendChild(el);
   });
   const s=document.getElementById('submit-status');
-  if(s) s.textContent=`${done} / ${total} pateikė situacijas`;
+  if(s)s.textContent=`${done} / ${total} pateikė situacijas`;
 }
 
 function enterGame(room){
@@ -822,26 +1044,26 @@ function enterGame(room){
   document.getElementById('round-num').textContent=room.round;
   document.getElementById('round-max').textContent=room.maxRounds;
   document.getElementById('event-text').textContent=room.currentEvent;
-  revealQueue=[]; isRevealing=false;
+  revealQueue=[];isRevealing=false;
   document.getElementById('mini-strip').innerHTML='';
   const pc=Object.keys(room.players).length;
   document.getElementById('spotlight-wrap').innerHTML=`<div class="waiting-txt" id="spotlight-wait">Laukiama kortelių…<br><span class="waiting-count" id="played-count">0</span> / <span id="total-count">${pc}</span></div>`;
   document.getElementById('played-notice').style.display='none';
   document.getElementById('hand-area').style.display='block';
-  hasPlayed=false; selectedCard=null;
+  hasPlayed=false;selectedCard=null;
   renderHand();
   playSound('jazz');
   showScreen('s-game',true);
 }
 
 function renderHand(){
-  const grid=document.getElementById('hand-grid'); grid.innerHTML='';
+  const grid=document.getElementById('hand-grid');grid.innerHTML='';
   myHand.forEach(card=>{
-    const el=document.createElement('div'); el.className='hand-card';
+    const el=document.createElement('div');el.className='hand-card';
     el.innerHTML=`<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/155x155/2a1e0c/5a3e1a?text=?'">`;
     el.onclick=()=>{
-      if(hasPlayed) return;
-      playSound('click'); selectedCard=card;
+      if(hasPlayed)return;
+      playSound('click');selectedCard=card;
       document.querySelectorAll('.hand-card').forEach(c=>c.classList.remove('selected'));
       el.classList.add('selected');
       document.getElementById('btn-play').disabled=false;
@@ -853,9 +1075,9 @@ function renderHand(){
 
 function renderVoting(playedCards,playOrder,players){
   document.getElementById('vote-event').textContent=currentEvent;
-  const grid=document.getElementById('vote-grid'); grid.innerHTML=''; hasVoted=false;
+  const grid=document.getElementById('vote-grid');grid.innerHTML='';hasVoted=false;
   playOrder.forEach(pid=>{
-    const card=playedCards[pid], name=players[pid]?.name||'?';
+    const card=playedCards[pid],name=players[pid]?.name||'?';
     const el=document.createElement('div');
     el.className='vote-card'+(pid===myId?' disabled':'');
     el.dataset.id=pid;
@@ -870,11 +1092,11 @@ function renderVoting(playedCards,playOrder,players){
 function showResults(playedCards,playOrder,players,votes,round,maxRounds){
   document.getElementById('results-event').textContent=currentEvent;
   document.getElementById('results-sub').textContent=`Raundas ${round} iš ${maxRounds}`;
-  const grid=document.getElementById('results-grid'); grid.innerHTML='';
+  const grid=document.getElementById('results-grid');grid.innerHTML='';
   const maxV=Math.max(0,...Object.values(votes));
   playOrder.forEach(pid=>{
     const card=playedCards[pid],name=players[pid]?.name||'?',vc=votes[pid]||0,win=vc===maxV&&maxV>0;
-    const el=document.createElement('div'); el.className='result-card'+(win?' winner':'');
+    const el=document.createElement('div');el.className='result-card'+(win?' winner':'');
     el.innerHTML=`${win?'<div class="winner-crown">👑</div>':''}<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/185x185/2a1e0c/5a3e1a?text=?'"><div class="result-player">${esc(name)}</div><div class="result-votes">${vc} ${vc===1?'balsas':'balsai'} · ${players[pid]?.score??0} tšk.</div>`;
     grid.appendChild(el);
   });
@@ -893,9 +1115,9 @@ function showResults(playedCards,playOrder,players,votes,round,maxRounds){
 function showGameOver(players){
   const sorted=Object.entries(players).sort((a,b)=>b[1].score-a[1].score);
   const medals=['🥇','🥈','🥉'];
-  const board=document.getElementById('scoreboard'); board.innerHTML='';
+  const board=document.getElementById('scoreboard');board.innerHTML='';
   sorted.forEach(([id,p],i)=>{
-    const row=document.createElement('div'); row.className='score-row';
+    const row=document.createElement('div');row.className='score-row';
     row.innerHTML=`<span class="rank">${medals[i]||i+1}</span><span>${esc(p.name)}${id===myId?'<span class="badge">tu</span>':''}</span><span class="pts">${p.score} tšk.</span>`;
     board.appendChild(row);
   });
@@ -906,8 +1128,8 @@ function showGameOver(players){
 document.getElementById('create-name').addEventListener('keydown',e=>{if(e.key==='Enter')createRoom();});
 document.getElementById('join-name').addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom();});
 document.getElementById('join-code').addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom();});
-document.getElementById('event-input-1').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();document.getElementById('event-input-2').focus();}});
-document.getElementById('event-input-2').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submitEvents();}});
+document.getElementById('ev1').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();document.getElementById('ev2').focus();}});
+document.getElementById('ev2').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submitEvents();}});
 document.getElementById('caption-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitCaption();}});
 </script>
 </body>
