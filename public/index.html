@@ -11,197 +11,161 @@
 :root{
   --bg:#1a1208;--surface:#241a0a;--surface2:#2e2210;--paper:#2a1e0c;
   --border:#5a3e1a;--text:#f0e6cc;--muted:#8a7050;
-  --orange:#e8721a;--orange-dim:#a04d10;--yellow:#d4a820;
-  --teal:#1a8a78;--teal-dim:#0f5a50;--red:#c03020;--red-dim:#801a10;
+  --orange:#e8721a;--od:#a04d10;--yellow:#d4a820;
+  --teal:#1a8a78;--td:#0f5a50;--red:#c03020;--rd:#801a10;
   --stripe:repeating-linear-gradient(-45deg,transparent,transparent 8px,rgba(255,255,255,0.015) 8px,rgba(255,255,255,0.015) 16px);
 }
 body{background:var(--bg);background-image:var(--stripe);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
-
-/* overlay */
 #overlay{position:fixed;inset:0;z-index:9999;pointer-events:none;display:flex;align-items:center;justify-content:center;opacity:0;background:radial-gradient(circle,#e8721a 0%,#1a1208 70%);}
-#overlay .star{font-size:5rem;transform:scale(0) rotate(0deg);opacity:0;}
+#overlay .star{font-size:5rem;transform:scale(0);opacity:0;}
 @keyframes ov-in{0%{opacity:0;clip-path:circle(0% at 50% 50%)}100%{opacity:1;clip-path:circle(150% at 50% 50%)}}
 @keyframes ov-out{0%{opacity:1;clip-path:circle(150% at 50% 50%)}100%{opacity:0;clip-path:circle(0% at 50% 50%)}}
-@keyframes star-in{0%{opacity:0;transform:scale(0) rotate(0deg)}50%{opacity:1;transform:scale(1.4) rotate(200deg)}100%{opacity:.6;transform:scale(1) rotate(360deg)}}
-@keyframes star-out{0%{opacity:.6;transform:scale(1) rotate(0deg)}100%{opacity:0;transform:scale(0) rotate(-360deg)}}
-#overlay.in{animation:ov-in .5s cubic-bezier(.4,0,.2,1) forwards;}
-#overlay.in .star{animation:star-in .5s ease forwards;}
-#overlay.out{animation:ov-out .5s cubic-bezier(.4,0,.2,1) forwards;}
-#overlay.out .star{animation:star-out .5s ease forwards;}
-
-/* page swirl */
+@keyframes si{0%{opacity:0;transform:scale(0) rotate(0deg)}50%{opacity:1;transform:scale(1.4) rotate(200deg)}100%{opacity:.6;transform:scale(1) rotate(360deg)}}
+@keyframes so{0%{opacity:.6;transform:scale(1)}100%{opacity:0;transform:scale(0) rotate(-360deg)}}
+#overlay.in{animation:ov-in .5s forwards;}#overlay.in .star{animation:si .5s forwards;}
+#overlay.out{animation:ov-out .5s forwards;}#overlay.out .star{animation:so .5s forwards;}
 #app{width:100%;display:flex;flex-direction:column;align-items:center;}
-@keyframes page-out{0%{transform:rotate(0deg) scale(1) translateY(0);opacity:1}100%{transform:rotate(8deg) scale(.7) translateY(60px);opacity:0}}
-@keyframes page-in{0%{transform:rotate(-8deg) scale(.7) translateY(60px);opacity:0}100%{transform:rotate(0deg) scale(1) translateY(0);opacity:1}}
-#app.page-out{animation:page-out .28s ease-in forwards;}
-#app.page-in{animation:page-in .32s cubic-bezier(.22,1,.36,1) forwards;}
-
+@keyframes po{0%{transform:rotate(0) scale(1);opacity:1}100%{transform:rotate(8deg) scale(.7) translateY(60px);opacity:0}}
+@keyframes pi{0%{transform:rotate(-8deg) scale(.7) translateY(60px);opacity:0}100%{transform:rotate(0) scale(1);opacity:1}}
+#app.po{animation:po .28s ease-in forwards;}#app.pi{animation:pi .32s cubic-bezier(.22,1,.36,1) forwards;}
 .top-bar{width:100%;height:8px;background:repeating-linear-gradient(90deg,var(--orange) 0 20px,var(--yellow) 20px 40px,var(--teal) 40px 60px,var(--red) 60px 80px);position:fixed;top:0;left:0;z-index:100;}
 body{padding-top:8px;}
 
-/* timer widget */
-.timer-wrap{display:flex;align-items:center;gap:.5rem;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.35rem .75rem;box-shadow:2px 2px 0 #000;font-family:'Alfa Slab One',serif;}
-.timer-wrap.urgent{border-color:var(--red);background:var(--red-dim);}
-.timer-clock{font-size:1.1rem;}
-.timer-num{font-size:1rem;color:var(--yellow);min-width:2rem;text-align:center;}
-.timer-wrap.urgent .timer-num{color:#fff;}
-.timer-bar-outer{height:4px;background:var(--surface);border-radius:2px;overflow:hidden;flex:1;min-width:60px;}
-.timer-bar-inner{height:100%;background:var(--teal);border-radius:2px;transition:width .5s linear;}
-.timer-wrap.urgent .timer-bar-inner{background:var(--red);}
+/* timer */
+.tw{display:flex;align-items:center;gap:.5rem;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.35rem .75rem;box-shadow:2px 2px 0 #000;font-family:'Alfa Slab One',serif;}
+.tw.urg{border-color:var(--red);background:var(--rd);}
+.tw .tc{font-size:1.1rem;}.tw .tn{font-size:1rem;color:var(--yellow);min-width:2rem;text-align:center;}.tw.urg .tn{color:#fff;}
+.tbo{height:4px;background:var(--surface);border-radius:2px;overflow:hidden;flex:1;min-width:60px;}
+.tbi{height:100%;background:var(--teal);border-radius:2px;transition:width .5s linear;}.tw.urg .tbi{background:var(--red);}
 
-/* screens */
 .screen{display:none;width:100%;max-width:720px;padding:2rem 1rem 3rem;}
 .screen.active{display:flex;flex-direction:column;align-items:center;}
-
-/* logo */
 .logo-wrap{text-align:center;margin-bottom:2rem;margin-top:1rem;}
 .logo{font-family:'Alfa Slab One',serif;font-size:2.4rem;color:var(--orange);text-shadow:4px 4px 0 #000;letter-spacing:2px;line-height:1.1;}
-.logo span{color:var(--teal);}
-.tagline{font-size:.8rem;color:var(--muted);margin-top:.5rem;letter-spacing:.12em;font-weight:700;text-transform:uppercase;}
+.logo span{color:var(--teal);}.tagline{font-size:.8rem;color:var(--muted);margin-top:.5rem;letter-spacing:.12em;font-weight:700;text-transform:uppercase;}
 .star-row{text-align:center;font-size:1rem;letter-spacing:.6rem;margin-bottom:.5rem;color:var(--orange);opacity:.7;}
-
-/* rbox */
-.rbox{background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:5px 5px 0 #000;padding:1.75rem;width:100%;max-width:400px;margin-bottom:1.25rem;}
-.rbox h2{font-family:'Alfa Slab One',serif;font-size:.9rem;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;border-bottom:1px dashed var(--border);padding-bottom:.4rem;}
-
-/* theme badge */
-.theme-badge{display:inline-block;background:var(--orange);color:#fff;font-family:'Alfa Slab One',serif;font-size:1rem;padding:.4rem 1rem;border:2px solid #000;border-radius:3px;box-shadow:3px 3px 0 #000;margin:.2rem;}
-
-input[type=text],input[type=number],textarea{width:100%;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.7rem 1rem;color:var(--text);font-size:1rem;font-family:'Nunito',sans-serif;font-weight:600;margin-bottom:.75rem;outline:none;transition:border-color .2s;box-shadow:2px 2px 0 #000;}
+.rbox{background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:5px 5px 0 #000;padding:1.5rem;width:100%;max-width:420px;margin-bottom:1.25rem;}
+.rbox h2{font-family:'Alfa Slab One',serif;font-size:.85rem;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;border-bottom:1px dashed var(--border);padding-bottom:.4rem;}
+input[type=text],input[type=number],textarea{width:100%;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.65rem .9rem;color:var(--text);font-size:.95rem;font-family:'Nunito',sans-serif;font-weight:600;margin-bottom:.65rem;outline:none;transition:border-color .2s;box-shadow:2px 2px 0 #000;}
 input:focus,textarea:focus{border-color:var(--orange);}
 input::placeholder,textarea::placeholder{color:var(--muted);}
-textarea{resize:vertical;min-height:70px;}
-
-button{cursor:pointer;border:2px solid #000;border-radius:3px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:900;padding:.75rem 1.5rem;transition:transform .08s,box-shadow .08s;text-transform:uppercase;letter-spacing:.06em;}
+textarea{resize:vertical;min-height:65px;}
+button{cursor:pointer;border:2px solid #000;border-radius:3px;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:900;padding:.7rem 1.4rem;transition:transform .08s,box-shadow .08s;text-transform:uppercase;letter-spacing:.05em;}
 button:active:not(:disabled){transform:translate(2px,2px)!important;box-shadow:none!important;}
 button:disabled{opacity:.4;cursor:default;}
-.btn-p{background:var(--orange);color:#fff;width:100%;box-shadow:4px 4px 0 #000;}
-.btn-p:hover:not(:disabled){box-shadow:5px 5px 0 #000;transform:translate(-1px,-1px);}
-.btn-s{background:var(--teal);color:#fff;width:100%;box-shadow:4px 4px 0 #000;}
-.btn-s:hover:not(:disabled){box-shadow:5px 5px 0 #000;transform:translate(-1px,-1px);}
-.btn-play{background:var(--red);color:#fff;padding:.85rem 2.5rem;font-size:1rem;box-shadow:4px 4px 0 #000;}
-.btn-play:hover:not(:disabled){box-shadow:5px 5px 0 #000;transform:translate(-1px,-1px);}
-.btn-next{background:var(--teal);color:#fff;padding:.85rem 2.5rem;font-size:1rem;box-shadow:4px 4px 0 #000;border:2px solid #000;border-radius:3px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:.06em;transition:transform .08s,box-shadow .08s;}
-.btn-next:hover{box-shadow:5px 5px 0 #000;transform:translate(-1px,-1px);}
-.btn-next:active{transform:translate(2px,2px);box-shadow:none;}
-.btn-y{background:var(--yellow);color:#000;padding:.85rem 2.5rem;font-size:1rem;box-shadow:4px 4px 0 #000;border:2px solid #000;border-radius:3px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:.06em;transition:transform .08s,box-shadow .08s;}
-.btn-y:hover{box-shadow:5px 5px 0 #000;transform:translate(-1px,-1px);}
-
-.err{color:#e05040;font-size:.85rem;margin-top:.4rem;min-height:1.2rem;font-weight:700;}
+.bp{background:var(--orange);color:#fff;width:100%;box-shadow:4px 4px 0 #000;}.bp:hover:not(:disabled){box-shadow:5px 5px 0 #000;transform:translate(-1px,-1px);}
+.bs{background:var(--teal);color:#fff;width:100%;box-shadow:4px 4px 0 #000;}.bs:hover:not(:disabled){box-shadow:5px 5px 0 #000;transform:translate(-1px,-1px);}
+.bpl{background:var(--red);color:#fff;padding:.8rem 2.4rem;font-size:.95rem;box-shadow:4px 4px 0 #000;}.bpl:hover:not(:disabled){box-shadow:5px 5px 0 #000;transform:translate(-1px,-1px);}
+.bn{background:var(--teal);color:#fff;padding:.8rem 2.4rem;font-size:.95rem;box-shadow:4px 4px 0 #000;border:2px solid #000;border-radius:3px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:.05em;transition:transform .08s,box-shadow .08s;}.bn:hover{box-shadow:5px 5px 0 #000;transform:translate(-1px,-1px);}
+.by{background:var(--yellow);color:#000;padding:.8rem 2.4rem;font-size:.95rem;box-shadow:4px 4px 0 #000;border:2px solid #000;border-radius:3px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:.05em;transition:transform .08s,box-shadow .08s;}.by:hover{box-shadow:5px 5px 0 #000;transform:translate(-1px,-1px);}
+.err{color:#e05040;font-size:.82rem;margin-top:.35rem;min-height:1.1rem;font-weight:700;}
 .divider{color:var(--muted);font-size:.9rem;margin:.4rem 0;font-family:'Alfa Slab One',serif;}
-.sec-title{font-family:'Alfa Slab One',serif;font-size:1.5rem;color:var(--orange);text-align:center;margin-bottom:.25rem;text-shadow:2px 2px 0 #000;}
-.sec-sub{color:var(--muted);font-size:.9rem;text-align:center;margin-bottom:1rem;font-weight:700;}
-
-/* lobby */
-.code-display{background:var(--orange-dim);border:2px solid #000;border-radius:3px;box-shadow:5px 5px 0 #000;padding:1.5rem;width:100%;max-width:400px;text-align:center;margin-bottom:1.25rem;}
-.code-display .lbl{font-size:.7rem;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.4rem;font-weight:700;}
-.code-display .code{font-family:'Alfa Slab One',serif;font-size:3.5rem;color:#fff;letter-spacing:.2em;line-height:1;text-shadow:3px 3px 0 rgba(0,0,0,.4);}
-.code-display .hint{font-size:.75rem;color:rgba(255,255,255,.6);margin-top:.5rem;font-weight:700;}
-.player-list{background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:5px 5px 0 #000;padding:1.25rem 1.5rem;width:100%;max-width:400px;}
-.player-list h3{font-family:'Alfa Slab One',serif;font-size:.85rem;color:var(--orange);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem;}
-.pill{display:inline-flex;align-items:center;gap:.4rem;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.3rem .75rem;font-size:.9rem;margin:.25rem;font-weight:700;box-shadow:2px 2px 0 #000;color:var(--yellow);}
+.sec-title{font-family:'Alfa Slab One',serif;font-size:1.4rem;color:var(--orange);text-align:center;margin-bottom:.25rem;text-shadow:2px 2px 0 #000;}
+.sec-sub{color:var(--muted);font-size:.88rem;text-align:center;margin-bottom:1rem;font-weight:700;}
+.code-display{background:var(--od);border:2px solid #000;border-radius:3px;box-shadow:5px 5px 0 #000;padding:1.4rem;width:100%;max-width:400px;text-align:center;margin-bottom:1.25rem;}
+.code-display .lbl{font-size:.7rem;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.35rem;font-weight:700;}
+.code-display .code{font-family:'Alfa Slab One',serif;font-size:3.2rem;color:#fff;letter-spacing:.2em;line-height:1;text-shadow:3px 3px 0 rgba(0,0,0,.4);}
+.code-display .hint{font-size:.72rem;color:rgba(255,255,255,.6);margin-top:.4rem;font-weight:700;}
+.player-list{background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:5px 5px 0 #000;padding:1.1rem 1.4rem;width:100%;max-width:400px;}
+.player-list h3{font-family:'Alfa Slab One',serif;font-size:.82rem;color:var(--orange);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.7rem;}
+.pill{display:inline-flex;align-items:center;gap:.4rem;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.28rem .7rem;font-size:.88rem;margin:.22rem;font-weight:700;box-shadow:2px 2px 0 #000;color:var(--yellow);}
 .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);}
-.badge{display:inline-block;font-size:.65rem;background:var(--teal);color:#fff;border:1px solid #000;border-radius:2px;padding:.1rem .5rem;margin-left:.4rem;font-weight:900;text-transform:uppercase;}
-
-/* game bar */
-.game-bar{width:100%;display:flex;justify-content:space-between;align-items:center;padding:.55rem 1.25rem;background:#000;color:var(--yellow);font-family:'Alfa Slab One',serif;font-size:.85rem;margin-bottom:1.5rem;border-bottom:2px solid var(--orange);gap:.5rem;flex-wrap:wrap;}
-
-/* event box */
-.event-box{background:var(--teal-dim);border:2px solid #000;border-radius:3px;box-shadow:5px 5px 0 #000;padding:1.5rem 1.75rem;width:100%;margin-bottom:1.5rem;text-align:center;}
-.event-label{font-size:.7rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.6rem;font-weight:700;}
-.event-text{font-family:'Nunito',sans-serif;font-size:1.2rem;font-weight:700;line-height:1.6;color:#fff;}
-
-/* spotlight */
-.spotlight-wrap{width:100%;display:flex;flex-direction:column;align-items:center;margin-bottom:1rem;min-height:370px;justify-content:center;}
+.badge{display:inline-block;font-size:.62rem;background:var(--teal);color:#fff;border:1px solid #000;border-radius:2px;padding:.1rem .45rem;margin-left:.35rem;font-weight:900;text-transform:uppercase;}
+.game-bar{width:100%;display:flex;justify-content:space-between;align-items:center;padding:.55rem 1.1rem;background:#000;color:var(--yellow);font-family:'Alfa Slab One',serif;font-size:.85rem;margin-bottom:1.4rem;border-bottom:2px solid var(--orange);gap:.5rem;flex-wrap:wrap;}
+.event-box{background:var(--td);border:2px solid #000;border-radius:3px;box-shadow:5px 5px 0 #000;padding:1.4rem 1.6rem;width:100%;margin-bottom:1.4rem;text-align:center;}
+.event-label{font-size:.68rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.55rem;font-weight:700;}
+.event-text{font-family:'Nunito',sans-serif;font-size:1.15rem;font-weight:700;line-height:1.6;color:#fff;}
+.spotlight-wrap{width:100%;display:flex;flex-direction:column;align-items:center;margin-bottom:1rem;min-height:360px;justify-content:center;}
 .spotlight-card{background:var(--paper);border:3px solid var(--border);border-radius:3px;overflow:hidden;width:100%;max-width:440px;box-shadow:8px 8px 0 #000;animation:cfi .48s cubic-bezier(.22,1,.36,1);}
-.spotlight-card img{width:100%;height:350px;object-fit:cover;display:block;}
-.spotlight-player{padding:.7rem 1rem;font-family:'Alfa Slab One',serif;font-size:1.1rem;color:var(--orange);text-align:center;background:var(--paper);border-top:2px solid var(--border);}
+.spotlight-card img{width:100%;height:340px;object-fit:cover;display:block;}
+.spotlight-player{padding:.65rem 1rem;font-family:'Alfa Slab One',serif;font-size:1.05rem;color:var(--orange);text-align:center;background:var(--paper);border-top:2px solid var(--border);}
 @keyframes cfi{from{transform:translateY(80px) scale(.8) rotate(-6deg);opacity:0}to{transform:none;opacity:1}}
 @keyframes cfo{from{opacity:1}to{transform:translateY(-60px) scale(.8) rotate(5deg);opacity:0}}
 .fly-out{animation:cfo .3s ease forwards;}
-.mini-strip{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:1rem;width:100%;}
-.mini-card{border-radius:2px;overflow:hidden;border:2px solid var(--border);width:70px;box-shadow:2px 2px 0 #000;}
-.mini-card img{width:100%;height:70px;object-fit:cover;display:block;}
-.mini-name{font-size:.6rem;color:var(--yellow);padding:.2rem .3rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--surface2);font-weight:700;}
-.waiting-txt{font-size:.95rem;color:var(--muted);text-align:center;font-weight:700;}
+.mini-strip{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin-bottom:.9rem;width:100%;}
+.mini-card{border-radius:2px;overflow:hidden;border:2px solid var(--border);width:68px;box-shadow:2px 2px 0 #000;}
+.mini-card img{width:100%;height:68px;object-fit:cover;display:block;}
+.mini-name{font-size:.58rem;color:var(--yellow);padding:.18rem .28rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--surface2);font-weight:700;}
+.waiting-txt{font-size:.9rem;color:var(--muted);text-align:center;font-weight:700;}
 .waiting-count{color:var(--orange);font-family:'Alfa Slab One',serif;}
-
-/* hand */
-.hand-label{font-family:'Alfa Slab One',serif;font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem;text-align:center;}
-.hand-grid{display:flex;flex-wrap:wrap;gap:.85rem;justify-content:center;margin-bottom:1rem;}
-.hand-card{background:var(--paper);border:2px solid var(--border);border-radius:3px;overflow:hidden;width:155px;cursor:pointer;box-shadow:4px 4px 0 #000;transition:transform .15s,box-shadow .15s,border-color .15s;}
+.hand-label{font-family:'Alfa Slab One',serif;font-size:.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.7rem;text-align:center;}
+.hand-grid{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin-bottom:.9rem;}
+.hand-card{background:var(--paper);border:2px solid var(--border);border-radius:3px;overflow:hidden;width:150px;cursor:pointer;box-shadow:4px 4px 0 #000;transition:transform .15s,box-shadow .15s,border-color .15s;}
 .hand-card:hover{transform:translate(-2px,-5px) rotate(-1deg);box-shadow:6px 9px 0 #000;border-color:var(--orange);}
-.hand-card.selected{transform:translate(-2px,-7px) rotate(-2deg);box-shadow:8px 11px 0 var(--orange-dim);border-color:var(--orange);}
-.hand-card img{width:100%;height:155px;object-fit:cover;display:block;}
+.hand-card.selected{transform:translate(-2px,-7px) rotate(-2deg);box-shadow:8px 11px 0 var(--od);border-color:var(--orange);}
+.hand-card img{width:100%;height:150px;object-fit:cover;display:block;}
 .played-notice{text-align:center;padding:1rem;color:var(--teal);font-weight:900;font-size:1rem;font-family:'Alfa Slab One',serif;}
-
-/* voting */
-.vote-grid{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;width:100%;}
-.vote-card{background:var(--paper);border:2px solid var(--border);border-radius:3px;overflow:hidden;width:185px;cursor:pointer;box-shadow:4px 4px 0 #000;transition:transform .15s,box-shadow .15s,border-color .15s;text-align:center;}
+.vote-grid{display:flex;flex-wrap:wrap;gap:.9rem;justify-content:center;width:100%;}
+.vote-card{background:var(--paper);border:2px solid var(--border);border-radius:3px;overflow:hidden;width:180px;cursor:pointer;box-shadow:4px 4px 0 #000;transition:transform .15s,box-shadow .15s,border-color .15s;text-align:center;}
 .vote-card:hover{transform:translate(-2px,-5px);box-shadow:6px 9px 0 #000;border-color:var(--orange);}
-.vote-card.voted-this{transform:translate(-2px,-7px);box-shadow:8px 11px 0 var(--orange-dim);border-color:var(--orange);}
+.vote-card.voted-this{transform:translate(-2px,-7px);box-shadow:8px 11px 0 var(--od);border-color:var(--orange);}
 .vote-card.disabled{opacity:.3;pointer-events:none;}
-.vote-card img{width:100%;height:185px;object-fit:cover;display:block;}
-.vote-player{font-family:'Alfa Slab One',serif;font-size:.95rem;color:var(--orange);padding:.55rem;border-top:2px solid var(--border);background:var(--paper);}
-
-/* results */
-.results-grid{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;width:100%;}
-.result-card{background:var(--paper);border:2px solid var(--border);border-radius:3px;overflow:hidden;width:185px;text-align:center;box-shadow:4px 4px 0 #000;animation:cfi .4s ease;}
-.result-card img{width:100%;height:185px;object-fit:cover;display:block;}
-.result-player{font-family:'Alfa Slab One',serif;font-size:.95rem;color:var(--orange);padding:.45rem .5rem .1rem;border-top:2px solid var(--border);}
-.result-votes{font-size:.8rem;color:var(--teal);padding:0 .5rem .5rem;font-weight:700;}
-.result-card.winner{border-color:var(--orange);box-shadow:6px 6px 0 var(--orange-dim);}
-.winner-crown{font-size:1.6rem;padding-top:.4rem;}
-
-/* scoreboard */
-.scoreboard{background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:5px 5px 0 #000;padding:1.25rem 1.75rem;width:100%;max-width:380px;}
-.score-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px dashed var(--border);font-size:.95rem;font-weight:700;}
+.vote-card img{width:100%;height:180px;object-fit:cover;display:block;}
+.vote-player{font-family:'Alfa Slab One',serif;font-size:.9rem;color:var(--orange);padding:.5rem;border-top:2px solid var(--border);background:var(--paper);}
+.results-grid{display:flex;flex-wrap:wrap;gap:.9rem;justify-content:center;width:100%;}
+.result-card{background:var(--paper);border:2px solid var(--border);border-radius:3px;overflow:hidden;width:180px;text-align:center;box-shadow:4px 4px 0 #000;animation:cfi .4s ease;}
+.result-card img{width:100%;height:180px;object-fit:cover;display:block;}
+.result-player{font-family:'Alfa Slab One',serif;font-size:.9rem;color:var(--orange);padding:.4rem .5rem .1rem;border-top:2px solid var(--border);}
+.result-votes{font-size:.78rem;color:var(--teal);padding:0 .5rem .5rem;font-weight:700;}
+.result-card.winner{border-color:var(--orange);box-shadow:6px 6px 0 var(--od);}
+.winner-crown{font-size:1.5rem;padding-top:.35rem;}
+.scoreboard{background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:5px 5px 0 #000;padding:1.1rem 1.5rem;width:100%;max-width:380px;}
+.score-row{display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-bottom:1px dashed var(--border);font-size:.92rem;font-weight:700;}
 .score-row:last-child{border-bottom:none;}
-.score-row .rank{font-family:'Alfa Slab One',serif;color:var(--orange);min-width:2.5rem;font-size:1.1rem;}
+.score-row .rank{font-family:'Alfa Slab One',serif;color:var(--orange);min-width:2.5rem;font-size:1.05rem;}
 .score-row .pts{font-family:'Alfa Slab One',serif;color:var(--teal);}
-
-/* minigame banner */
-.mg-banner{background:var(--yellow);border:2px solid #000;border-radius:3px;box-shadow:5px 5px 0 #000;padding:1rem 1.5rem;width:100%;max-width:520px;text-align:center;margin-bottom:1.25rem;}
-.mg-banner h2{font-family:'Alfa Slab One',serif;font-size:1.4rem;color:#000;}
-.mg-banner p{font-size:.9rem;color:#333;margin-top:.3rem;font-weight:700;}
-
-/* caption */
-.caption-img-wrap{width:100%;max-width:440px;border:3px solid var(--border);border-radius:3px;overflow:hidden;box-shadow:6px 6px 0 #000;margin-bottom:1rem;}
-.caption-img-wrap img{width:100%;height:290px;object-fit:cover;display:block;}
-.caption-build{background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:1rem 1.25rem;width:100%;max-width:440px;margin-bottom:1rem;font-size:1.1rem;font-weight:700;color:var(--yellow);min-height:3rem;line-height:1.7;}
+.mg-banner{background:var(--yellow);border:2px solid #000;border-radius:3px;box-shadow:5px 5px 0 #000;padding:.9rem 1.4rem;width:100%;max-width:520px;text-align:center;margin-bottom:1.1rem;}
+.mg-banner h2{font-family:'Alfa Slab One',serif;font-size:1.3rem;color:#000;}
+.mg-banner p{font-size:.88rem;color:#333;margin-top:.25rem;font-weight:700;}
+.caption-img-wrap{width:100%;max-width:440px;border:3px solid var(--border);border-radius:3px;overflow:hidden;box-shadow:6px 6px 0 #000;margin-bottom:.9rem;}
+.caption-img-wrap img{width:100%;height:280px;object-fit:cover;display:block;}
+.caption-build{background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.9rem 1.1rem;width:100%;max-width:440px;margin-bottom:.9rem;font-size:1.05rem;font-weight:700;color:var(--yellow);min-height:2.8rem;line-height:1.7;}
 .caption-part.new{color:#fff;animation:fadeIn .4s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-.caption-your-turn{background:var(--orange-dim);border:2px solid var(--orange);border-radius:3px;padding:1rem;width:100%;max-width:440px;margin-bottom:1rem;font-weight:700;color:var(--yellow);}
-.caption-waiting{color:var(--muted);font-size:.9rem;text-align:center;font-weight:700;margin-bottom:1rem;}
-
-/* reaction */
-.reaction-card-big{background:var(--paper);border:3px solid var(--border);border-radius:3px;overflow:hidden;width:100%;max-width:440px;box-shadow:8px 8px 0 #000;margin-bottom:1rem;animation:cfi .48s cubic-bezier(.22,1,.36,1);}
-.reaction-card-big img{width:100%;height:320px;object-fit:cover;display:block;}
-.reaction-text-reveal{background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:1rem 1.25rem;width:100%;max-width:440px;margin-bottom:1rem;font-size:1.1rem;font-weight:700;color:#fff;line-height:1.6;}
-.reaction-player-tag{font-family:'Alfa Slab One',serif;font-size:1rem;color:var(--orange);text-align:center;margin-bottom:.5rem;}
-
-/* this or that */
-.tot-situation{background:var(--teal-dim);border:2px solid #000;border-radius:3px;box-shadow:4px 4px 0 #000;padding:1.25rem 1.5rem;width:100%;max-width:520px;text-align:center;margin-bottom:1.25rem;}
-.tot-situation .author{font-size:.75rem;color:rgba(255,255,255,.5);margin-bottom:.4rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;}
-.tot-situation .text{font-size:1.2rem;font-weight:700;color:#fff;line-height:1.5;}
-.tot-options{display:flex;gap:1rem;width:100%;max-width:520px;margin-bottom:1rem;}
-.tot-btn{flex:1;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:1rem;font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;cursor:pointer;box-shadow:4px 4px 0 #000;color:var(--text);transition:transform .1s,box-shadow .1s,background .1s,border-color .1s;text-align:center;min-height:80px;line-height:1.4;text-transform:none;}
+.caption-your-turn{background:var(--od);border:2px solid var(--orange);border-radius:3px;padding:.9rem;width:100%;max-width:440px;margin-bottom:.9rem;font-weight:700;color:var(--yellow);}
+.caption-waiting{color:var(--muted);font-size:.88rem;text-align:center;font-weight:700;margin-bottom:.9rem;}
+.reaction-card-big{background:var(--paper);border:3px solid var(--border);border-radius:3px;overflow:hidden;width:100%;max-width:440px;box-shadow:8px 8px 0 #000;margin-bottom:.9rem;animation:cfi .48s cubic-bezier(.22,1,.36,1);}
+.reaction-card-big img{width:100%;height:310px;object-fit:cover;display:block;}
+.reaction-text-reveal{background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.9rem 1.1rem;width:100%;max-width:440px;margin-bottom:.9rem;font-size:1.05rem;font-weight:700;color:#fff;line-height:1.6;}
+.reaction-player-tag{font-family:'Alfa Slab One',serif;font-size:.95rem;color:var(--orange);text-align:center;margin-bottom:.45rem;}
+.tot-situation{background:var(--td);border:2px solid #000;border-radius:3px;box-shadow:4px 4px 0 #000;padding:1.1rem 1.4rem;width:100%;max-width:520px;text-align:center;margin-bottom:1.1rem;}
+.tot-situation .author{font-size:.72rem;color:rgba(255,255,255,.5);margin-bottom:.35rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;}
+.tot-situation .text{font-size:1.1rem;font-weight:700;color:#fff;line-height:1.5;}
+.tot-options{display:flex;gap:.9rem;width:100%;max-width:520px;margin-bottom:.9rem;}
+.tot-btn{flex:1;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.9rem;font-family:'Nunito',sans-serif;font-weight:900;font-size:.95rem;cursor:pointer;box-shadow:4px 4px 0 #000;color:var(--text);transition:transform .1s,box-shadow .1s;text-align:center;min-height:76px;line-height:1.4;text-transform:none;}
 .tot-btn:hover{transform:translate(-1px,-2px);box-shadow:5px 6px 0 #000;}
-.tot-btn.choice-A{border-color:var(--orange);background:var(--orange-dim);color:#fff;}
-.tot-btn.choice-B{border-color:var(--teal);background:var(--teal-dim);color:#fff;}
-.tot-btn.voted{opacity:.6;pointer-events:none;}
-.tot-btn.own-item{opacity:.3;pointer-events:none;}
-.tot-bar-wrap{width:100%;max-width:520px;margin-bottom:.75rem;}
-.tot-bar-labels{display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;margin-bottom:.3rem;}
-.tot-bar-labels .la{color:var(--orange);}
-.tot-bar-labels .lb{color:var(--teal);}
-.tot-bar-outer{height:28px;background:var(--teal-dim);border:2px solid #000;border-radius:3px;overflow:hidden;display:flex;box-shadow:3px 3px 0 #000;}
-.tot-bar-a{background:var(--orange);height:100%;transition:width .4s ease;display:flex;align-items:center;justify-content:center;font-family:'Alfa Slab One',serif;font-size:.85rem;color:#fff;min-width:0;overflow:hidden;}
-.tot-bar-b{background:var(--teal);height:100%;transition:width .4s ease;display:flex;align-items:center;justify-content:center;font-family:'Alfa Slab One',serif;font-size:.85rem;color:#fff;flex:1;overflow:hidden;}
-.tot-counter{font-size:.8rem;color:var(--muted);text-align:center;font-weight:700;margin-bottom:.75rem;}
-
-/* submit status */
-.submit-status{background:var(--surface2);border:2px solid var(--border);border-radius:3px;box-shadow:3px 3px 0 #000;padding:.75rem 1.25rem;width:100%;max-width:400px;text-align:center;font-weight:700;font-size:.95rem;color:var(--yellow);}
+.tot-btn.ca{border-color:var(--orange);background:var(--od);color:#fff;}
+.tot-btn.cb{border-color:var(--teal);background:var(--td);color:#fff;}
+.tot-btn.voted,.tot-btn.own-item{opacity:.45;pointer-events:none;}
+.tot-bar-wrap{width:100%;max-width:520px;margin-bottom:.65rem;}
+.tot-bar-labels{display:flex;justify-content:space-between;font-size:.78rem;font-weight:700;margin-bottom:.28rem;}
+.tot-bar-labels .la{color:var(--orange);}.tot-bar-labels .lb{color:var(--teal);}
+.tot-bar-outer{height:26px;background:var(--td);border:2px solid #000;border-radius:3px;overflow:hidden;display:flex;box-shadow:3px 3px 0 #000;}
+.tot-bar-a{background:var(--orange);height:100%;transition:width .4s;display:flex;align-items:center;justify-content:center;font-family:'Alfa Slab One',serif;font-size:.82rem;color:#fff;min-width:0;overflow:hidden;}
+.tot-bar-b{background:var(--teal);height:100%;transition:width .4s;display:flex;align-items:center;justify-content:center;font-family:'Alfa Slab One',serif;font-size:.82rem;color:#fff;flex:1;overflow:hidden;}
+.submit-status{background:var(--surface2);border:2px solid var(--border);border-radius:3px;box-shadow:3px 3px 0 #000;padding:.65rem 1.1rem;width:100%;max-width:400px;text-align:center;font-weight:700;font-size:.92rem;color:var(--yellow);}
+.player-vote-btn{background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.55rem 1.1rem;font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;box-shadow:3px 3px 0 #000;color:var(--yellow);transition:transform .1s,box-shadow .1s,border-color .1s;margin:.25rem;}
+.player-vote-btn:hover{transform:translate(-1px,-2px);box-shadow:4px 5px 0 #000;border-color:var(--orange);}
+.player-vote-btn.voted-this{border-color:var(--orange);background:var(--od);color:#fff;}
+.player-vote-btn.disabled{opacity:.3;pointer-events:none;}
+.gtw-guess-item{padding:.35rem .75rem;border-radius:3px;font-size:.9rem;font-weight:700;margin-bottom:.25rem;}
+.gtw-guess-item.correct{background:rgba(26,138,120,.3);border:1px solid var(--teal);color:#fff;}
+.gtw-guess-item.wrong{background:var(--surface2);border:1px solid var(--border);color:var(--muted);}
+/* shop */
+.shop-product-card{background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:4px 4px 0 #000;padding:1rem 1.1rem;margin-bottom:.75rem;display:flex;justify-content:space-between;align-items:center;gap:.75rem;width:100%;}
+.shop-product-card .pname{font-weight:700;font-size:.95rem;color:var(--text);flex:1;}
+.shop-product-card .pdesc{font-size:.78rem;color:var(--muted);margin-top:.2rem;}
+.shop-product-card .pseller{font-size:.72rem;color:var(--orange);font-weight:700;}
+.shop-product-card .pprice{font-family:'Alfa Slab One',serif;color:var(--yellow);font-size:1.1rem;white-space:nowrap;}
+.shop-buy-btn{background:var(--teal);color:#fff;border:2px solid #000;border-radius:3px;padding:.4rem .9rem;font-family:'Nunito',sans-serif;font-weight:900;font-size:.82rem;cursor:pointer;box-shadow:2px 2px 0 #000;text-transform:uppercase;transition:transform .08s,box-shadow .08s;white-space:nowrap;}
+.shop-buy-btn:hover{box-shadow:3px 3px 0 #000;transform:translate(-1px,-1px);}
+.shop-buy-btn:active{transform:translate(1px,1px);box-shadow:none;}
+.budget-display{font-family:'Alfa Slab One',serif;font-size:1.4rem;color:var(--yellow);text-align:center;margin-bottom:1rem;}
+/* mg count inputs */
+.mg-count-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.75rem;}
+.mg-count-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:.4rem .7rem;gap:.5rem;}
+.mg-count-row label{font-size:.8rem;font-weight:700;color:var(--muted);flex:1;}
+.mg-count-row input{width:52px;margin-bottom:0;padding:.3rem .5rem;font-size:.9rem;box-shadow:none;}
 </style>
 </head>
 <body>
@@ -220,7 +184,18 @@ button:disabled{opacity:.4;cursor:default;}
     <h2>Sukurti kambarį</h2>
     <input type="text" id="create-name" placeholder="Tavo vardas" maxlength="20">
     <input type="number" id="create-rounds" placeholder="Raundų skaičius (numatyta: 3)" min="1" max="20">
-    <button class="btn-p" onclick="createRoom()">Sukurti kambarį</button>
+    <details style="margin-bottom:.75rem">
+      <summary style="cursor:pointer;color:var(--muted);font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:.4rem 0;">⚙️ Mini žaidimų kiekis</summary>
+      <div class="mg-count-grid" style="margin-top:.6rem">
+        <div class="mg-count-row"><label>✍️ Bendras sakinys</label><input type="number" id="mg-caption" value="4" min="0" max="10"></div>
+        <div class="mg-count-row"><label>😱 Reakcija į memą</label><input type="number" id="mg-reaction" value="1" min="0" max="10"></div>
+        <div class="mg-count-row"><label>⚖️ Vienas ar Kitas</label><input type="number" id="mg-thisorthat" value="1" min="0" max="10"></div>
+        <div class="mg-count-row"><label>🫵 Kas iš mūsų</label><input type="number" id="mg-kim" value="1" min="0" max="10"></div>
+        <div class="mg-count-row"><label>🔤 Atspėk žodį</label><input type="number" id="mg-gtw" value="1" min="0" max="10"></div>
+        <div class="mg-count-row"><label>🛒 Parduotuvė</label><input type="number" id="mg-shop" value="1" min="0" max="10"></div>
+      </div>
+    </details>
+    <button class="bp" onclick="createRoom()">Sukurti kambarį</button>
     <div class="err" id="create-err"></div>
   </div>
   <div class="divider">✦ arba ✦</div>
@@ -228,7 +203,7 @@ button:disabled{opacity:.4;cursor:default;}
     <h2>Prisijungti</h2>
     <input type="text" id="join-name" placeholder="Tavo vardas" maxlength="20">
     <input type="text" id="join-code" placeholder="Kambario kodas (5 skaitmenys)" maxlength="5" inputmode="numeric">
-    <button class="btn-s" onclick="joinRoom()">Prisijungti</button>
+    <button class="bs" onclick="joinRoom()">Prisijungti</button>
     <div class="err" id="join-err"></div>
   </div>
 </div>
@@ -237,43 +212,30 @@ button:disabled{opacity:.4;cursor:default;}
 <div id="s-lobby" class="screen">
   <div class="star-row">★ ★ ★</div>
   <div class="sec-title">Kambarys</div>
-  <div class="sec-sub" style="margin-bottom:1.25rem">Pasidalink kodu su draugais</div>
-  <div class="code-display">
-    <div class="lbl">Kambario kodas</div>
-    <div class="code" id="display-code">—</div>
-    <div class="hint">Visi atidaro šį puslapį ir įveda kodą</div>
-  </div>
-  <div class="player-list">
-    <h3>Žaidėjai</h3>
-    <div id="player-pills"></div>
-  </div>
+  <div class="sec-sub" style="margin-bottom:1.1rem">Pasidalink kodu su draugais</div>
+  <div class="code-display"><div class="lbl">Kambario kodas</div><div class="code" id="display-code">—</div><div class="hint">Visi atidaro šį puslapį ir įveda kodą</div></div>
+  <div class="player-list"><h3>Žaidėjai</h3><div id="player-pills"></div></div>
   <div style="max-width:400px;width:100%;margin-top:1rem;">
-    <button class="btn-p" id="btn-start" onclick="startGame()" style="display:none">Pradėti žaidimą ▶</button>
-    <div id="lobby-wait" style="color:var(--muted);font-size:.9rem;text-align:center;font-weight:700">Laukiame šeimininko pradžios…</div>
+    <button class="bp" id="btn-start" onclick="startGame()" style="display:none">Pradėti žaidimą ▶</button>
+    <div id="lobby-wait" style="color:var(--muted);font-size:.88rem;text-align:center;font-weight:700">Laukiame šeimininko pradžios…</div>
   </div>
 </div>
 
-<!-- SUBMITTING -->
+<!-- SUBMIT EVENT -->
 <div id="s-submit" class="screen">
   <div class="star-row">★ ★ ★</div>
-  <div class="sec-title">Sugalvok dvi situacijas!</div>
-  <div class="sec-sub">Jos bus sužaistos žaidimo metu</div>
-  <div style="margin-bottom:1rem;text-align:center;">
-    <div style="font-size:.8rem;color:var(--muted);margin-bottom:.4rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em">Šiandienos temos:</div>
-    <div id="theme-badges"></div>
-  </div>
+  <div class="sec-title">Sugalvok situaciją!</div>
+  <div class="sec-sub">Ji bus sužaista žaidimo metu</div>
+  <div style="margin-bottom:1rem;text-align:center;"><div style="font-size:.75rem;color:var(--muted);margin-bottom:.35rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em">Šiandienos temos:</div><div id="theme-badges"></div></div>
   <div id="submit-timer" style="margin-bottom:1rem;display:flex;justify-content:center;"></div>
   <div class="rbox" style="max-width:480px">
     <h2>Tavo situacija</h2>
     <textarea id="ev1" placeholder="Sugalvok situaciją pagal temas..." maxlength="200"></textarea>
-    <button class="btn-p" id="btn-submit" onclick="submitEvents()">Pateikti situaciją ✓</button>
+    <button class="bp" id="btn-submit" onclick="submitEvent()">Pateikti ✓</button>
     <div class="err" id="submit-err"></div>
   </div>
   <div class="submit-status" id="submit-status">Laukiama visų žaidėjų…</div>
-  <div class="player-list" style="max-width:400px;margin-top:.75rem;">
-    <h3>Kas jau pateikė</h3>
-    <div id="submit-pills"></div>
-  </div>
+  <div class="player-list" style="max-width:400px;margin-top:.75rem;"><h3>Kas jau pateikė</h3><div id="submit-pills"></div></div>
 </div>
 
 <!-- GAME -->
@@ -284,36 +246,26 @@ button:disabled{opacity:.4;cursor:default;}
     <span id="my-name-tag" style="color:var(--yellow)"></span>
   </div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="event-box">
-      <div class="event-label">⚡ Situacija</div>
-      <div class="event-text" id="event-text">Kraunama…</div>
-    </div>
-    <div class="spotlight-wrap" id="spotlight-wrap">
-      <div class="waiting-txt" id="spotlight-wait">Laukiama kortelių…<br><span class="waiting-count" id="played-count">0</span> / <span id="total-count">?</span></div>
-    </div>
+    <div class="event-box"><div class="event-label">⚡ Situacija</div><div class="event-text" id="event-text">Kraunama…</div></div>
+    <div class="spotlight-wrap" id="spotlight-wrap"><div class="waiting-txt" id="spotlight-wait">Laukiama kortelių…<br><span class="waiting-count" id="played-count">0</span> / <span id="total-count">?</span></div></div>
     <div class="mini-strip" id="mini-strip"></div>
     <div id="hand-area">
       <div class="hand-label">Tavo rankoje — pasirink vieną</div>
       <div class="hand-grid" id="hand-grid"></div>
-      <div style="text-align:center;margin-top:.5rem">
-        <button class="btn-play" id="btn-play" onclick="playCard()" disabled>Žaisti kortelę</button>
-      </div>
+      <div style="text-align:center;margin-top:.5rem"><button class="bpl" id="btn-play" onclick="playCard()" disabled>Žaisti kortelę</button></div>
     </div>
     <div class="played-notice" id="played-notice" style="display:none">✓ Kortelė sužaista! Laukiama kitų…</div>
   </div>
 </div>
 
-<!-- VOTING -->
+<!-- VOTE -->
 <div id="s-vote" class="screen">
   <div class="star-row">★ ★ ★</div>
   <div class="sec-title">Balsuok!</div>
   <div class="sec-sub">Kuris buvo juokingiausia reakcija?</div>
-  <div class="event-box" style="max-width:520px;margin-bottom:1.25rem">
-    <div class="event-label">⚡ Situacija buvo</div>
-    <div class="event-text" id="vote-event"></div>
-  </div>
+  <div class="event-box" style="max-width:520px;margin-bottom:1.1rem"><div class="event-label">⚡ Situacija buvo</div><div class="event-text" id="vote-event"></div></div>
   <div class="vote-grid" id="vote-grid"></div>
-  <div style="text-align:center;font-size:.9rem;color:var(--muted);font-weight:700;margin-top:.75rem" id="vote-count-txt"></div>
+  <div style="text-align:center;font-size:.88rem;color:var(--muted);font-weight:700;margin-top:.65rem" id="vote-count-txt"></div>
 </div>
 
 <!-- RESULTS -->
@@ -321,36 +273,24 @@ button:disabled{opacity:.4;cursor:default;}
   <div class="star-row">★ ★ ★</div>
   <div class="sec-title">Raundo rezultatai</div>
   <div class="sec-sub" id="results-sub"></div>
-  <div class="event-box" style="max-width:520px;margin-bottom:1.25rem">
-    <div class="event-label">⚡ Situacija buvo</div>
-    <div class="event-text" id="results-event"></div>
-  </div>
+  <div class="event-box" style="max-width:520px;margin-bottom:1.1rem"><div class="event-label">⚡ Situacija buvo</div><div class="event-text" id="results-event"></div></div>
   <div class="results-grid" id="results-grid"></div>
-  <div style="margin-top:1.25rem;text-align:center">
-    <button class="btn-next" id="btn-next" onclick="nextRound()" style="display:none">Kitas raundas →</button>
-    <div id="results-wait" style="color:var(--muted);font-size:.9rem;font-weight:700">Laukiame šeimininko…</div>
+  <div style="margin-top:1.1rem;text-align:center">
+    <button class="bn" id="btn-next" onclick="nextRound()" style="display:none">Kitas raundas →</button>
+    <div id="results-wait" style="color:var(--muted);font-size:.88rem;font-weight:700">Laukiame šeimininko…</div>
   </div>
 </div>
 
-<!-- MINIGAME CAPTION -->
+<!-- CAPTION -->
 <div id="s-mg-caption" class="screen">
-  <div class="game-bar">
-    <span>🎮 Mini žaidimas</span>
-    <div id="caption-timer-wrap"></div>
-  </div>
+  <div class="game-bar"><span>🎮 Mini žaidimas</span><div id="caption-timer-wrap"></div></div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="mg-banner">
-      <h2>✍️ Bendras sakinys!</h2>
-      <p>Visi kartu rašo vieną sakinį — kiekvienas prideda savo dalį!</p>
-    </div>
+    <div class="mg-banner"><h2>✍️ Bendras sakinys!</h2><p>Visi kartu rašo vieną sakinį!</p></div>
     <div class="caption-img-wrap"><img id="caption-img" src="" alt="meme"></div>
     <div class="caption-build" id="caption-build">…</div>
     <div id="caption-your-turn" class="caption-your-turn" style="display:none">
-      <div id="caption-hint" style="margin-bottom:.75rem"></div>
-      <div style="display:flex;gap:.5rem">
-        <input type="text" id="caption-input" placeholder="tavo žodžiai..." maxlength="120" style="flex:1;margin-bottom:0">
-        <button class="btn-p" style="width:auto" onclick="submitCaption()">Pridėti</button>
-      </div>
+      <div id="caption-hint" style="margin-bottom:.7rem"></div>
+      <div style="display:flex;gap:.5rem"><input type="text" id="caption-input" placeholder="tavo žodžiai..." maxlength="120" style="flex:1;margin-bottom:0"><button class="bp" style="width:auto" onclick="submitCaption()">Pridėti</button></div>
       <div class="err" id="caption-err"></div>
     </div>
     <div id="caption-wait" class="caption-waiting"></div>
@@ -361,29 +301,26 @@ button:disabled{opacity:.4;cursor:default;}
 <div id="s-mg-caption-reveal" class="screen">
   <div class="game-bar"><span>🎮 Rezultatas!</span><span></span></div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="mg-banner"><h2>🎉 Štai kas gavosi!</h2><p>Bendras grupės sakinys</p></div>
+    <div class="mg-banner"><h2>🎉 Štai kas gavosi!</h2></div>
     <div class="caption-img-wrap"><img id="reveal-caption-img" src="" alt="meme"></div>
-    <div style="background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:1rem 1.25rem;width:100%;margin-bottom:1rem;font-size:1.15rem;font-weight:700;color:#fff;line-height:1.7;" id="reveal-caption-text"></div>
-    <div style="text-align:center">
-      <button class="btn-next" id="btn-caption-done" onclick="captionDone()" style="display:none">Tęsti →</button>
-      <div id="caption-done-wait" style="color:var(--muted);font-size:.9rem;font-weight:700">Laukiame šeimininko…</div>
-    </div>
+    <div style="background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.9rem 1.1rem;width:100%;margin-bottom:.9rem;font-size:1.1rem;font-weight:700;color:#fff;line-height:1.7;" id="reveal-caption-text"></div>
+    <div style="text-align:center"><button class="bn" id="btn-caption-done" onclick="send('caption_done')" style="display:none">Tęsti →</button><div id="caption-done-wait" style="color:var(--muted);font-size:.88rem;font-weight:700">Laukiame šeimininko…</div></div>
   </div>
 </div>
 
 <!-- REACTION WRITE -->
 <div id="s-mg-reaction-write" class="screen">
-  <div class="game-bar"><span>🎮 Mini žaidimas</span><span id="rw-name-tag" style="color:var(--yellow)"></span></div>
+  <div class="game-bar"><span>🎮 Mini žaidimas</span><span id="rw-name" style="color:var(--yellow)"></span></div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="mg-banner"><h2>😱 Tavo reakcija!</h2><p>Parašyk reakciją į šį paveikslėlį savo žodžiais</p></div>
+    <div class="mg-banner"><h2>😱 Tavo reakcija!</h2><p>Parašyk reakciją į šį paveikslėlį</p></div>
     <div class="reaction-card-big"><img id="reaction-my-img" src="" alt="meme"></div>
     <div class="rbox" style="max-width:440px">
       <h2>Tavo reakcija</h2>
       <textarea id="reaction-input" placeholder="Aprašyk savo reakciją..." maxlength="200"></textarea>
-      <button class="btn-p" id="btn-reaction-submit" onclick="submitReaction()">Pateikti ✓</button>
+      <button class="bp" id="btn-reaction-submit" onclick="submitReaction()">Pateikti ✓</button>
       <div class="err" id="reaction-err"></div>
     </div>
-    <div style="text-align:center;color:var(--muted);font-size:.9rem;font-weight:700" id="reaction-progress"></div>
+    <div style="text-align:center;color:var(--muted);font-size:.88rem;font-weight:700" id="reaction-progress"></div>
   </div>
 </div>
 
@@ -396,35 +333,22 @@ button:disabled{opacity:.4;cursor:default;}
     <div class="reaction-card-big"><img id="reaction-reveal-img" src="" alt="meme"></div>
     <div class="reaction-text-reveal" id="reaction-reveal-text"></div>
     <div style="text-align:center;margin-top:.5rem">
-      <button class="btn-next" id="btn-reaction-next" onclick="reactionNext()" style="display:none">Kitas →</button>
-      <div id="reaction-next-wait" style="color:var(--muted);font-size:.9rem;font-weight:700">Laukiame šeimininko…</div>
+      <button class="bn" id="btn-reaction-next" onclick="send('reaction_next')" style="display:none">Kitas →</button>
+      <div id="reaction-next-wait" style="color:var(--muted);font-size:.88rem;font-weight:700">Laukiame šeimininko…</div>
     </div>
   </div>
 </div>
 
 <!-- THIS OR THAT CREATE -->
 <div id="s-mg-tot-create" class="screen">
-  <div class="game-bar">
-    <span>🎮 Mini žaidimas</span>
-    <div id="tot-create-timer-wrap"></div>
-  </div>
+  <div class="game-bar"><span>🎮 Mini žaidimas</span><div id="tot-create-timer-wrap"></div></div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="mg-banner">
-      <h2>⚖️ Vienas ar Kitas?</h2>
-      <p>Sukurk situaciją ir du pasirinkimus — visi balsuos!</p>
-    </div>
-    <div style="text-align:center;margin-bottom:1rem">
-      <div style="font-size:.75rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem">Tema:</div>
-      <div id="tot-theme-badge"></div>
-    </div>
+    <div class="mg-banner"><h2>⚖️ Vienas ar Kitas?</h2><p>Sukurk situaciją ir du pasirinkimus!</p></div>
     <div class="rbox" style="max-width:480px">
-      <h2>Situacija</h2>
-      <textarea id="tot-situation" placeholder="Pvz: Randi 100€ ant gatvės bet..." maxlength="200"></textarea>
-      <h2 style="margin-top:.25rem">1-as pasirinkimas (A)</h2>
-      <input type="text" id="tot-a" placeholder="Pvz: Pasiimi ir neklausi" maxlength="80">
-      <h2>2-as pasirinkimas (B)</h2>
-      <input type="text" id="tot-b" placeholder="Pvz: Atiduodi policijai" maxlength="80">
-      <button class="btn-p" id="btn-tot-submit" onclick="submitTot()">Pateikti ✓</button>
+      <h2>Situacija</h2><textarea id="tot-situation" placeholder="Pvz: Randi 100€ ant gatvės bet..." maxlength="200"></textarea>
+      <h2 style="margin-top:.2rem">1-as pasirinkimas (A)</h2><input type="text" id="tot-a" placeholder="Pvz: Pasiimi ir neklausi" maxlength="80">
+      <h2>2-as pasirinkimas (B)</h2><input type="text" id="tot-b" placeholder="Pvz: Atiduodi policijai" maxlength="80">
+      <button class="bp" id="btn-tot-submit" onclick="submitTot()">Pateikti ✓</button>
       <div class="err" id="tot-err"></div>
     </div>
     <div class="submit-status" id="tot-progress">Laukiama visų žaidėjų…</div>
@@ -433,33 +357,16 @@ button:disabled{opacity:.4;cursor:default;}
 
 <!-- THIS OR THAT VOTE -->
 <div id="s-mg-tot-vote" class="screen">
-  <div class="game-bar">
-    <span>🎮 <span id="tot-vote-counter"></span></span>
-    <div id="tot-vote-timer-wrap"></div>
-  </div>
+  <div class="game-bar"><span>⚖️ <span id="tot-vote-counter"></span></span><div id="tot-vote-timer-wrap"></div></div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="tot-situation" id="tot-vote-situation">
-      <div class="author" id="tot-vote-author"></div>
-      <div class="text" id="tot-vote-text"></div>
-    </div>
-    <div class="tot-options">
-      <button class="tot-btn" id="tot-btn-a" onclick="voteTot('A')"></button>
-      <button class="tot-btn" id="tot-btn-b" onclick="voteTot('B')"></button>
-    </div>
+    <div class="tot-situation"><div class="author" id="tot-vote-author"></div><div class="text" id="tot-vote-text"></div></div>
+    <div class="tot-options"><button class="tot-btn" id="tot-btn-a" onclick="voteTot('A')"></button><button class="tot-btn" id="tot-btn-b" onclick="voteTot('B')"></button></div>
     <div class="tot-bar-wrap">
-      <div class="tot-bar-labels">
-        <span class="la" id="tot-bar-label-a">A</span>
-        <span class="lb" id="tot-bar-label-b">B</span>
-      </div>
-      <div class="tot-bar-outer">
-        <div class="tot-bar-a" id="tot-bar-a" style="width:50%">0</div>
-        <div class="tot-bar-b" id="tot-bar-b">0</div>
-      </div>
+      <div class="tot-bar-labels"><span class="la" id="tot-bar-la">A</span><span class="lb" id="tot-bar-lb">B</span></div>
+      <div class="tot-bar-outer"><div class="tot-bar-a" id="tot-bar-a" style="width:50%">0</div><div class="tot-bar-b" id="tot-bar-b">0</div></div>
     </div>
-    <div class="tot-counter" id="tot-vote-count"></div>
-    <div style="text-align:center;margin-top:.5rem">
-      <button class="btn-y" id="btn-tot-skip" onclick="totSkip()" style="display:none">Kitas →</button>
-    </div>
+    <div style="text-align:center;font-size:.88rem;color:var(--muted);font-weight:700" id="tot-vote-count"></div>
+    <div style="text-align:center;margin-top:.5rem"><button class="by" id="btn-tot-skip" onclick="send('tot_skip')" style="display:none">Kitas →</button></div>
   </div>
 </div>
 
@@ -467,16 +374,13 @@ button:disabled{opacity:.4;cursor:default;}
 <div id="s-mg-tot-results" class="screen">
   <div class="game-bar"><span>🎮 Rezultatai!</span><span></span></div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="mg-banner"><h2>⚖️ Kaip balsavo grupė!</h2><p>Štai ką visi pasirinko</p></div>
-    <div id="tot-results-list" style="width:100%;display:flex;flex-direction:column;gap:1rem;margin-bottom:1rem;"></div>
-    <div style="text-align:center">
-      <button class="btn-next" id="btn-tot-done" onclick="totDone()" style="display:none">Tęsti →</button>
-      <div id="tot-done-wait" style="color:var(--muted);font-size:.9rem;font-weight:700">Laukiame šeimininko…</div>
-    </div>
+    <div class="mg-banner"><h2>⚖️ Kaip balsavo grupė!</h2></div>
+    <div id="tot-results-list" style="width:100%;display:flex;flex-direction:column;gap:.9rem;margin-bottom:.9rem;"></div>
+    <div style="text-align:center"><button class="bn" id="btn-tot-done" onclick="send('tot_done')" style="display:none">Tęsti →</button><div id="tot-done-wait" style="color:var(--muted);font-size:.88rem;font-weight:700">Laukiame šeimininko…</div></div>
   </div>
 </div>
 
-<!-- KAS IŠ MŪSŲ CREATE -->
+<!-- KIM CREATE -->
 <div id="s-mg-kim-create" class="screen">
   <div class="game-bar"><span>🎮 Mini žaidimas</span><div id="kim-create-timer-wrap"></div></div>
   <div style="width:100%;padding:0 .75rem">
@@ -484,92 +388,126 @@ button:disabled{opacity:.4;cursor:default;}
     <div class="rbox" style="max-width:480px">
       <h2>Tavo teiginys</h2>
       <textarea id="kim-input" placeholder="Pvz: Kas iš mūsų labiausiai bijotų duoti interviu televizijoje?" maxlength="200"></textarea>
-      <button class="btn-p" id="btn-kim-submit" onclick="submitKim()">Pateikti ✓</button>
+      <button class="bp" id="btn-kim-submit" onclick="submitKim()">Pateikti ✓</button>
       <div class="err" id="kim-err"></div>
     </div>
     <div class="submit-status" id="kim-progress">Laukiama visų žaidėjų…</div>
   </div>
 </div>
 
-<!-- KAS IŠ MŪSŲ VOTE -->
+<!-- KIM VOTE -->
 <div id="s-mg-kim-vote" class="screen">
   <div class="game-bar"><span>🫵 <span id="kim-vote-counter"></span></span><div id="kim-vote-timer-wrap"></div></div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="event-box" style="margin-bottom:1.25rem">
-      <div class="event-label">🫵 Kas iš mūsų...</div>
-      <div class="event-text" id="kim-vote-text"></div>
-    </div>
-    <div style="font-size:.75rem;color:var(--muted);text-align:center;font-weight:700;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.08em">Pasirink žaidėją</div>
-    <div id="kim-player-btns" style="display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;width:100%;margin-bottom:1rem;"></div>
-    <div style="text-align:center;font-size:.9rem;color:var(--muted);font-weight:700" id="kim-vote-count"></div>
+    <div class="event-box" style="margin-bottom:1.1rem"><div class="event-label">🫵 Kas iš mūsų...</div><div class="event-text" id="kim-vote-text"></div></div>
+    <div style="font-size:.72rem;color:var(--muted);text-align:center;font-weight:700;margin-bottom:.65rem;text-transform:uppercase;letter-spacing:.08em">Pasirink žaidėją</div>
+    <div id="kim-player-btns" style="display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;width:100%;margin-bottom:.9rem;"></div>
+    <div style="text-align:center;font-size:.88rem;color:var(--muted);font-weight:700" id="kim-vote-count"></div>
   </div>
 </div>
 
-<!-- KAS IŠ MŪSŲ RESULTS -->
+<!-- KIM RESULTS -->
 <div id="s-mg-kim-results" class="screen">
   <div class="game-bar"><span>🎮 Rezultatai!</span><span></span></div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="mg-banner"><h2>🫵 Grupės nuomonė!</h2><p>Štai ką visi pasirinko</p></div>
-    <div id="kim-results-list" style="width:100%;display:flex;flex-direction:column;gap:1rem;margin-bottom:1rem;"></div>
-    <div style="text-align:center">
-      <button class="btn-next" id="btn-kim-done" onclick="kimDone()" style="display:none">Tęsti →</button>
-      <div id="kim-done-wait" style="color:var(--muted);font-size:.9rem;font-weight:700">Laukiame šeimininko…</div>
-    </div>
+    <div class="mg-banner"><h2>🫵 Grupės nuomonė!</h2></div>
+    <div id="kim-results-list" style="width:100%;display:flex;flex-direction:column;gap:.9rem;margin-bottom:.9rem;"></div>
+    <div style="text-align:center"><button class="bn" id="btn-kim-done" onclick="send('kim_done')" style="display:none">Tęsti →</button><div id="kim-done-wait" style="color:var(--muted);font-size:.88rem;font-weight:700">Laukiame šeimininko…</div></div>
   </div>
 </div>
 
-<!-- GUESS THE WORD — AUTHOR -->
+<!-- GTW AUTHOR -->
 <div id="s-mg-gtw-author" class="screen">
-  <div class="game-bar"><span>🎮 Mini žaidimas</span><span id="gtw-author-name" style="color:var(--yellow)"></span></div>
+  <div class="game-bar"><span>🎮 Mini žaidimas</span><span style="color:var(--yellow)" id="gtw-author-nametag"></span></div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="mg-banner"><h2>🔤 Tu pateiki žodį!</h2><p>Visi kiti bandys atspėti. Jie gali klausti tave "taip/ne" klausimus!</p></div>
+    <div class="mg-banner"><h2>🔤 Tu pateiki žodį!</h2><p>Visi kiti bandys atspėti. Atsakinėk taip/ne!</p></div>
     <div class="rbox" style="max-width:440px">
       <h2>Slaptasis žodis</h2>
       <input type="text" id="gtw-word-input" placeholder="Pvz: voras, šaldytuvas, cirkas..." maxlength="50">
-      <button class="btn-p" id="btn-gtw-set" onclick="gtwSetWord()">Pradėti ▶</button>
+      <button class="bp" id="btn-gtw-set" onclick="gtwSetWord()">Pradėti ▶</button>
       <div class="err" id="gtw-err"></div>
     </div>
   </div>
 </div>
 
-<!-- GUESS THE WORD — WAIT FOR WORD -->
+<!-- GTW WAIT -->
 <div id="s-mg-gtw-wait" class="screen">
   <div class="game-bar"><span>🎮 Mini žaidimas</span><span></span></div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="mg-banner"><h2>🔤 Atspėk žodį!</h2><p id="gtw-wait-author-name">Laukiame žodžio...</p></div>
+    <div class="mg-banner"><h2>🔤 Atspėk žodį!</h2><p id="gtw-wait-author"></p></div>
     <div style="text-align:center;color:var(--muted);font-size:1rem;font-weight:700;padding:2rem">⏳ Laukiame kol žaidėjas parašys žodį…</div>
   </div>
 </div>
 
-<!-- GUESS THE WORD — GUESSING -->
+<!-- GTW GUESS -->
 <div id="s-mg-gtw-guess" class="screen">
   <div class="game-bar"><span>🔤 Atspėk!</span><div id="gtw-timer-wrap"></div></div>
   <div style="width:100%;padding:0 .75rem">
-    <div class="mg-banner" id="gtw-guess-banner"><h2>🔤 Atspėk žodį!</h2><p id="gtw-guess-author"></p></div>
-    <div id="gtw-author-panel" style="display:none;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:1rem;margin-bottom:1rem;text-align:center;font-weight:700;color:var(--yellow);">
-      Tu esi žodžio autorius — atsakinėk <strong>taip</strong> arba <strong>ne</strong> į klausimus!<br>
-      <span style="color:var(--orange);font-family:'Alfa Slab One',serif;font-size:1.4rem;margin-top:.5rem;display:block" id="gtw-reveal-word"></span>
+    <div class="mg-banner"><h2>🔤 Atspėk žodį!</h2><p id="gtw-guess-author"></p></div>
+    <div id="gtw-author-panel" style="display:none;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:.9rem;margin-bottom:.9rem;text-align:center;font-weight:700;color:var(--yellow);">
+      Tu esi žodžio autorius — atsakinėk <strong>TAIP</strong> arba <strong>NE</strong>!<br>
+      <span style="color:var(--orange);font-family:'Alfa Slab One',serif;font-size:1.5rem;margin-top:.4rem;display:block" id="gtw-reveal-word"></span>
     </div>
-    <div id="gtw-guesses-list" style="width:100%;max-width:520px;display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;max-height:260px;overflow-y:auto;"></div>
-    <div id="gtw-input-area" style="width:100%;max-width:520px;display:flex;gap:.5rem;margin-bottom:.5rem">
+    <div id="gtw-guesses-list" style="width:100%;max-width:520px;display:flex;flex-direction:column;gap:.3rem;margin-bottom:.9rem;max-height:240px;overflow-y:auto;"></div>
+    <div id="gtw-input-area" style="width:100%;max-width:520px;display:flex;gap:.5rem;margin-bottom:.45rem">
       <input type="text" id="gtw-guess-input" placeholder="Tavo spėjimas..." maxlength="100" style="flex:1;margin-bottom:0">
-      <button class="btn-p" style="width:auto" onclick="gtwGuess()">Spėti</button>
+      <button class="bp" style="width:auto" onclick="gtwGuess()">Spėti</button>
     </div>
-    <div style="font-size:.85rem;color:var(--muted);font-weight:700;text-align:center" id="gtw-winners-txt"></div>
+    <div style="font-size:.82rem;color:var(--muted);font-weight:700;text-align:center" id="gtw-winners-txt"></div>
   </div>
 </div>
 
-<!-- GUESS THE WORD — REVEAL -->
+<!-- GTW REVEAL -->
 <div id="s-mg-gtw-reveal" class="screen">
   <div class="game-bar"><span>🎮 Rezultatas!</span><span></span></div>
   <div style="width:100%;padding:0 .75rem">
     <div class="mg-banner"><h2>🔤 Žodis buvo...</h2></div>
-    <div style="font-family:'Alfa Slab One',serif;font-size:3rem;color:var(--orange);text-shadow:4px 4px 0 #000;text-align:center;margin-bottom:1.25rem" id="gtw-final-word"></div>
-    <div id="gtw-reveal-results" style="background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:4px 4px 0 #000;padding:1rem 1.25rem;width:100%;max-width:440px;margin-bottom:1rem;"></div>
-    <div style="text-align:center">
-      <button class="btn-next" id="btn-gtw-done" onclick="gtwDone()" style="display:none">Tęsti →</button>
-      <div id="gtw-done-wait" style="color:var(--muted);font-size:.9rem;font-weight:700">Laukiame šeimininko…</div>
+    <div style="font-family:'Alfa Slab One',serif;font-size:3rem;color:var(--orange);text-shadow:4px 4px 0 #000;text-align:center;margin-bottom:1.1rem" id="gtw-final-word"></div>
+    <div id="gtw-reveal-results" style="background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:4px 4px 0 #000;padding:.9rem 1.1rem;width:100%;max-width:440px;margin-bottom:.9rem;"></div>
+    <div style="text-align:center"><button class="bn" id="btn-gtw-done" onclick="send('gtw_done')" style="display:none">Tęsti →</button><div id="gtw-done-wait" style="color:var(--muted);font-size:.88rem;font-weight:700">Laukiame šeimininko…</div></div>
+  </div>
+</div>
+
+<!-- SHOP CREATE -->
+<div id="s-mg-shop-create" class="screen">
+  <div class="game-bar"><span>🎮 Mini žaidimas</span><div id="shop-create-timer-wrap"></div></div>
+  <div style="width:100%;padding:0 .75rem">
+    <div class="mg-banner"><h2>🛒 Parduotuvė!</h2><p>Sukurk produktą ir nustatyk kainą — kiti galės pirkti!</p></div>
+    <div class="rbox" style="max-width:480px">
+      <h2>Tavo produktas</h2>
+      <input type="text" id="shop-name" placeholder="Produkto pavadinimas..." maxlength="80">
+      <textarea id="shop-desc" placeholder="Aprašymas (neprivaloma)..." maxlength="150"></textarea>
+      <h2 style="margin-top:.2rem">Kaina (€)</h2>
+      <input type="number" id="shop-price" placeholder="Pvz: 25" min="1" max="999" style="margin-bottom:.65rem">
+      <button class="bp" id="btn-shop-submit" onclick="submitShopProduct()">Pateikti produktą ✓</button>
+      <div class="err" id="shop-err"></div>
     </div>
+    <div class="submit-status" id="shop-submit-status">Laukiama visų žaidėjų…</div>
+    <div id="shop-products-preview" style="width:100%;max-width:520px;margin-top:.75rem;"></div>
+  </div>
+</div>
+
+<!-- SHOP BUY -->
+<div id="s-mg-shop-buy" class="screen">
+  <div class="game-bar"><span>🛒 Pirkiniai!</span><div id="shop-buy-timer-wrap"></div></div>
+  <div style="width:100%;padding:0 .75rem">
+    <div class="mg-banner"><h2>🛒 Pirkimo laikas!</h2><p>Tau yra 100€ — pirkk kiek nori iš ko nori!</p></div>
+    <div class="budget-display" id="budget-display">💰 100 €</div>
+    <div id="shop-products-list" style="width:100%;max-width:520px;"></div>
+    <div style="background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:3px 3px 0 #000;padding:.9rem 1.1rem;width:100%;max-width:520px;margin-top:.9rem;">
+      <div style="font-family:'Alfa Slab One',serif;font-size:.85rem;color:var(--orange);margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.06em;">🧺 Tavo krepšelis</div>
+      <div id="cart-list" style="font-size:.88rem;color:var(--muted);font-weight:700">Krepšelis tuščias</div>
+    </div>
+  </div>
+</div>
+
+<!-- SHOP RESULTS -->
+<div id="s-mg-shop-results" class="screen">
+  <div class="game-bar"><span>🎮 Rezultatai!</span><span></span></div>
+  <div style="width:100%;padding:0 .75rem">
+    <div class="mg-banner"><h2>🛒 Kas ką nupirko!</h2></div>
+    <div id="shop-results-list" style="width:100%;display:flex;flex-direction:column;gap:.9rem;margin-bottom:.9rem;"></div>
+    <div style="text-align:center"><button class="bn" id="btn-shop-done" onclick="send('shop_done')" style="display:none">Tęsti →</button><div id="shop-done-wait" style="color:var(--muted);font-size:.88rem;font-weight:700">Laukiame šeimininko…</div></div>
   </div>
 </div>
 
@@ -577,654 +515,348 @@ button:disabled{opacity:.4;cursor:default;}
 <div id="s-gameover" class="screen">
   <div class="star-row">★ ★ ★</div>
   <div style="font-size:3rem;margin-bottom:.5rem">🏆</div>
-  <div style="font-family:'Alfa Slab One',serif;font-size:2.4rem;color:var(--orange);text-shadow:4px 4px 0 #000;text-align:center;">Žaidimas baigtas!</div>
-  <div class="scoreboard" style="margin-top:1.25rem" id="scoreboard"></div>
-  <button class="btn-p" onclick="location.reload()" style="max-width:280px;width:100%;margin-top:1.5rem">Žaisti dar kartą</button>
+  <div style="font-family:'Alfa Slab One',serif;font-size:2.2rem;color:var(--orange);text-shadow:4px 4px 0 #000;text-align:center;">Žaidimas baigtas!</div>
+  <div class="scoreboard" style="margin-top:1.1rem" id="scoreboard"></div>
+  <button class="bp" onclick="location.reload()" style="max-width:280px;width:100%;margin-top:1.4rem">Žaisti dar kartą</button>
 </div>
 
-</div><!-- #app -->
+</div>
 <script>
 // ── Audio ─────────────────────────────────────────────────────────────────
-const AC = new (window.AudioContext || window.webkitAudioContext)();
+const AC=new(window.AudioContext||window.webkitAudioContext)();
 document.addEventListener('click',()=>{if(AC.state==='suspended')AC.resume();},{once:true});
+function snd(t){try{
+  if(t==='click'){const b=AC.createBuffer(1,AC.sampleRate*.06,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(AC.sampleRate*.012));const s=AC.createBufferSource(),g=AC.createGain(),f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=600;f.Q.value=1.5;s.buffer=b;s.connect(f);f.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(.4,AC.currentTime);s.start();s.stop(AC.currentTime+.06);}
+  else if(t==='tick'){const b=AC.createBuffer(1,AC.sampleRate*.04,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(AC.sampleRate*.005));const s=AC.createBufferSource(),g=AC.createGain(),f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=1200;f.Q.value=3;s.buffer=b;s.connect(f);f.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(.18,AC.currentTime);s.start();s.stop(AC.currentTime+.04);}
+  else if(t==='tick-u'){const b=AC.createBuffer(1,AC.sampleRate*.035,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(AC.sampleRate*.004));const s=AC.createBufferSource(),g=AC.createGain(),f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=1800;f.Q.value=3;s.buffer=b;s.connect(f);f.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(.28,AC.currentTime);s.start();s.stop(AC.currentTime+.035);}
+  else if(t==='card'){const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.type='sine';o.frequency.setValueAtTime(200,AC.currentTime);o.frequency.exponentialRampToValueAtTime(80,AC.currentTime+.15);g.gain.setValueAtTime(.25,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.2);o.start();o.stop(AC.currentTime+.2);}
+  else if(t==='swirl'){const o=AC.createOscillator(),g=AC.createGain(),l=AC.createOscillator(),lg=AC.createGain();l.frequency.value=8;lg.gain.value=60;l.connect(lg);lg.connect(o.frequency);o.connect(g);g.connect(AC.destination);o.type='sine';o.frequency.setValueAtTime(150,AC.currentTime);o.frequency.exponentialRampToValueAtTime(800,AC.currentTime+.5);g.gain.setValueAtTime(0,AC.currentTime);g.gain.linearRampToValueAtTime(.18,AC.currentTime+.15);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.55);l.start();l.stop(AC.currentTime+.55);o.start();o.stop(AC.currentTime+.55);}
+  else if(t==='jazz'){[[261,.0],[329,.05],[392,.1],[523,.15]].forEach(([f,d])=>{const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0,AC.currentTime+d);g.gain.linearRampToValueAtTime(.07,AC.currentTime+d+.1);g.gain.linearRampToValueAtTime(.04,AC.currentTime+d+.8);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d+1.5);o.start(AC.currentTime+d);o.stop(AC.currentTime+d+1.6);});}
+  else if(t==='fanfare'){[[523,0],[659,.08],[784,.16]].forEach(([f,d])=>{const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,AC.currentTime+d);g.gain.linearRampToValueAtTime(.15,AC.currentTime+d+.04);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d+.6);o.start(AC.currentTime+d);o.stop(AC.currentTime+d+.65);});}
+  else if(t==='vote'){const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.type='sine';o.frequency.setValueAtTime(600,AC.currentTime);o.frequency.exponentialRampToValueAtTime(300,AC.currentTime+.12);g.gain.setValueAtTime(.22,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.15);o.start();o.stop(AC.currentTime+.15);}
+  else if(t==='win'){[[523,0],[659,.1],[784,.2],[1047,.32],[1319,.44]].forEach(([f,d])=>{const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0,AC.currentTime+d);g.gain.linearRampToValueAtTime(.18,AC.currentTime+d+.03);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d+.5);o.start(AC.currentTime+d);o.stop(AC.currentTime+d+.55);});}
+  else if(t==='mg'){[[392,0],[494,.1],[587,.2],[784,.3],[987,.42]].forEach(([f,d])=>{const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.type='sawtooth';o.frequency.value=f;g.gain.setValueAtTime(0,AC.currentTime+d);g.gain.linearRampToValueAtTime(.12,AC.currentTime+d+.04);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d+.45);o.start(AC.currentTime+d);o.stop(AC.currentTime+d+.5);});}
+  else if(t==='buy'){const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.type='triangle';o.frequency.setValueAtTime(400,AC.currentTime);o.frequency.exponentialRampToValueAtTime(800,AC.currentTime+.08);g.gain.setValueAtTime(.2,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.15);o.start();o.stop(AC.currentTime+.15);}
+}catch(e){}}
 
-function playSound(type){
-  try{
-    if(type==='click'){
-      const buf=AC.createBuffer(1,AC.sampleRate*.06,AC.sampleRate),d=buf.getChannelData(0);
-      for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(AC.sampleRate*.012));
-      const src=AC.createBufferSource(),g=AC.createGain(),f=AC.createBiquadFilter();
-      f.type='bandpass';f.frequency.value=600;f.Q.value=1.5;
-      src.buffer=buf;src.connect(f);f.connect(g);g.connect(AC.destination);
-      g.gain.setValueAtTime(.4,AC.currentTime);src.start();src.stop(AC.currentTime+.06);
-    } else if(type==='tick'){
-      // satisfying tick for timer
-      const buf=AC.createBuffer(1,AC.sampleRate*.04,AC.sampleRate),d=buf.getChannelData(0);
-      for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(AC.sampleRate*.005));
-      const src=AC.createBufferSource(),g=AC.createGain(),f=AC.createBiquadFilter();
-      f.type='bandpass';f.frequency.value=1200;f.Q.value=3;
-      src.buffer=buf;src.connect(f);f.connect(g);g.connect(AC.destination);
-      g.gain.setValueAtTime(.18,AC.currentTime);src.start();src.stop(AC.currentTime+.04);
-    } else if(type==='tick-urgent'){
-      const buf=AC.createBuffer(1,AC.sampleRate*.035,AC.sampleRate),d=buf.getChannelData(0);
-      for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(AC.sampleRate*.004));
-      const src=AC.createBufferSource(),g=AC.createGain(),f=AC.createBiquadFilter();
-      f.type='bandpass';f.frequency.value=1800;f.Q.value=3;
-      src.buffer=buf;src.connect(f);f.connect(g);g.connect(AC.destination);
-      g.gain.setValueAtTime(.28,AC.currentTime);src.start();src.stop(AC.currentTime+.035);
-    } else if(type==='card'){
-      const o=AC.createOscillator(),g=AC.createGain();
-      o.connect(g);g.connect(AC.destination);o.type='sine';
-      o.frequency.setValueAtTime(200,AC.currentTime);
-      o.frequency.exponentialRampToValueAtTime(80,AC.currentTime+.15);
-      g.gain.setValueAtTime(.25,AC.currentTime);
-      g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.2);
-      o.start();o.stop(AC.currentTime+.2);
-    } else if(type==='swirl'){
-      const o=AC.createOscillator(),g=AC.createGain(),lfo=AC.createOscillator(),lg=AC.createGain();
-      lfo.frequency.value=8;lg.gain.value=60;lfo.connect(lg);lg.connect(o.frequency);
-      o.connect(g);g.connect(AC.destination);o.type='sine';
-      o.frequency.setValueAtTime(150,AC.currentTime);
-      o.frequency.exponentialRampToValueAtTime(800,AC.currentTime+.5);
-      g.gain.setValueAtTime(0,AC.currentTime);
-      g.gain.linearRampToValueAtTime(.18,AC.currentTime+.15);
-      g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.55);
-      lfo.start();lfo.stop(AC.currentTime+.55);o.start();o.stop(AC.currentTime+.55);
-    } else if(type==='jazz'){
-      [[261,.0],[329,.05],[392,.1],[523,.15]].forEach(([freq,del])=>{
-        const o=AC.createOscillator(),g=AC.createGain();
-        o.connect(g);g.connect(AC.destination);o.type='triangle';o.frequency.value=freq;
-        g.gain.setValueAtTime(0,AC.currentTime+del);
-        g.gain.linearRampToValueAtTime(.07,AC.currentTime+del+.1);
-        g.gain.linearRampToValueAtTime(.04,AC.currentTime+del+.8);
-        g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+del+1.5);
-        o.start(AC.currentTime+del);o.stop(AC.currentTime+del+1.6);
-      });
-    } else if(type==='fanfare'){
-      [[523,0],[659,.08],[784,.16]].forEach(([freq,del])=>{
-        const o=AC.createOscillator(),g=AC.createGain();
-        o.connect(g);g.connect(AC.destination);o.type='sine';o.frequency.value=freq;
-        g.gain.setValueAtTime(0,AC.currentTime+del);
-        g.gain.linearRampToValueAtTime(.15,AC.currentTime+del+.04);
-        g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+del+.6);
-        o.start(AC.currentTime+del);o.stop(AC.currentTime+del+.65);
-      });
-    } else if(type==='vote'){
-      const o=AC.createOscillator(),g=AC.createGain();
-      o.connect(g);g.connect(AC.destination);o.type='sine';
-      o.frequency.setValueAtTime(600,AC.currentTime);
-      o.frequency.exponentialRampToValueAtTime(300,AC.currentTime+.12);
-      g.gain.setValueAtTime(.22,AC.currentTime);
-      g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.15);
-      o.start();o.stop(AC.currentTime+.15);
-    } else if(type==='win'){
-      [[523,0],[659,.1],[784,.2],[1047,.32],[1319,.44]].forEach(([freq,del])=>{
-        const o=AC.createOscillator(),g=AC.createGain();
-        o.connect(g);g.connect(AC.destination);o.type='triangle';o.frequency.value=freq;
-        g.gain.setValueAtTime(0,AC.currentTime+del);
-        g.gain.linearRampToValueAtTime(.18,AC.currentTime+del+.03);
-        g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+del+.5);
-        o.start(AC.currentTime+del);o.stop(AC.currentTime+del+.55);
-      });
-    } else if(type==='mg'){
-      [[392,0],[494,.1],[587,.2],[784,.3],[987,.42]].forEach(([freq,del])=>{
-        const o=AC.createOscillator(),g=AC.createGain();
-        o.connect(g);g.connect(AC.destination);o.type='sawtooth';o.frequency.value=freq;
-        g.gain.setValueAtTime(0,AC.currentTime+del);
-        g.gain.linearRampToValueAtTime(.12,AC.currentTime+del+.04);
-        g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+del+.45);
-        o.start(AC.currentTime+del);o.stop(AC.currentTime+del+.5);
-      });
-    }
-  }catch(e){}
-}
-
-// ── Timer widget ──────────────────────────────────────────────────────────
-let activeTimers = {};
-function startTimer(containerId, duration, label, onMyTurn){
-  stopTimer(containerId);
-  const container = document.getElementById(containerId);
-  if(!container) return;
-  let left = duration;
-  const urgent = duration <= 20;
-
+// ── Timer ─────────────────────────────────────────────────────────────────
+const activeTimers={};
+function startTimer(cid,dur,myTurn){
+  stopTimer(cid);
+  const c=document.getElementById(cid);if(!c)return;
+  let left=dur;
   function render(){
-    const pct = (left/duration)*100;
-    const isUrgent = left <= 5;
-    container.innerHTML=`<div class="timer-wrap${isUrgent?' urgent':''}">
-      <span class="timer-clock">⏱</span>
-      <div class="timer-bar-outer"><div class="timer-bar-inner" style="width:${pct}%;background:${isUrgent?'var(--red)':'var(--teal)'}"></div></div>
-      <span class="timer-num">${left}s</span>
-    </div>`;
+    const pct=(left/dur)*100,urg=left<=5;
+    c.innerHTML=`<div class="tw${urg?' urg':''}"><span class="tc">⏱</span><div class="tbo"><div class="tbi" style="width:${pct}%"></div></div><span class="tn">${left}s</span></div>`;
   }
   render();
-
-  const iv = setInterval(()=>{
-    left--;
-    if(left<=0){
-      clearInterval(iv);
-      container.innerHTML='';
-      return;
-    }
-    render();
-    if(onMyTurn){
-      if(left<=5) playSound('tick-urgent');
-      else playSound('tick');
-    }
+  activeTimers[cid]=setInterval(()=>{
+    left--;if(left<=0){clearInterval(activeTimers[cid]);delete activeTimers[cid];c.innerHTML='';return;}
+    render();if(myTurn){snd(left<=5?'tick-u':'tick');}
   },1000);
-  activeTimers[containerId]=iv;
 }
-function stopTimer(containerId){
-  if(activeTimers[containerId]){clearInterval(activeTimers[containerId]);delete activeTimers[containerId];}
-  const c=document.getElementById(containerId);if(c)c.innerHTML='';
-}
+function stopTimer(cid){if(activeTimers[cid]){clearInterval(activeTimers[cid]);delete activeTimers[cid];}const c=document.getElementById(cid);if(c)c.innerHTML='';}
 
 // ── Swirl ─────────────────────────────────────────────────────────────────
-function swirlTo(screenId,cb){
+function swirlTo(sid,cb){
   const app=document.getElementById('app'),ov=document.getElementById('overlay');
-  playSound('swirl');
-  app.className='page-out';ov.className='in';
-  setTimeout(()=>{
-    if(cb)cb();
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
-    window.scrollTo(0,0);
-    app.className='page-in';ov.className='out';
-    setTimeout(()=>{app.className='';ov.className='';},400);
-  },300);
+  snd('swirl');app.className='po';ov.className='in';
+  setTimeout(()=>{if(cb)cb();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(sid).classList.add('active');window.scrollTo(0,0);app.className='pi';ov.className='out';setTimeout(()=>{app.className='';ov.className='';},400);},300);
 }
-function showScreen(id,anim){
-  if(anim){swirlTo(id);return;}
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
-}
+function showScreen(id,anim){if(anim){swirlTo(id);return;}document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function setErr(id,msg){const el=document.getElementById(id);if(el)el.textContent=msg;}
+function hostBtn(showId,waitId){if(isHost){document.getElementById(showId).style.display='block';document.getElementById(waitId).style.display='none';}else{document.getElementById(showId).style.display='none';document.getElementById(waitId).style.display='block';}}
 
 // ── State ─────────────────────────────────────────────────────────────────
 const socket=io();
 let myId=null,myName='',myHand=[],selectedCard=null;
 let isHost=false,currentEvent='',hasPlayed=false,hasVoted=false;
 let revealQueue=[],isRevealing=false;
-let hasSubmitted=false,hasSubmittedReaction=false,hasSubmittedTot=false;
-let totMyItem=null,totVoted=false,totCurrentItem=null;
+let hasSubmitted=false,hasSubmittedReaction=false,hasSubmittedTot=false,hasSubmittedKim=false,hasSubmittedShop=false,hasSubmittedGtw=false;
+let totVoted=false,totCurrentItem=null,kimVoted=false;
+let shopBudget=100,shopProductsData=[];
+
+function send(ev,data){socket.emit(ev,data||{});}
 
 socket.on('connect',()=>{myId=socket.id;});
 socket.on('error',msg=>{setErr('join-err',msg);setErr('create-err',msg);});
 
-socket.on('room_joined',({code,hand,isHost:host})=>{
-  isHost=host;myHand=hand;
-  document.getElementById('display-code').textContent=code;
-  showScreen('s-lobby',true);
-});
+socket.on('room_joined',({code,hand,isHost:h})=>{isHost=h;myHand=hand;document.getElementById('display-code').textContent=code;showScreen('s-lobby',true);});
 
 socket.on('room_update',room=>{
   renderPills(room.players);
   const count=Object.keys(room.players).length;
-  if(room.phase==='lobby'&&isHost){
-    document.getElementById('btn-start').style.display=count>=2?'block':'none';
-    document.getElementById('lobby-wait').style.display=count>=2?'none':'block';
-  }
-  if(room.phase==='submitting'){
-    renderSubmitPills(room.players,room.submittedCount,count);
-    if(!document.getElementById('s-submit').classList.contains('active')){
-      // show themes
-      const tb=document.getElementById('theme-badges');
-      if(tb&&room.themes){tb.innerHTML=room.themes.map(t=>`<span class="theme-badge">${esc(t)}</span>`).join('');}
-      showScreen('s-submit',true);
-    }
-  }
-  if(room.phase==='playing') enterGame(room);
+  if(room.phase==='lobby'&&isHost){document.getElementById('btn-start').style.display=count>=2?'block':'none';document.getElementById('lobby-wait').style.display=count>=2?'none':'block';}
+  if(room.phase==='submitting'){renderSubmitPills(room.players,room.submittedCount,count);if(!document.getElementById('s-submit').classList.contains('active')){const tb=document.getElementById('theme-badges');if(tb&&room.themes)tb.innerHTML=room.themes.map(t=>`<span style="display:inline-block;background:var(--orange);color:#fff;font-family:'Alfa Slab One',serif;font-size:.95rem;padding:.35rem .9rem;border:2px solid #000;border-radius:3px;box-shadow:3px 3px 0 #000;margin:.2rem">${esc(t)}</span>`).join('');showScreen('s-submit',true);}}
+  if(room.phase==='playing')enterGame(room);
 });
 
 socket.on('timer_start',({duration,label})=>{
-  if(label==='submit'){
-    startTimer('submit-timer',duration,'submit',true);
-  } else if(label==='tot_create'){
-    startTimer('tot-create-timer-wrap',duration,'tot_create',!hasSubmittedTot);
-  } else if(label==='tot_vote'){
-    const isMyTurn=!totVoted&&totCurrentItem?.playerId!==myId;
-    startTimer('tot-vote-timer-wrap',duration,'tot_vote',isMyTurn);
-  } else if(label==='play'){
-    startTimer('play-timer-wrap',duration,'play',!hasPlayed);
-  }
+  const map={submit:'submit-timer',tot_create:'tot-create-timer-wrap',tot_vote:'tot-vote-timer-wrap',kim_create:'kim-create-timer-wrap',kim_vote:'kim-vote-timer-wrap',gtw:'gtw-timer-wrap',shop:'shop-buy-timer-wrap',shop_create:'shop-create-timer-wrap'};
+  const myTurnMap={submit:!hasSubmitted,tot_create:!hasSubmittedTot,tot_vote:!totVoted&&totCurrentItem?.playerId!==myId,kim_create:!hasSubmittedKim,kim_vote:!kimVoted,gtw:!hasSubmittedGtw&&gtwIsGuessing,shop:true,shop_create:!hasSubmittedShop};
+  const cid=map[label];if(cid)startTimer(cid,duration,myTurnMap[label]||false);
 });
 
-socket.on('new_hand',({hand})=>{
-  myHand=hand;hasPlayed=false;hasVoted=false;selectedCard=null;
-  revealQueue=[];isRevealing=false;
-  renderHand();
-  document.getElementById('played-notice').style.display='none';
-  document.getElementById('hand-area').style.display='block';
-  document.getElementById('mini-strip').innerHTML='';
-  document.getElementById('spotlight-wrap').innerHTML=`<div class="waiting-txt" id="spotlight-wait">Laukiama kortelių…<br><span class="waiting-count" id="played-count">0</span> / <span id="total-count">?</span></div>`;
-});
+let gtwIsGuessing=false,gtwIsAuthor=false;
 
-socket.on('card_played',({playerId,playerName,card,totalPlayed,totalPlayers})=>{
-  const pc=document.getElementById('played-count'),tc=document.getElementById('total-count');
-  if(pc)pc.textContent=totalPlayed;if(tc)tc.textContent=totalPlayers;
-  revealQueue.push({card,playerName});
-  if(!isRevealing)processReveal();
-});
+socket.on('new_hand',({hand})=>{myHand=hand;hasPlayed=false;hasVoted=false;selectedCard=null;revealQueue=[];isRevealing=false;renderHand();document.getElementById('played-notice').style.display='none';document.getElementById('hand-area').style.display='block';document.getElementById('mini-strip').innerHTML='';document.getElementById('spotlight-wrap').innerHTML=`<div class="waiting-txt" id="spotlight-wait">Laukiama kortelių…<br><span class="waiting-count" id="played-count">0</span> / <span id="total-count">?</span></div>`;});
+socket.on('card_played',({playerName,card,totalPlayed,totalPlayers})=>{const pc=document.getElementById('played-count'),tc=document.getElementById('total-count');if(pc)pc.textContent=totalPlayed;if(tc)tc.textContent=totalPlayers;revealQueue.push({card,playerName});if(!isRevealing)processReveal();});
+socket.on('start_voting',({playedCards,playOrder,players})=>{snd('fanfare');renderVoting(playedCards,playOrder,players);});
+socket.on('vote_update',({totalVotes,totalPlayers})=>{const el=document.getElementById('vote-count-txt');if(el)el.textContent=`${totalVotes} / ${totalPlayers} balsavo`;});
+socket.on('round_results',(d)=>showResults(d));
+socket.on('game_over',({players})=>{snd('win');showGameOver(players);});
 
-socket.on('start_voting',({playedCards,playOrder,players})=>{
-  playSound('fanfare');renderVoting(playedCards,playOrder,players);
-});
-
-socket.on('vote_update',({totalVotes,totalPlayers})=>{
-  const el=document.getElementById('vote-count-txt');
-  if(el)el.textContent=`${totalVotes} / ${totalPlayers} balsavo`;
-});
-
-socket.on('round_results',({playedCards,playOrder,players,votes,round,maxRounds})=>{
-  showResults(playedCards,playOrder,players,votes,round,maxRounds);
-});
-
-socket.on('game_over',({players})=>{playSound('win');showGameOver(players);});
-
-// ── Minigame events ───────────────────────────────────────────────────────
-socket.on('minigame_start',({type,image,order,players,theme})=>{
-  playSound('mg');
-  if(type==='caption'){
-    document.getElementById('caption-img').src=image.url;
-    document.getElementById('caption-build').textContent='…';
-    document.getElementById('caption-your-turn').style.display='none';
-    document.getElementById('caption-wait').textContent='';
-    swirlTo('s-mg-caption');
-  } else if(type==='reaction'){
-    document.getElementById('rw-name-tag').textContent=myName;
-    document.getElementById('reaction-progress').textContent='';
-    document.getElementById('btn-reaction-submit').disabled=false;
-    document.getElementById('btn-reaction-submit').textContent='Pateikti ✓';
-    hasSubmittedReaction=false;
-    showScreen('s-mg-reaction-write',true);
-  } else if(type==='thisorthat'){
-    hasSubmittedTot=false;totVoted=false;totCurrentItem=null;
-    document.getElementById('btn-tot-submit').disabled=false;
-    document.getElementById('btn-tot-submit').textContent='Pateikti ✓';
-    document.getElementById('tot-situation').value='';
-    document.getElementById('tot-a').value='';
-    document.getElementById('tot-b').value='';
-    const tb=document.getElementById('tot-theme-badge');
-    if(tb)tb.innerHTML='';
-    showScreen('s-mg-tot-create',true);
-  }
+socket.on('minigame_start',({type,image,order,players})=>{
+  snd('mg');
+  hasSubmittedReaction=false;hasSubmittedTot=false;hasSubmittedKim=false;hasSubmittedShop=false;hasSubmittedGtw=false;
+  totVoted=false;totCurrentItem=null;kimVoted=false;gtwIsGuessing=false;gtwIsAuthor=false;shopBudget=100;shopProductsData=[];
+  if(type==='caption'){document.getElementById('caption-img').src=image.url;document.getElementById('caption-build').textContent='…';document.getElementById('caption-your-turn').style.display='none';document.getElementById('caption-wait').textContent='';swirlTo('s-mg-caption');}
+  else if(type==='reaction'){document.getElementById('rw-name').textContent=myName;document.getElementById('reaction-progress').textContent='';document.getElementById('btn-reaction-submit').disabled=false;document.getElementById('btn-reaction-submit').textContent='Pateikti ✓';showScreen('s-mg-reaction-write',true);}
+  else if(type==='thisorthat'){document.getElementById('btn-tot-submit').disabled=false;document.getElementById('btn-tot-submit').textContent='Pateikti ✓';['tot-situation','tot-a','tot-b'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});showScreen('s-mg-tot-create',true);}
+  else if(type==='kim'){document.getElementById('btn-kim-submit').disabled=false;document.getElementById('btn-kim-submit').textContent='Pateikti ✓';document.getElementById('kim-input').value='';showScreen('s-mg-kim-create',true);}
+  else if(type==='gtw'){showScreen('s-mg-gtw-wait',true);}
+  else if(type==='shop'){document.getElementById('btn-shop-submit').disabled=false;document.getElementById('btn-shop-submit').textContent='Pateikti produktą ✓';['shop-name','shop-desc','shop-price'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('shop-products-preview').innerHTML='';showScreen('s-mg-shop-create',true);}
 });
 
 socket.on('reaction_assignment',({card})=>{document.getElementById('reaction-my-img').src=card.url;});
 socket.on('reaction_progress',({done,total})=>{const el=document.getElementById('reaction-progress');if(el)el.textContent=`${done} / ${total} pateikė`;});
-
-socket.on('caption_update',({parts,currentIdx,captionOrder,players,timeLeft})=>{
-  const buildEl=document.getElementById('caption-build');
-  if(parts.length===0){buildEl.textContent='…';}
-  else{buildEl.innerHTML=parts.map((p,i)=>`<span class="caption-part${i===parts.length-1?' new':''}">${esc(p.text)} </span>`).join('');}
-  const myTurn=captionOrder[currentIdx]===myId;
-  const done=currentIdx>=captionOrder.length;
-  const isFirst=currentIdx===0;
-  const isLast=currentIdx===captionOrder.length-1;
-  document.getElementById('caption-your-turn').style.display=(!done&&myTurn)?'flex':'none';
-  document.getElementById('caption-your-turn').style.flexDirection='column';
-  if(!done&&myTurn){
-    const hint=document.getElementById('caption-hint');
-    if(isFirst)hint.innerHTML='✏️ Tu pradeedi! Parašyk pradžią (baik žodžiu: <strong>jeigu / ir / tada / kaip / dėl to</strong>)';
-    else if(isLast)hint.innerHTML='✏️ Tavo eilė — užbaik sakinį kaip nori!';
-    else hint.innerHTML='✏️ Tavo eilė! Pridėk savo dalį (baik žodžiu: <strong>jeigu / ir / tada / kaip / dėl to</strong>)';
-    document.getElementById('caption-input').focus();
-    stopTimer('caption-timer-wrap');
-    startTimer('caption-timer-wrap',20,'caption',true);
-  }
-  if(!done&&!myTurn){
-    const name=players[captionOrder[currentIdx]]?.name||'?';
-    document.getElementById('caption-wait').textContent=`Laukiame — ${name} rašo…`;
-    stopTimer('caption-timer-wrap');
-    startTimer('caption-timer-wrap',20,'caption',false);
-  } else if(done){
-    stopTimer('caption-timer-wrap');
-    document.getElementById('caption-wait').textContent='';
-  }
-});
-
-socket.on('caption_reveal',({image,parts,players})=>{
-  stopTimer('caption-timer-wrap');
-  document.getElementById('reveal-caption-img').src=image.url;
-  document.getElementById('reveal-caption-text').innerHTML=parts.map(p=>`<strong>${esc(p.text)}</strong>`).join(' ');
-  if(isHost){document.getElementById('btn-caption-done').style.display='block';document.getElementById('caption-done-wait').style.display='none';}
-  else{document.getElementById('btn-caption-done').style.display='none';document.getElementById('caption-done-wait').style.display='block';}
-  showScreen('s-mg-caption-reveal',true);
-});
-
 socket.on('reaction_reveal_next',({playerId,playerName,card,text,idx,total})=>{
   document.getElementById('reaction-reveal-player').textContent=playerName;
   document.getElementById('reaction-reveal-img').src=card.url;
   document.getElementById('reaction-reveal-text').textContent=text;
   document.getElementById('reaction-reveal-counter').textContent=`${idx+1} iš ${total}`;
-  if(isHost){document.getElementById('btn-reaction-next').style.display='block';document.getElementById('btn-reaction-next').textContent=idx>=total-1?'Tęsti →':'Kitas →';document.getElementById('reaction-next-wait').style.display='none';}
-  else{document.getElementById('btn-reaction-next').style.display='none';document.getElementById('reaction-next-wait').style.display='block';}
+  hostBtn('btn-reaction-next','reaction-next-wait');
+  document.getElementById('btn-reaction-next').textContent=idx>=total-1?'Tęsti →':'Kitas →';
   showScreen('s-mg-reaction-reveal',true);
 });
 
-// ── This or That socket events ────────────────────────────────────────────
-socket.on('tot_progress',({done,total})=>{
-  const el=document.getElementById('tot-progress');
-  if(el)el.textContent=`${done} / ${total} pateikė`;
+socket.on('caption_update',({parts,currentIdx,captionOrder,players})=>{
+  const b=document.getElementById('caption-build');
+  b.innerHTML=parts.length===0?'…':parts.map((p,i)=>`<span class="caption-part${i===parts.length-1?' new':''}">${esc(p.text)} </span>`).join('');
+  const myTurn=captionOrder[currentIdx]===myId,done=currentIdx>=captionOrder.length;
+  const isFirst=currentIdx===0,isLast=currentIdx===captionOrder.length-1;
+  document.getElementById('caption-your-turn').style.display=(!done&&myTurn)?'flex':'none';
+  document.getElementById('caption-your-turn').style.flexDirection='column';
+  if(!done&&myTurn){const h=document.getElementById('caption-hint');if(isFirst)h.innerHTML='✏️ Tu pradeedi! Baik žodžiu: <strong>jeigu / ir / tada / kaip / dėl to</strong>';else if(isLast)h.innerHTML='✏️ Tavo eilė — užbaik sakinį kaip nori!';else h.innerHTML='✏️ Tavo eilė! Baik žodžiu: <strong>jeigu / ir / tada / kaip / dėl to</strong>';document.getElementById('caption-input').focus();stopTimer('caption-timer-wrap');startTimer('caption-timer-wrap',20,true);}
+  if(!done&&!myTurn){document.getElementById('caption-wait').textContent=`Laukiame — ${players[captionOrder[currentIdx]]?.name||'?'} rašo…`;stopTimer('caption-timer-wrap');startTimer('caption-timer-wrap',20,false);}
+  if(done){stopTimer('caption-timer-wrap');document.getElementById('caption-wait').textContent='';}
 });
+socket.on('caption_reveal',({image,parts})=>{stopTimer('caption-timer-wrap');document.getElementById('reveal-caption-img').src=image.url;document.getElementById('reveal-caption-text').innerHTML=parts.map(p=>`<strong>${esc(p.text)}</strong>`).join(' ');hostBtn('btn-caption-done','caption-done-wait');showScreen('s-mg-caption-reveal',true);});
 
-socket.on('tot_question',({item,idx,total,votes})=>{
+socket.on('tot_progress',({done,total})=>{const el=document.getElementById('tot-progress');if(el)el.textContent=`${done} / ${total} pateikė`;});
+socket.on('tot_question',({item,idx,total})=>{
   totCurrentItem=item;totVoted=false;
   document.getElementById('tot-vote-counter').textContent=`${idx+1} / ${total}`;
   document.getElementById('tot-vote-author').textContent=item.playerName+' klausia:';
   document.getElementById('tot-vote-text').textContent=item.situation;
-  const btnA=document.getElementById('tot-btn-a');
-  const btnB=document.getElementById('tot-btn-b');
-  btnA.textContent='A: '+item.optionA;
-  btnB.textContent='B: '+item.optionB;
-  btnA.className='tot-btn';btnB.className='tot-btn';
-  document.getElementById('tot-bar-label-a').textContent='A: '+item.optionA;
-  document.getElementById('tot-bar-label-b').textContent='B: '+item.optionB;
-  updateTotBar(0,0);
-  document.getElementById('tot-vote-count').textContent='';
-  if(item.playerId===myId){
-    btnA.classList.add('own-item');btnB.classList.add('own-item');
-  }
+  const ba=document.getElementById('tot-btn-a'),bb=document.getElementById('tot-btn-b');
+  ba.textContent='A: '+item.optionA;bb.textContent='B: '+item.optionB;ba.className='tot-btn';bb.className='tot-btn';
+  document.getElementById('tot-bar-la').textContent='A: '+item.optionA;document.getElementById('tot-bar-lb').textContent='B: '+item.optionB;
+  updateTotBar(0,0);document.getElementById('tot-vote-count').textContent='';
+  if(item.playerId===myId){ba.classList.add('own-item');bb.classList.add('own-item');}
   document.getElementById('btn-tot-skip').style.display=isHost?'block':'none';
   showScreen('s-mg-tot-vote',true);
 });
-
-socket.on('tot_votes_update',(tally)=>{
-  updateTotBar(tally.A||0,tally.B||0);
-  const total=(tally.A||0)+(tally.B||0);
-  document.getElementById('tot-vote-count').textContent=`${total} balsų`;
-});
-
+socket.on('tot_votes_update',t=>{updateTotBar(t.A||0,t.B||0);document.getElementById('tot-vote-count').textContent=`${(t.A||0)+(t.B||0)} balsų`;});
 socket.on('tot_final',({results})=>{
-  const list=document.getElementById('tot-results-list');
-  list.innerHTML='';
+  const list=document.getElementById('tot-results-list');list.innerHTML='';
+  results.forEach(r=>{const tot=(r.tally.A||0)+(r.tally.B||0),pA=tot?Math.round(r.tally.A/tot*100):50,pB=100-pA;const d=document.createElement('div');d.style.cssText='background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:4px 4px 0 #000;padding:.9rem 1.1rem;';d.innerHTML=`<div style="font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:.25rem">${esc(r.playerName)} klausė:</div><div style="font-size:.95rem;font-weight:700;color:#fff;margin-bottom:.65rem">${esc(r.situation)}</div><div style="display:flex;justify-content:space-between;font-size:.78rem;font-weight:700;margin-bottom:.25rem"><span style="color:var(--orange)">A: ${esc(r.optionA)} — ${r.tally.A||0}</span><span style="color:var(--teal)">B: ${esc(r.optionB)} — ${r.tally.B||0}</span></div><div style="height:22px;background:var(--td);border:1px solid #000;border-radius:3px;overflow:hidden;display:flex"><div style="width:${pA}%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Alfa Slab One',serif;font-size:.75rem;color:#fff">${pA}%</div><div style="flex:1;background:var(--teal);display:flex;align-items:center;justify-content:center;font-family:'Alfa Slab One',serif;font-size:.75rem;color:#fff">${pB}%</div></div>`;list.appendChild(d);});
+  hostBtn('btn-tot-done','tot-done-wait');showScreen('s-mg-tot-results',true);
+});
+function updateTotBar(a,b){const tot=a+b,pA=tot?Math.round(a/tot*100):50,ba=document.getElementById('tot-bar-a'),bb=document.getElementById('tot-bar-b');if(ba){ba.style.width=pA+'%';ba.textContent=a;}if(bb)bb.textContent=b;}
+
+socket.on('kim_progress',({done,total})=>{const el=document.getElementById('kim-progress');if(el)el.textContent=`${done} / ${total} pateikė`;});
+socket.on('kim_question',({text,authorId,authorName,idx,total,players})=>{
+  kimVoted=false;
+  document.getElementById('kim-vote-counter').textContent=`${idx+1} / ${total}`;
+  document.getElementById('kim-vote-text').textContent=text;
+  const btns=document.getElementById('kim-player-btns');btns.innerHTML='';document.getElementById('kim-vote-count').textContent='';
+  Object.entries(players).forEach(([pid,p])=>{const btn=document.createElement('button');btn.className='player-vote-btn';btn.textContent=p.name;btn.onclick=()=>voteKim(pid);if(pid===myId)btn.style.opacity='.35';btns.appendChild(btn);});
+  showScreen('s-mg-kim-vote',true);
+});
+socket.on('kim_vote_update',({tally,voted,total})=>{
+  document.getElementById('kim-vote-count').textContent=`${voted} / ${total} balsavo`;
+  document.querySelectorAll('.player-vote-btn').forEach(btn=>{const pid=Object.keys(tally).find(k=>document.querySelectorAll('.player-vote-btn')[Array.from(document.querySelectorAll('.player-vote-btn')).indexOf(btn)]?.textContent===document.getElementById('kim-player-btns').querySelectorAll('button')[Array.from(document.getElementById('kim-player-btns').querySelectorAll('button')).indexOf(btn)]?.textContent);});
+  // simpler: show counts on buttons
+  const btns=document.getElementById('kim-player-btns').querySelectorAll('button');
+  const playerList=Array.from(document.getElementById('kim-player-btns').querySelectorAll('button')).map(b=>b.getAttribute('data-pid'));
+});
+socket.on('kim_results',({results,players})=>{
+  const list=document.getElementById('kim-results-list');list.innerHTML='';
   results.forEach(r=>{
-    const total=(r.tally.A||0)+(r.tally.B||0);
-    const pctA=total?Math.round((r.tally.A/total)*100):50;
-    const pctB=100-pctA;
-    const div=document.createElement('div');
-    div.style.cssText='background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:4px 4px 0 #000;padding:1rem 1.25rem;';
-    div.innerHTML=`
-      <div style="font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:.3rem">${esc(r.playerName)} klausė:</div>
-      <div style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:.75rem">${esc(r.situation)}</div>
-      <div style="display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;margin-bottom:.3rem">
-        <span style="color:var(--orange)">A: ${esc(r.optionA)} — ${r.tally.A||0}</span>
-        <span style="color:var(--teal)">B: ${esc(r.optionB)} — ${r.tally.B||0}</span>
-      </div>
-      <div style="height:22px;background:var(--teal-dim);border:1px solid #000;border-radius:3px;overflow:hidden;display:flex">
-        <div style="width:${pctA}%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Alfa Slab One',serif;font-size:.75rem;color:#fff">${pctA}%</div>
-        <div style="flex:1;background:var(--teal);display:flex;align-items:center;justify-content:center;font-family:'Alfa Slab One',serif;font-size:.75rem;color:#fff">${pctB}%</div>
-      </div>`;
-    list.appendChild(div);
+    const d=document.createElement('div');d.style.cssText='background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:4px 4px 0 #000;padding:.9rem 1.1rem;';
+    const winnerNames=r.winners.map(wid=>players[wid]?.name||'?').join(', ');
+    const tallyStr=Object.entries(r.tally).map(([pid,v])=>`${players[pid]?.name||'?'}: ${v}`).join(' · ');
+    d.innerHTML=`<div style="font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:.25rem">${esc(r.authorName)} klausė:</div><div style="font-size:.95rem;font-weight:700;color:#fff;margin-bottom:.65rem">${esc(r.text)}</div><div style="font-size:.82rem;color:var(--muted);margin-bottom:.35rem">${esc(tallyStr)}</div><div style="font-size:.9rem;font-weight:700;color:var(--yellow)">👑 ${esc(winnerNames)} gavo tašką!</div>`;
+    list.appendChild(d);
   });
-  if(isHost){document.getElementById('btn-tot-done').style.display='block';document.getElementById('tot-done-wait').style.display='none';}
-  else{document.getElementById('btn-tot-done').style.display='none';document.getElementById('tot-done-wait').style.display='block';}
-  showScreen('s-mg-tot-results',true);
+  hostBtn('btn-kim-done','kim-done-wait');showScreen('s-mg-kim-results',true);
 });
 
-function updateTotBar(a,b){
-  const total=a+b;
-  const pctA=total?Math.round((a/total)*100):50;
-  const barA=document.getElementById('tot-bar-a');
-  const barB=document.getElementById('tot-bar-b');
-  if(barA){barA.style.width=pctA+'%';barA.textContent=a;}
-  if(barB){barB.textContent=b;}
-}
+socket.on('gtw_you_are_author',()=>{gtwIsAuthor=true;document.getElementById('gtw-author-nametag').textContent=myName;showScreen('s-mg-gtw-author',true);});
+socket.on('gtw_waiting_for_word',({authorName})=>{document.getElementById('gtw-wait-author').textContent=`${authorName} rašo žodį…`;if(!gtwIsAuthor)showScreen('s-mg-gtw-wait',true);});
+socket.on('gtw_start_guessing',({authorName,guesses})=>{
+  gtwIsGuessing=true;
+  document.getElementById('gtw-guess-author').textContent=`${authorName} žino žodį — klauskite taip/ne klausimus!`;
+  document.getElementById('gtw-guesses-list').innerHTML='';
+  guesses.forEach(g=>addGtwGuess(g));
+  document.getElementById('gtw-author-panel').style.display=gtwIsAuthor?'block':'none';
+  document.getElementById('gtw-input-area').style.display=gtwIsAuthor?'none':'flex';
+  if(gtwIsAuthor){document.getElementById('gtw-reveal-word').textContent=document.getElementById('gtw-word-input')?.value||'';}
+  document.getElementById('gtw-winners-txt').textContent='';
+  showScreen('s-mg-gtw-guess',true);
+});
+socket.on('gtw_guess_update',({entry})=>{addGtwGuess(entry);if(entry.correct){const w=document.getElementById('gtw-winners-txt');if(w)w.textContent=(entry.playerId===myId?'🎉 Tu atspėjai!':'');}});
+socket.on('gtw_reveal',({word,guesses,winnersFirst,winnersRest,players})=>{
+  document.getElementById('gtw-final-word').textContent=word;
+  const res=document.getElementById('gtw-reveal-results');res.innerHTML='';
+  if(winnersFirst.length){const d=document.createElement('div');d.style.cssText='font-size:.88rem;font-weight:700;color:var(--yellow);margin-bottom:.4rem';d.textContent='🥇 Pirmas atspėjo: '+winnersFirst.map(id=>players[id]?.name||'?').join(', ')+' (+2 tšk.)';res.appendChild(d);}
+  if(winnersRest.length){const d=document.createElement('div');d.style.cssText='font-size:.88rem;font-weight:700;color:var(--teal);margin-bottom:.4rem';d.textContent='✓ Atspėjo: '+winnersRest.map(id=>players[id]?.name||'?').join(', ')+' (+1 tšk.)';res.appendChild(d);}
+  if(!winnersFirst.length&&!winnersRest.length){res.innerHTML='<div style="color:var(--muted);font-weight:700">Niekas neatspėjo 😅</div>';}
+  hostBtn('btn-gtw-done','gtw-done-wait');showScreen('s-mg-gtw-reveal',true);
+});
+
+socket.on('shop_product_added',({products,submitted,total})=>{
+  shopProductsData=products;
+  const prev=document.getElementById('shop-products-preview');
+  if(prev){prev.innerHTML=`<div style="font-size:.78rem;color:var(--muted);font-weight:700;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.06em">${submitted}/${total} pateikė produktą</div>`+products.map(p=>`<div style="font-size:.82rem;background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:.4rem .65rem;margin-bottom:.25rem;color:var(--text)"><strong>${esc(p.name)}</strong> <span style="color:var(--yellow)">${p.price}€</span> <span style="color:var(--muted);font-size:.75rem">— ${esc(p.sellerName)}</span></div>`).join('');}
+});
+socket.on('shop_open',({products,budget})=>{
+  shopProductsData=products;shopBudget=budget;
+  document.getElementById('budget-display').textContent=`💰 ${budget} €`;
+  renderShopProducts();
+  document.getElementById('cart-list').textContent='Krepšelis tuščias';
+  showScreen('s-mg-shop-buy',true);
+});
+socket.on('shop_cart_update',({budget,purchases})=>{
+  shopBudget=budget;
+  document.getElementById('budget-display').textContent=`💰 ${budget} €`;
+  const cl=document.getElementById('cart-list');
+  if(!purchases.length){cl.textContent='Krepšelis tuščias';return;}
+  cl.innerHTML=purchases.map(p=>`<div style="display:flex;justify-content:space-between;padding:.25rem 0;border-bottom:1px dashed var(--border);font-size:.85rem"><span>${esc(p.name)} ×${p.qty}</span><span style="color:var(--yellow)">${p.price*p.qty}€</span></div>`).join('');
+});
+socket.on('shop_results',({products,carts,players})=>{
+  const list=document.getElementById('shop-results-list');list.innerHTML='';
+  Object.entries(carts).forEach(([pid,cart])=>{
+    const d=document.createElement('div');d.style.cssText='background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:4px 4px 0 #000;padding:.9rem 1.1rem;';
+    const spent=100-cart.budget;
+    d.innerHTML=`<div style="font-family:'Alfa Slab One',serif;font-size:.9rem;color:var(--orange);margin-bottom:.5rem">${esc(players[pid]?.name||'?')} išleido ${spent}€</div>`+(cart.purchases.length?cart.purchases.map(p=>`<div style="display:flex;justify-content:space-between;font-size:.85rem;padding:.2rem 0;border-bottom:1px dashed var(--border)"><span>${esc(p.name)} ×${p.qty}</span><span style="color:var(--yellow)">${p.price*p.qty}€</span></div>`).join(''):'<div style="color:var(--muted);font-size:.85rem">Nieko nenupirko</div>');
+    list.appendChild(d);
+  });
+  hostBtn('btn-shop-done','shop-done-wait');showScreen('s-mg-shop-results',true);
+});
 
 // ── Actions ───────────────────────────────────────────────────────────────
 function createRoom(){
-  playSound('click');
+  snd('click');
   const name=document.getElementById('create-name').value.trim();
-  const rounds=parseInt(document.getElementById('create-rounds').value)||3;
   if(!name){setErr('create-err','Įvesk savo vardą');return;}
-  myName=name;
-  ['my-name-tag','rw-name-tag','mg-name-tag'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=name;});
-  socket.emit('create_room',{name,baseRounds:rounds});
+  const rounds=parseInt(document.getElementById('create-rounds').value)||3;
+  const mgCounts={caption:parseInt(document.getElementById('mg-caption').value)||0,reaction:parseInt(document.getElementById('mg-reaction').value)||0,thisorthat:parseInt(document.getElementById('mg-thisorthat').value)||0,kim:parseInt(document.getElementById('mg-kim').value)||0,gtw:parseInt(document.getElementById('mg-gtw').value)||0,shop:parseInt(document.getElementById('mg-shop').value)||0};
+  myName=name;setNameTags(name);
+  socket.emit('create_room',{name,baseRounds:rounds,mgCounts});
 }
-
 function joinRoom(){
-  playSound('click');
-  const name=document.getElementById('join-name').value.trim();
-  const code=document.getElementById('join-code').value.trim();
+  snd('click');
+  const name=document.getElementById('join-name').value.trim(),code=document.getElementById('join-code').value.trim();
   if(!name){setErr('join-err','Įvesk savo vardą');return;}
   if(!code){setErr('join-err','Įvesk kambario kodą');return;}
-  myName=name;
-  ['my-name-tag','rw-name-tag','mg-name-tag'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=name;});
+  myName=name;setNameTags(name);
   socket.emit('join_room',{name,code});
 }
-
-function startGame(){playSound('click');socket.emit('start_game');}
-
-function submitEvents(){
+function setNameTags(n){['my-name-tag','rw-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=n;});}
+function startGame(){snd('click');send('start_game');}
+function submitEvent(){
   if(hasSubmitted)return;
-  const e1=document.getElementById('ev1').value.trim();
-  if(!e1||e1.length<3){setErr('submit-err','Įvesk situaciją!');return;}
-  playSound('click');hasSubmitted=true;
-  const btn=document.getElementById('btn-submit');
-  btn.disabled=true;btn.textContent='✓ Pateikta!';
+  const e=document.getElementById('ev1').value.trim();
+  if(!e||e.length<3){setErr('submit-err','Įvesk situaciją!');return;}
+  snd('click');hasSubmitted=true;
+  const btn=document.getElementById('btn-submit');btn.disabled=true;btn.textContent='✓ Pateikta!';
   stopTimer('submit-timer');
-  socket.emit('submit_events',{events:[e1]});
+  socket.emit('submit_events',{events:[e]});
 }
-
-function nextRound(){playSound('click');socket.emit('next_round');}
-function captionDone(){playSound('click');socket.emit('caption_done');}
-function reactionNext(){playSound('click');socket.emit('reaction_next');}
-function totSkip(){playSound('click');socket.emit('tot_skip');}
-function totDone(){playSound('click');socket.emit('tot_done');}
-
+function nextRound(){snd('click');send('next_round');}
 function playCard(){
   if(!selectedCard||hasPlayed)return;
-  playSound('card');hasPlayed=true;
-  stopTimer('play-timer-wrap');
+  snd('card');hasPlayed=true;stopTimer('play-timer-wrap');
   socket.emit('play_card',{card:selectedCard});
-  document.getElementById('hand-area').style.display='none';
-  document.getElementById('played-notice').style.display='block';
+  document.getElementById('hand-area').style.display='none';document.getElementById('played-notice').style.display='block';
 }
-
-function vote(votedFor){
-  if(hasVoted)return;
-  playSound('vote');hasVoted=true;
-  socket.emit('vote',{votedFor});
-  document.querySelectorAll('.vote-card').forEach(c=>{
-    if(c.dataset.id===votedFor)c.classList.add('voted-this');
-    else c.classList.add('disabled');
+function vote(votedFor){if(hasVoted)return;snd('vote');hasVoted=true;socket.emit('vote',{votedFor});document.querySelectorAll('.vote-card').forEach(c=>{if(c.dataset.id===votedFor)c.classList.add('voted-this');else c.classList.add('disabled');});}
+function submitCaption(){const v=document.getElementById('caption-input').value.trim();if(!v){setErr('caption-err','Įvesk tekstą!');return;}snd('click');document.getElementById('caption-input').value='';document.getElementById('caption-your-turn').style.display='none';stopTimer('caption-timer-wrap');send('caption_submit',{text:v});}
+function submitReaction(){if(hasSubmittedReaction)return;const v=document.getElementById('reaction-input').value.trim();if(!v||v.length<3){setErr('reaction-err','Parašyk reakciją!');return;}snd('click');hasSubmittedReaction=true;document.getElementById('btn-reaction-submit').disabled=true;document.getElementById('btn-reaction-submit').textContent='✓ Pateikta!';send('reaction_submit',{text:v});}
+function submitTot(){if(hasSubmittedTot)return;const s=document.getElementById('tot-situation').value.trim(),a=document.getElementById('tot-a').value.trim(),b=document.getElementById('tot-b').value.trim();if(!s||s.length<5){setErr('tot-err','Įvesk situaciją!');return;}if(!a){setErr('tot-err','Įvesk pirmą pasirinkimą!');return;}if(!b){setErr('tot-err','Įvesk antrą pasirinkimą!');return;}snd('click');hasSubmittedTot=true;document.getElementById('btn-tot-submit').disabled=true;document.getElementById('btn-tot-submit').textContent='✓ Pateikta!';stopTimer('tot-create-timer-wrap');send('tot_submit',{situation:s,optionA:a,optionB:b});}
+function voteTot(c){if(totVoted||totCurrentItem?.playerId===myId)return;snd('vote');totVoted=true;const ba=document.getElementById('tot-btn-a'),bb=document.getElementById('tot-btn-b');ba.classList.add('voted');bb.classList.add('voted');if(c==='A')ba.classList.add('ca');else bb.classList.add('cb');stopTimer('tot-vote-timer-wrap');send('tot_vote',{choice:c});}
+function submitKim(){if(hasSubmittedKim)return;const v=document.getElementById('kim-input').value.trim();if(!v||v.length<5){setErr('kim-err','Įvesk teiginį!');return;}snd('click');hasSubmittedKim=true;document.getElementById('btn-kim-submit').disabled=true;document.getElementById('btn-kim-submit').textContent='✓ Pateikta!';stopTimer('kim-create-timer-wrap');send('kim_submit',{text:v});}
+function voteKim(pid){if(kimVoted||pid===myId)return;snd('vote');kimVoted=true;document.querySelectorAll('.player-vote-btn').forEach(b=>{b.classList.add('disabled');});stopTimer('kim-vote-timer-wrap');send('kim_vote',{votedFor:pid});}
+function gtwSetWord(){const w=document.getElementById('gtw-word-input').value.trim();if(!w){setErr('gtw-err','Įvesk žodį!');return;}snd('click');document.getElementById('btn-gtw-set').disabled=true;document.getElementById('gtw-reveal-word').textContent=w;send('gtw_set_word',{word:w});}
+function gtwGuess(){if(gtwIsAuthor)return;const v=document.getElementById('gtw-guess-input').value.trim();if(!v)return;snd('click');document.getElementById('gtw-guess-input').value='';send('gtw_guess',{guess:v});}
+function addGtwGuess(entry){const list=document.getElementById('gtw-guesses-list');if(!list)return;const d=document.createElement('div');d.className='gtw-guess-item '+(entry.correct?'correct':'wrong');d.textContent=`${entry.playerName}: ${entry.text}${entry.correct?' ✓':''}`;list.appendChild(d);list.scrollTop=list.scrollHeight;}
+function submitShopProduct(){
+  if(hasSubmittedShop)return;
+  const n=document.getElementById('shop-name').value.trim(),desc=document.getElementById('shop-desc').value.trim(),p=parseInt(document.getElementById('shop-price').value)||0;
+  if(!n){setErr('shop-err','Įvesk produkto pavadinimą!');return;}if(p<1){setErr('shop-err','Nustatyk kainą!');return;}
+  snd('click');hasSubmittedShop=true;document.getElementById('btn-shop-submit').disabled=true;document.getElementById('btn-shop-submit').textContent='✓ Pateikta!';
+  stopTimer('shop-create-timer-wrap');send('shop_submit_product',{name:n,price:p,description:desc});
+}
+function renderShopProducts(){
+  const list=document.getElementById('shop-products-list');if(!list)return;list.innerHTML='';
+  shopProductsData.forEach(p=>{
+    const card=document.createElement('div');card.className='shop-product-card';
+    const canBuy=shopBudget>=p.price&&p.sellerId!==myId;
+    card.innerHTML=`<div><div class="pname">${esc(p.name)}</div>${p.description?`<div class="pdesc">${esc(p.description)}</div>`:''}<div class="pseller">${esc(p.sellerName)}</div></div><div style="display:flex;align-items:center;gap:.75rem"><span class="pprice">${p.price}€</span><button class="shop-buy-btn"${canBuy?'':' disabled'} onclick="buyProduct('${p.sellerId}')">Pirkti</button></div>`;
+    list.appendChild(card);
   });
 }
-
-function submitCaption(){
-  const val=document.getElementById('caption-input').value.trim();
-  if(!val){setErr('caption-err','Įvesk tekstą!');return;}
-  playSound('click');
-  document.getElementById('caption-input').value='';
-  document.getElementById('caption-your-turn').style.display='none';
-  stopTimer('caption-timer-wrap');
-  socket.emit('caption_submit',{text:val});
-}
-
-function submitReaction(){
-  if(hasSubmittedReaction)return;
-  const val=document.getElementById('reaction-input').value.trim();
-  if(!val||val.length<3){setErr('reaction-err','Parašyk savo reakciją!');return;}
-  playSound('click');hasSubmittedReaction=true;
-  document.getElementById('btn-reaction-submit').disabled=true;
-  document.getElementById('btn-reaction-submit').textContent='✓ Pateikta!';
-  socket.emit('reaction_submit',{text:val});
-}
-
-function submitTot(){
-  if(hasSubmittedTot)return;
-  const sit=document.getElementById('tot-situation').value.trim();
-  const a=document.getElementById('tot-a').value.trim();
-  const b=document.getElementById('tot-b').value.trim();
-  if(!sit||sit.length<5){setErr('tot-err','Įvesk situaciją!');return;}
-  if(!a){setErr('tot-err','Įvesk pirmą pasirinkimą!');return;}
-  if(!b){setErr('tot-err','Įvesk antrą pasirinkimą!');return;}
-  playSound('click');hasSubmittedTot=true;
-  document.getElementById('btn-tot-submit').disabled=true;
-  document.getElementById('btn-tot-submit').textContent='✓ Pateikta!';
-  stopTimer('tot-create-timer-wrap');
-  socket.emit('tot_submit',{situation:sit,optionA:a,optionB:b});
-}
-
-function voteTot(choice){
-  if(totVoted||totCurrentItem?.playerId===myId)return;
-  playSound('vote');totVoted=true;
-  const btnA=document.getElementById('tot-btn-a'),btnB=document.getElementById('tot-btn-b');
-  btnA.classList.add('voted');btnB.classList.add('voted');
-  if(choice==='A')btnA.classList.add('choice-A');
-  else btnB.classList.add('choice-B');
-  stopTimer('tot-vote-timer-wrap');
-  socket.emit('tot_vote',{choice});
-}
+function buyProduct(sellerId){snd('buy');send('shop_buy',{sellerId,qty:1});setTimeout(renderShopProducts,100);}
 
 // ── Reveal ────────────────────────────────────────────────────────────────
 function processReveal(){
-  if(revealQueue.length===0){isRevealing=false;return;}
-  isRevealing=true;
-  const item=revealQueue.shift();
-  const prev=document.getElementById('current-spotlight');
-  if(prev){prev.classList.add('fly-out');setTimeout(()=>{addMini(prev._card,prev._playerName);prev.remove();showSpotlight(item);},300);}
-  else{const w=document.getElementById('spotlight-wait');if(w)w.remove();showSpotlight(item);}
+  if(revealQueue.length===0){isRevealing=false;return;}isRevealing=true;
+  const item=revealQueue.shift();const prev=document.getElementById('current-spotlight');
+  if(prev){prev.classList.add('fly-out');setTimeout(()=>{addMini(prev._card,prev._playerName);prev.remove();showSpot(item);},300);}
+  else{const w=document.getElementById('spotlight-wait');if(w)w.remove();showSpot(item);}
 }
-
-function showSpotlight(item){
-  playSound('card');
-  const wrap=document.getElementById('spotlight-wrap');
-  const el=document.createElement('div');
-  el.className='spotlight-card';el.id='current-spotlight';
-  el._card=item.card;el._playerName=item.playerName;
-  el.innerHTML=`<img src="${esc(item.card.url)}" alt="meme" onerror="this.src='https://placehold.co/440x350/2a1e0c/5a3e1a?text=?'"><div class="spotlight-player">${esc(item.playerName)}</div>`;
-  wrap.appendChild(el);
-  setTimeout(()=>processReveal(),2500);
+function showSpot(item){
+  snd('card');const wrap=document.getElementById('spotlight-wrap');
+  const el=document.createElement('div');el.className='spotlight-card';el.id='current-spotlight';el._card=item.card;el._playerName=item.playerName;
+  el.innerHTML=`<img src="${esc(item.card.url)}" alt="meme" onerror="this.src='https://placehold.co/440x340/2a1e0c/5a3e1a?text=?'"><div class="spotlight-player">${esc(item.playerName)}</div>`;
+  wrap.appendChild(el);setTimeout(()=>processReveal(),2500);
 }
-
-function addMini(card,playerName){
-  const strip=document.getElementById('mini-strip');
-  const el=document.createElement('div');el.className='mini-card';
-  el.innerHTML=`<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/70x70/2a1e0c/5a3e1a?text=?'"><div class="mini-name">${esc(playerName)}</div>`;
-  strip.appendChild(el);
-}
+function addMini(card,playerName){const strip=document.getElementById('mini-strip');const el=document.createElement('div');el.className='mini-card';el.innerHTML=`<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/68x68/2a1e0c/5a3e1a?text=?'"><div class="mini-name">${esc(playerName)}</div>`;strip.appendChild(el);}
 
 // ── Render ────────────────────────────────────────────────────────────────
-function renderPills(players){
-  const w=document.getElementById('player-pills');if(!w)return;
-  w.innerHTML='';
-  Object.entries(players).forEach(([id,p])=>{
-    const el=document.createElement('div');el.className='pill';
-    el.innerHTML=`<div class="dot"></div>${esc(p.name)}${id===myId?'<span class="badge">tu</span>':''}`;
-    w.appendChild(el);
-  });
-}
-
-function renderSubmitPills(players,done,total){
-  const w=document.getElementById('submit-pills');if(!w)return;
-  w.innerHTML='';
-  Object.entries(players).forEach(([id,p])=>{
-    const el=document.createElement('div');el.className='pill';
-    el.style.borderColor=p.hasSubmitted?'var(--teal)':'var(--border)';
-    el.style.color=p.hasSubmitted?'var(--teal)':'var(--muted)';
-    el.innerHTML=`<div class="dot" style="background:${p.hasSubmitted?'var(--teal)':'var(--muted)'}"></div>${esc(p.name)} ${p.hasSubmitted?'✓':'…'}`;
-    w.appendChild(el);
-  });
-  const s=document.getElementById('submit-status');
-  if(s)s.textContent=`${done} / ${total} pateikė situacijas`;
-}
+function renderPills(players){const w=document.getElementById('player-pills');if(!w)return;w.innerHTML='';Object.entries(players).forEach(([id,p])=>{const el=document.createElement('div');el.className='pill';el.innerHTML=`<div class="dot"></div>${esc(p.name)}${id===myId?'<span class="badge">tu</span>':''}`;w.appendChild(el);});}
+function renderSubmitPills(players,done,total){const w=document.getElementById('submit-pills');if(!w)return;w.innerHTML='';Object.entries(players).forEach(([id,p])=>{const el=document.createElement('div');el.className='pill';el.style.borderColor=p.hasSubmitted?'var(--teal)':'var(--border)';el.style.color=p.hasSubmitted?'var(--teal)':'var(--muted)';el.innerHTML=`<div class="dot" style="background:${p.hasSubmitted?'var(--teal)':'var(--muted)'}"></div>${esc(p.name)} ${p.hasSubmitted?'✓':'…'}`;w.appendChild(el);});const s=document.getElementById('submit-status');if(s)s.textContent=`${done} / ${total} pateikė situaciją`;}
 
 function enterGame(room){
   currentEvent=room.currentEvent;
-  document.getElementById('round-num').textContent=room.round;
-  document.getElementById('round-max').textContent=room.maxRounds;
-  document.getElementById('event-text').textContent=room.currentEvent;
-  revealQueue=[];isRevealing=false;
-  document.getElementById('mini-strip').innerHTML='';
-  const pc=Object.keys(room.players).length;
-  document.getElementById('spotlight-wrap').innerHTML=`<div class="waiting-txt" id="spotlight-wait">Laukiama kortelių…<br><span class="waiting-count" id="played-count">0</span> / <span id="total-count">${pc}</span></div>`;
-  document.getElementById('played-notice').style.display='none';
-  document.getElementById('hand-area').style.display='block';
-  hasPlayed=false;selectedCard=null;
-  renderHand();
-  playSound('jazz');
-  showScreen('s-game',true);
-  // start 45s play timer
-  setTimeout(()=>startTimer('play-timer-wrap',45,'play',true),600);
+  document.getElementById('round-num').textContent=room.round;document.getElementById('round-max').textContent=room.maxRounds;document.getElementById('event-text').textContent=room.currentEvent;
+  revealQueue=[];isRevealing=false;document.getElementById('mini-strip').innerHTML='';
+  document.getElementById('spotlight-wrap').innerHTML=`<div class="waiting-txt" id="spotlight-wait">Laukiama kortelių…<br><span class="waiting-count" id="played-count">0</span> / <span id="total-count">${Object.keys(room.players).length}</span></div>`;
+  document.getElementById('played-notice').style.display='none';document.getElementById('hand-area').style.display='block';
+  hasPlayed=false;selectedCard=null;renderHand();snd('jazz');showScreen('s-game',true);
+  setTimeout(()=>startTimer('play-timer-wrap',45,true),600);
 }
-
-function renderHand(){
-  const grid=document.getElementById('hand-grid');grid.innerHTML='';
-  myHand.forEach(card=>{
-    const el=document.createElement('div');el.className='hand-card';
-    el.innerHTML=`<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/155x155/2a1e0c/5a3e1a?text=?'">`;
-    el.onclick=()=>{
-      if(hasPlayed)return;
-      playSound('click');selectedCard=card;
-      document.querySelectorAll('.hand-card').forEach(c=>c.classList.remove('selected'));
-      el.classList.add('selected');
-      document.getElementById('btn-play').disabled=false;
-    };
-    grid.appendChild(el);
-  });
-  document.getElementById('btn-play').disabled=true;
+function renderHand(){const grid=document.getElementById('hand-grid');grid.innerHTML='';myHand.forEach(card=>{const el=document.createElement('div');el.className='hand-card';el.innerHTML=`<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/150x150/2a1e0c/5a3e1a?text=?'">`;el.onclick=()=>{if(hasPlayed)return;snd('click');selectedCard=card;document.querySelectorAll('.hand-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');document.getElementById('btn-play').disabled=false;};grid.appendChild(el);});document.getElementById('btn-play').disabled=true;}
+function renderVoting(playedCards,playOrder,players){document.getElementById('vote-event').textContent=currentEvent;const grid=document.getElementById('vote-grid');grid.innerHTML='';hasVoted=false;playOrder.forEach(pid=>{const card=playedCards[pid],name=players[pid]?.name||'?';const el=document.createElement('div');el.className='vote-card'+(pid===myId?' disabled':'');el.dataset.id=pid;el.innerHTML=`<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/180x180/2a1e0c/5a3e1a?text=?'"><div class="vote-player">${esc(name)}</div>`;el.onclick=()=>vote(pid);grid.appendChild(el);});document.getElementById('vote-count-txt').textContent='';showScreen('s-vote',true);}
+function showResults({playedCards,playOrder,players,votes,round,maxRounds}){
+  document.getElementById('results-event').textContent=currentEvent;document.getElementById('results-sub').textContent=`Raundas ${round} iš ${maxRounds}`;
+  const grid=document.getElementById('results-grid');grid.innerHTML='';const maxV=Math.max(0,...Object.values(votes));
+  playOrder.forEach(pid=>{const card=playedCards[pid],name=players[pid]?.name||'?',vc=votes[pid]||0,win=vc===maxV&&maxV>0;const el=document.createElement('div');el.className='result-card'+(win?' winner':'');el.innerHTML=`${win?'<div class="winner-crown">👑</div>':''}<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/180x180/2a1e0c/5a3e1a?text=?'"><div class="result-player">${esc(name)}</div><div class="result-votes">${vc} ${vc===1?'balsas':'balsai'} · ${players[pid]?.score??0} tšk.</div>`;grid.appendChild(el);});
+  const isLast=round>=maxRounds;hostBtn('btn-next','results-wait');document.getElementById('btn-next').textContent=isLast?'Galutiniai rezultatai 🏆':'Kitas raundas →';showScreen('s-results',true);
 }
+function showGameOver(players){const sorted=Object.entries(players).sort((a,b)=>b[1].score-a[1].score);const medals=['🥇','🥈','🥉'];const board=document.getElementById('scoreboard');board.innerHTML='';sorted.forEach(([id,p],i)=>{const row=document.createElement('div');row.className='score-row';row.innerHTML=`<span class="rank">${medals[i]||i+1}</span><span>${esc(p.name)}${id===myId?'<span class="badge">tu</span>':''}</span><span class="pts">${p.score} tšk.</span>`;board.appendChild(row);});showScreen('s-gameover',true);}
 
-function renderVoting(playedCards,playOrder,players){
-  document.getElementById('vote-event').textContent=currentEvent;
-  const grid=document.getElementById('vote-grid');grid.innerHTML='';hasVoted=false;
-  playOrder.forEach(pid=>{
-    const card=playedCards[pid],name=players[pid]?.name||'?';
-    const el=document.createElement('div');
-    el.className='vote-card'+(pid===myId?' disabled':'');
-    el.dataset.id=pid;
-    el.innerHTML=`<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/185x185/2a1e0c/5a3e1a?text=?'"><div class="vote-player">${esc(name)}</div>`;
-    el.onclick=()=>vote(pid);
-    grid.appendChild(el);
-  });
-  document.getElementById('vote-count-txt').textContent='';
-  showScreen('s-vote',true);
-}
-
-function showResults(playedCards,playOrder,players,votes,round,maxRounds){
-  document.getElementById('results-event').textContent=currentEvent;
-  document.getElementById('results-sub').textContent=`Raundas ${round} iš ${maxRounds}`;
-  const grid=document.getElementById('results-grid');grid.innerHTML='';
-  const maxV=Math.max(0,...Object.values(votes));
-  playOrder.forEach(pid=>{
-    const card=playedCards[pid],name=players[pid]?.name||'?',vc=votes[pid]||0,win=vc===maxV&&maxV>0;
-    const el=document.createElement('div');el.className='result-card'+(win?' winner':'');
-    el.innerHTML=`${win?'<div class="winner-crown">👑</div>':''}<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/185x185/2a1e0c/5a3e1a?text=?'"><div class="result-player">${esc(name)}</div><div class="result-votes">${vc} ${vc===1?'balsas':'balsai'} · ${players[pid]?.score??0} tšk.</div>`;
-    grid.appendChild(el);
-  });
-  const isLast=round>=maxRounds;
-  if(isHost){
-    document.getElementById('btn-next').style.display='block';
-    document.getElementById('btn-next').textContent=isLast?'Galutiniai rezultatai 🏆':'Kitas raundas →';
-    document.getElementById('results-wait').style.display='none';
-  } else {
-    document.getElementById('btn-next').style.display='none';
-    document.getElementById('results-wait').style.display='block';
-  }
-  showScreen('s-results',true);
-}
-
-function showGameOver(players){
-  const sorted=Object.entries(players).sort((a,b)=>b[1].score-a[1].score);
-  const medals=['🥇','🥈','🥉'];
-  const board=document.getElementById('scoreboard');board.innerHTML='';
-  sorted.forEach(([id,p],i)=>{
-    const row=document.createElement('div');row.className='score-row';
-    row.innerHTML=`<span class="rank">${medals[i]||i+1}</span><span>${esc(p.name)}${id===myId?'<span class="badge">tu</span>':''}</span><span class="pts">${p.score} tšk.</span>`;
-    board.appendChild(row);
-  });
-  showScreen('s-gameover',true);
-}
-
-// ── Enter keys ────────────────────────────────────────────────────────────
+// enter keys
 document.getElementById('create-name').addEventListener('keydown',e=>{if(e.key==='Enter')createRoom();});
 document.getElementById('join-name').addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom();});
 document.getElementById('join-code').addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom();});
-document.getElementById('ev1').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submitEvents();}});
+document.getElementById('ev1').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submitEvent();}});
 document.getElementById('caption-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitCaption();}});
+document.getElementById('gtw-guess-input').addEventListener('keydown',e=>{if(e.key==='Enter')gtwGuess();});
+document.getElementById('gtw-word-input').addEventListener('keydown',e=>{if(e.key==='Enter')gtwSetWord();});
 </script>
 </body>
 </html>
