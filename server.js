@@ -10,68 +10,26 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ── Themes for situation writing ───────────────────────────────────────────
 const THEMES = [
-  "🍕 Maistas", "👃 Kvapas", "💪 Smurtas", "🚿 Higiena", "🐛 Vabzdžiai",
-  "👴 Seni žmonės", "🚌 Viešasis transportas", "🏥 Ligoninė", "💩 Tualetas",
-  "👗 Apranga", "🐶 Gyvūnai", "🌙 Naktis", "🏖️ Paplūdimys", "🍺 Alkoholis",
-  "💔 Meilė", "👻 Baimė", "🎓 Mokykla", "💼 Darbas", "🛒 Parduotuvė",
-  "🚗 Automobilis", "📱 Telefonas", "🎉 Vakarėlis", "🏋️ Sportas", "💰 Pinigai",
-  "🌧️ Oras", "🍄 Grybai", "🔊 Garsas", "👁️ Regėjimas", "🕷️ Vorai",
-  "🧓 Kaimynai",
+  "🍕 Maistas","👃 Kvapas","💪 Smurtas","🚿 Higiena","🐛 Vabzdžiai",
+  "👴 Seni žmonės","🚌 Viešasis transportas","🏥 Ligoninė","💩 Tualetas",
+  "👗 Apranga","🐶 Gyvūnai","🌙 Naktis","🏖️ Paplūdimys","🍺 Alkoholis",
+  "💔 Meilė","👻 Baimė","🎓 Mokykla","💼 Darbas","🛒 Parduotuvė",
+  "🚗 Automobilis","📱 Telefonas","🎉 Vakarėlis","🏋️ Sportas","💰 Pinigai",
+  "🌧️ Oras","🍄 Grybai","🔊 Garsas","👁️ Regėjimas","🕷️ Vorai","🧓 Kaimynai",
 ];
 
+// Preset events kept only as fallback if not enough player events
 const PRESET_EVENTS = [
   "Tau ant galvos atsisėdo storas senis...",
-  "Prie tavęs verkia tavo geriausias draugas...",
   "Netyčia pavadinai mokytoją mama...",
   "Oro uoste tavo kelnės iširo ir teko lipti į lėktuvą tik su triusikais...",
-  "Pamatei nuogos bobutės pliką plaukuotą subinę...",
-  "Tavo draugas tau rimtai pasiūlo pačiulpti jo kojos pirštą...",
-  "Eidamas užsižiūrėjai į telefoną ir atsitrenkei į stulpą...",
-  "Tavo gerklėje istrigo labai ilgas plaukas...",
   "Parke matai kaip benamis valgo savo šūdą kaip ledus...",
-  "Autobuse benamis uosto tavo kaklą...",
-  "Priešais tave pargriuvo bobutė, tu juokeisi bet ji numirė...",
-  "Vakare ateini į parduotuvę ir ant kasos rurinasi du vyrai...",
   "Prabudai iš miego, bet ne lovoje o abiejom kojom tuolete...",
-  "Tave pakvietė į televizijos šou pavadinimu DURNIAUSI LIETUVOS DEBILAI",
-  "Tavo draugas netyčia tau į burną pataikė savo skrepli...",
   "Labai garsiai paperdei per laiduotuves...",
-  "Taksistas pasiūlė tau pamasažuoti pėdas...",
-  "Visi tavo draugai išgirdo kaip tu per miegus be perstojo šnekėjai: AŠ MĖGSTU ČIULPTI, DUOKIT PAČIULPTI...",
-  "Tave iš nugaros apkabino ir pabučiavo nepažystamas vyras...",
-  "Nuėjai miegoti šlapiais rūbais...",
   "Susapnavai kaip tavo draugas sukišo savo galvą tau į subinę...",
-  "Vidury nakties girdi kaip kaimynai rurinasi...",
-  "Susirgai taip sunkiai kad net negali nueit į tuoletą...",
-  "Vidury nakties girdi kaip kažkas išovė pistoletą bet tu nemėgsti savo kaimynų...",
-  "Netyčia partrenkei bobutę...",
   "Sužinojai kad rytoi mirsi bet ryte, tai nereiks eit į darbą...",
-  "Netyčia prarijai vorą...",
-  "Tau žudikas duodą pasirinkimą - mirtis arba pabučiuok jam subinę...",
-  "Tau po pažasčiu užaugo grybas...",
   "Tave pagrobė ateiviai ir prisiuvo dar viena subinę...",
-  "Tau gimtadieniui padovanojo pačią lieviausią dovaną ir filmuoja tavo reakciją...",
-  "Per televizoriu policija kalba apie besislepiantį nusikaltėlį ir apibūdina tave...",
   "Laimėjai milijona bet gali pirkti tik bulves...",
-  "Priešais tave guli nudvėses šeškas...",
-  "Gausi milijona jeigu į subinę susikiši obuolį...",
-  "Tapai pasaulio imperatorium bet turėsi visą likusį gyvenimą būti nuogas...",
-  "Būdamas spermos banke netyčia atsigėrei indeli spermos...",
-  "Nukritai nuo skardžio tiesiai į upę pilną piranijų...",
-  "Pastebėjai pusiau sukramtytą gumą vidury gatvės...",
-  "Tave išdavė tavo geriausias draugas...",
-  "Atsikėjei ryte ir pamatei kaip tavo draugas laižo tavo pėdas...",
-  "Jauti jau nebeištversi ir apsikakosi bet jau namai prie pat...",
-  "Atsikėlei ryte su skaudančia subine...",
-  "Mirus nukeliavai į dangų ir dievas pamates tave sako: Ką čia šitas išgama veikia?",
-  "Mirus nukeliavai į pragarą ir velnias pamates tave sako: O dabar tai pasismaginsim...",
-  "Kažkas tuksenasi į tavo duris... atidarai ir pamatai Hitleri...",
-  "Tau pasiūlo dirbi arklių melžėju...",
-  "Mokslininkai išrado naudo medžiu rušį, kiaušiniu medis...",
-  "Atidarei langą ir iskrido 8 vapsvos...",
-  "Nepažystamas žmogus tau pasiūlo atsigerti keisto skysčio iš butelio...",
-  "Tave Putinas pakvietė išgerti degtinės su juo...",
-  "Pažiuri į dangu ir matai kaip iš lėktuvo krenta gyvuliai...",
 ];
 
 const MEME_CARDS = Array.from({length:192},(_,i)=>({id:i+1,url:`/images/me${i+1}.png`}));
@@ -82,16 +40,10 @@ function randomCard(){return MEME_CARDS[Math.floor(Math.random()*MEME_CARDS.leng
 function numericCode(){return String(Math.floor(10000+Math.random()*90000));}
 function pickThemes(n=2){return shuffle(THEMES).slice(0,n);}
 
-const rooms = {};
-const roomTimers = {}; // code -> timeout handle
-
-function clearRoomTimer(code){
-  if(roomTimers[code]){ clearTimeout(roomTimers[code]); delete roomTimers[code]; }
-}
-function setRoomTimer(code, ms, cb){
-  clearRoomTimer(code);
-  roomTimers[code] = setTimeout(cb, ms);
-}
+const rooms={};
+const roomTimers={};
+function clearRoomTimer(code){if(roomTimers[code]){clearTimeout(roomTimers[code]);delete roomTimers[code];}}
+function setRoomTimer(code,ms,cb){clearRoomTimer(code);roomTimers[code]=setTimeout(cb,ms);}
 
 function createRoom(code){
   return {
@@ -102,21 +54,24 @@ function createRoom(code){
     playedCards:{}, playOrder:[], votes:{},
     playerEvents:{}, submittedCount:0,
     themes:[],
-    // minigame scheduling: caption shows more (weight 2)
     minigameRound:0,
-    mgQueue:[], // pre-shuffled queue of minigame types
+    mgQueue:[],
     // caption
     captionImage:null, captionOrder:[], captionParts:[], captionCurrentIdx:0,
-    // reaction
+    // reaction description
     reactionAssignments:{}, reactionTexts:{}, reactionOrder:[], reactionRevealIdx:0,
-    // this-or-that
+    // this or that
     totItems:[], totCurrentIdx:0, totVotes:{}, totResults:[],
+    // kas iš mūsų
+    kimSubmissions:{}, kimOrder:[], kimCurrentIdx:0, kimVotes:{}, kimResults:[],
+    // guess the word
+    gtwWord:'', gtwAuthorId:'', gtwGuesses:[], gtwWinnersFirst:[], gtwWinnersRest:[],
   };
 }
 
 function buildMgQueue(){
-  // caption appears 4x as often as others
-  return shuffle(['caption','caption','caption','caption','reaction','thisorthat']);
+  // caption 4x, others 1x each — now 6 types total
+  return shuffle(['caption','caption','caption','caption','reaction','thisorthat','kim','gtw']);
 }
 
 function getPublicRoom(room){
@@ -130,19 +85,28 @@ function getPublicRoom(room){
     captionCurrentIdx:room.captionCurrentIdx, captionOrder:room.captionOrder,
     reactionOrder:room.reactionOrder, reactionRevealIdx:room.reactionRevealIdx,
     totCurrentIdx:room.totCurrentIdx,
+    kimCurrentIdx:room.kimCurrentIdx,
     players:Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{
       name:p.name, score:p.score,
       hasPlayed:!!room.playedCards[id],
-      hasSubmitted:!!(room.playerEvents[id]&&room.playerEvents[id].length===2),
+      hasSubmitted:!!(room.playerEvents[id]&&room.playerEvents[id].length>=1),
     }])),
   };
 }
 
 function buildEventDeck(room){
+  // ONLY use player-submitted events — no presets in the deck
   const playerEvs=Object.values(room.playerEvents).flat();
-  const needed=room.baseRounds;
-  const presets=shuffle(PRESET_EVENTS).slice(0,Math.max(0,needed-playerEvs.length));
-  room.eventDeck=shuffle([...presets,...playerEvs]);
+  if(playerEvs.length===0){
+    // absolute fallback: 1 preset so game doesn't break
+    room.eventDeck=shuffle(PRESET_EVENTS).slice(0,room.baseRounds);
+  } else {
+    // pad with presets only if fewer player events than base rounds
+    const needed=Math.max(room.baseRounds, playerEvs.length);
+    const extra=Math.max(0,needed-playerEvs.length);
+    const presets=extra>0?shuffle(PRESET_EVENTS).slice(0,extra):[];
+    room.eventDeck=shuffle([...playerEvs,...presets]);
+  }
   room.maxRounds=room.eventDeck.length;
   room.mgQueue=buildMgQueue();
 }
@@ -166,26 +130,24 @@ function startCaptionMinigame(room){
 }
 
 function advanceCaptionTurn(room){
-  const code=room.code;
-  clearRoomTimer(code);
-  // auto-submit blank if timer runs out
-  setRoomTimer(code, 20000, ()=>{
+  clearRoomTimer(room.code);
+  setRoomTimer(room.code,20000,()=>{
     if(room.phase!=='minigame_caption') return;
     const pid=room.captionOrder[room.captionCurrentIdx];
-    room.captionParts.push({playerId:pid, playerName:room.players[pid]?.name||'?', text:'...'});
+    room.captionParts.push({playerId:pid,playerName:room.players[pid]?.name||'?',text:'...'});
     room.captionCurrentIdx++;
     const playerMap=Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}]));
-    io.to(code).emit('caption_update',{parts:room.captionParts,currentIdx:room.captionCurrentIdx,captionOrder:room.captionOrder,players:playerMap,timeLeft:20});
+    io.to(room.code).emit('caption_update',{parts:room.captionParts,currentIdx:room.captionCurrentIdx,captionOrder:room.captionOrder,players:playerMap,timeLeft:20});
     if(room.captionCurrentIdx>=room.captionOrder.length){
       room.phase='minigame_caption_reveal';
-      setTimeout(()=>io.to(code).emit('caption_reveal',{image:room.captionImage,parts:room.captionParts,players:playerMap}),800);
+      setTimeout(()=>io.to(room.code).emit('caption_reveal',{image:room.captionImage,parts:room.captionParts,players:playerMap}),800);
     } else {
       advanceCaptionTurn(room);
     }
   });
 }
 
-// ── Reaction ───────────────────────────────────────────────────────────────
+// ── Reaction description ───────────────────────────────────────────────────
 function startReactionMinigame(room){
   room.phase='minigame_reaction_write';
   room.reactionTexts={}; room.reactionRevealIdx=0;
@@ -198,17 +160,118 @@ function startReactionMinigame(room){
 // ── This or That ───────────────────────────────────────────────────────────
 function startThisOrThatMinigame(room){
   room.phase='minigame_tot_create';
-  room.totItems=[];
-  room.totCurrentIdx=0;
-  room.totVotes={};
-  room.totResults=[];
+  room.totItems=[]; room.totCurrentIdx=0; room.totVotes={}; room.totResults=[];
 }
 
-function buildReactionReveal(room){
-  const pid=room.reactionOrder[room.reactionRevealIdx];
-  return {playerId:pid,playerName:room.players[pid]?.name,card:room.reactionAssignments[pid],text:room.reactionTexts[pid],idx:room.reactionRevealIdx,total:room.reactionOrder.length};
+// ── Kas iš mūsų ────────────────────────────────────────────────────────────
+function startKimMinigame(room){
+  room.phase='minigame_kim_create';
+  room.kimSubmissions={}; room.kimOrder=[]; room.kimCurrentIdx=0;
+  room.kimVotes={}; room.kimResults=[];
 }
 
+function startKimVoting(room){
+  room.phase='minigame_kim_vote';
+  room.kimOrder=shuffle(Object.keys(room.kimSubmissions));
+  room.kimCurrentIdx=0;
+  room.kimVotes={};
+  emitKimQuestion(room);
+}
+
+function emitKimQuestion(room){
+  clearRoomTimer(room.code);
+  const pid=room.kimOrder[room.kimCurrentIdx];
+  const text=room.kimSubmissions[pid];
+  const playerMap=Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}]));
+  io.to(room.code).emit('kim_question',{
+    text, authorId:pid,
+    authorName:room.players[pid]?.name||'?',
+    idx:room.kimCurrentIdx,
+    total:room.kimOrder.length,
+    players:playerMap,
+  });
+  io.to(room.code).emit('timer_start',{duration:20,label:'kim_vote'});
+  setRoomTimer(room.code,20000,()=>{
+    if(room.phase!=='minigame_kim_vote') return;
+    advanceKim(room);
+  });
+}
+
+function advanceKim(room){
+  clearRoomTimer(room.code);
+  // tally votes
+  const tally={};
+  Object.values(room.kimVotes).forEach(vid=>{tally[vid]=(tally[vid]||0)+1;});
+  // award point to player with most votes
+  let maxVotes=0;
+  Object.values(tally).forEach(v=>{if(v>maxVotes)maxVotes=v;});
+  const winners=Object.entries(tally).filter(([,v])=>v===maxVotes).map(([id])=>id);
+  winners.forEach(wid=>{if(room.players[wid])room.players[wid].score+=1;});
+  room.kimResults.push({
+    text:room.kimSubmissions[room.kimOrder[room.kimCurrentIdx]],
+    authorId:room.kimOrder[room.kimCurrentIdx],
+    authorName:room.players[room.kimOrder[room.kimCurrentIdx]]?.name||'?',
+    tally,
+    winners,
+  });
+  room.kimCurrentIdx++;
+  room.kimVotes={};
+  if(room.kimCurrentIdx>=room.kimOrder.length){
+    room.phase='minigame_kim_results';
+    io.to(room.code).emit('kim_results',{
+      results:room.kimResults,
+      players:Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name,score:p.score}])),
+    });
+  } else {
+    emitKimQuestion(room);
+  }
+}
+
+// ── Guess the Word ─────────────────────────────────────────────────────────
+function startGtwMinigame(room){
+  room.phase='minigame_gtw_pick';
+  // pick a random player as the word author
+  const players=Object.keys(room.players);
+  room.gtwAuthorId=players[Math.floor(Math.random()*players.length)];
+  room.gtwWord='';
+  room.gtwGuesses=[];
+  room.gtwWinnersFirst=[];
+  room.gtwWinnersRest=[];
+  // tell the chosen player they are the author
+  io.to(room.gtwAuthorId).emit('gtw_you_are_author');
+  // tell everyone else to wait
+  io.to(room.code).emit('gtw_waiting_for_word',{
+    authorName:room.players[room.gtwAuthorId]?.name||'?',
+  });
+}
+
+function startGtwGuessing(room){
+  room.phase='minigame_gtw_guess';
+  // 90 second timer
+  io.to(room.code).emit('gtw_start_guessing',{
+    authorName:room.players[room.gtwAuthorId]?.name||'?',
+    guesses:room.gtwGuesses,
+  });
+  io.to(room.code).emit('timer_start',{duration:90,label:'gtw'});
+  setRoomTimer(room.code,90000,()=>{
+    if(room.phase!=='minigame_gtw_guess') return;
+    endGtw(room);
+  });
+}
+
+function endGtw(room){
+  clearRoomTimer(room.code);
+  room.phase='minigame_gtw_reveal';
+  io.to(room.code).emit('gtw_reveal',{
+    word:room.gtwWord,
+    guesses:room.gtwGuesses,
+    winnersFirst:room.gtwWinnersFirst,
+    winnersRest:room.gtwWinnersRest,
+    players:Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name,score:p.score}])),
+  });
+}
+
+// ── Shared afterMinigame ───────────────────────────────────────────────────
 function afterMinigame(room){
   clearRoomTimer(room.code);
   if(room.round>=room.maxRounds){
@@ -226,8 +289,53 @@ function pickNextMinigame(room){
   return room.mgQueue.shift();
 }
 
+function buildReactionReveal(room){
+  const pid=room.reactionOrder[room.reactionRevealIdx];
+  return {playerId:pid,playerName:room.players[pid]?.name,card:room.reactionAssignments[pid],text:room.reactionTexts[pid],idx:room.reactionRevealIdx,total:room.reactionOrder.length};
+}
+
+function startTotVoting(room){
+  room.phase='minigame_tot_vote';
+  room.totCurrentIdx=0;
+  room.totVotes={};
+  emitTotQuestion(room);
+}
+
+function emitTotQuestion(room){
+  clearRoomTimer(room.code);
+  const item=room.totItems[room.totCurrentIdx];
+  if(!item){afterMinigame(room);return;}
+  io.to(room.code).emit('tot_question',{item,idx:room.totCurrentIdx,total:room.totItems.length,votes:{A:0,B:0}});
+  io.to(room.code).emit('timer_start',{duration:15,label:'tot_vote'});
+  setRoomTimer(room.code,15000,()=>{
+    if(room.phase!=='minigame_tot_vote') return;
+    advanceTot(room);
+  });
+}
+
+function broadcastTotVotes(room){
+  const tally={A:0,B:0};
+  Object.values(room.totVotes).forEach(v=>{if(v==='A')tally.A++;else if(v==='B')tally.B++;});
+  io.to(room.code).emit('tot_votes_update',tally);
+}
+
+function advanceTot(room){
+  clearRoomTimer(room.code);
+  const tally={A:0,B:0};
+  Object.values(room.totVotes).forEach(v=>{if(v==='A')tally.A++;else if(v==='B')tally.B++;});
+  room.totResults.push({...room.totItems[room.totCurrentIdx],tally});
+  room.totCurrentIdx++;
+  room.totVotes={};
+  if(room.totCurrentIdx>=room.totItems.length){
+    room.phase='minigame_tot_results';
+    io.to(room.code).emit('tot_final',{results:room.totResults});
+  } else {
+    emitTotQuestion(room);
+  }
+}
+
 // ── Socket ─────────────────────────────────────────────────────────────────
-io.on('connection', socket=>{
+io.on('connection',socket=>{
 
   socket.on('create_room',({name,baseRounds})=>{
     const code=numericCode();
@@ -257,12 +365,11 @@ io.on('connection', socket=>{
     room.phase='submitting';
     room.playerEvents={}; room.submittedCount=0; room.minigameRound=0;
     room.themes=pickThemes(2);
-    setRoomTimer(room.code, 120000, ()=>{
+    setRoomTimer(room.code,120000,()=>{
       if(room.phase!=='submitting') return;
       Object.keys(room.players).forEach(pid=>{
         if(!room.playerEvents[pid]){
-          const pick=shuffle(PRESET_EVENTS).slice(0,1);
-          room.playerEvents[pid]=pick;
+          room.playerEvents[pid]=[shuffle(PRESET_EVENTS)[0]];
           room.submittedCount=Object.keys(room.playerEvents).length;
         }
       });
@@ -285,8 +392,7 @@ io.on('connection', socket=>{
     room.playerEvents[socket.id]=cleaned;
     room.submittedCount=Object.keys(room.playerEvents).length;
     io.to(code).emit('room_update',getPublicRoom(room));
-    const total=Object.keys(room.players).length;
-    if(room.submittedCount>=total){
+    if(room.submittedCount>=Object.keys(room.players).length){
       clearRoomTimer(code);
       buildEventDeck(room);
       nextNormalRound(room);
@@ -336,8 +442,7 @@ io.on('connection', socket=>{
     const room=rooms[code];
     if(!room||socket.id!==room.hostId) return;
 
-    // every 2 normal rounds trigger a minigame
-    if(room.minigameRound>0 && room.minigameRound%2===0 && room.phase==='results'){
+    if(room.minigameRound>0&&room.minigameRound%2===0&&room.phase==='results'){
       const mgType=pickNextMinigame(room);
       const playerMap=Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}]));
 
@@ -352,22 +457,42 @@ io.on('connection', socket=>{
         startReactionMinigame(room);
         room.reactionOrder.forEach(pid=>io.to(pid).emit('reaction_assignment',{card:room.reactionAssignments[pid]}));
         io.to(code).emit('minigame_start',{type:'reaction',players:playerMap});
-        // no server timer for reaction — host skips
       } else if(mgType==='thisorthat'){
         startThisOrThatMinigame(room);
         io.to(code).emit('minigame_start',{type:'thisorthat',players:playerMap});
         io.to(code).emit('timer_start',{duration:90,label:'tot_create'});
         setRoomTimer(code,90000,()=>{
           if(room.phase!=='minigame_tot_create') return;
-          // auto-fill empty submissions
           Object.keys(room.players).forEach(pid=>{
-            if(!room.totItems.find(i=>i.playerId===pid)){
+            if(!room.totItems.find(i=>i.playerId===pid))
               room.totItems.push({playerId:pid,playerName:room.players[pid]?.name||'?',situation:'(be situacijos)',optionA:'Taip',optionB:'Ne'});
-            }
           });
           startTotVoting(room);
         });
+      } else if(mgType==='kim'){
+        startKimMinigame(room);
+        io.to(code).emit('minigame_start',{type:'kim',players:playerMap});
+        io.to(code).emit('timer_start',{duration:90,label:'kim_create'});
+        setRoomTimer(code,90000,()=>{
+          if(room.phase!=='minigame_kim_create') return;
+          // auto-fill missing
+          Object.keys(room.players).forEach(pid=>{
+            if(!room.kimSubmissions[pid])
+              room.kimSubmissions[pid]='Kas iš mūsų labiausiai bijo?';
+          });
+          startKimVoting(room);
+        });
+      } else if(mgType==='gtw'){
+        startGtwMinigame(room);
+        io.to(code).emit('minigame_start',{type:'gtw',players:playerMap});
+        // 60s for author to type a word
+        setRoomTimer(code,60000,()=>{
+          if(room.phase!=='minigame_gtw_pick') return;
+          room.gtwWord='(neatsakyta)';
+          endGtw(room);
+        });
       }
+
       io.to(code).emit('room_update',getPublicRoom(room));
       return;
     }
@@ -389,7 +514,7 @@ io.on('connection', socket=>{
     if(!room||room.phase!=='minigame_caption') return;
     if(socket.id!==room.captionOrder[room.captionCurrentIdx]) return;
     clearRoomTimer(code);
-    room.captionParts.push({playerId:socket.id,playerName:room.players[socket.id]?.name||'?',text:text.trim().slice(0,120)||'...'});
+    room.captionParts.push({playerId:socket.id,playerName:room.players[socket.id]?.name||'?',text:text.trim().slice(0,200)||'...'});
     room.captionCurrentIdx++;
     const playerMap=Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,{name:p.name}]));
     io.to(code).emit('caption_update',{parts:room.captionParts,currentIdx:room.captionCurrentIdx,captionOrder:room.captionOrder,players:playerMap,timeLeft:20});
@@ -430,21 +555,11 @@ io.on('connection', socket=>{
     const room=rooms[code];
     if(!room||socket.id!==room.hostId) return;
     room.reactionRevealIdx++;
-    if(room.reactionRevealIdx>=room.reactionOrder.length){
-      afterMinigame(room);
-    } else {
-      io.to(code).emit('reaction_reveal_next',buildReactionReveal(room));
-    }
+    if(room.reactionRevealIdx>=room.reactionOrder.length) afterMinigame(room);
+    else io.to(code).emit('reaction_reveal_next',buildReactionReveal(room));
   });
 
   // ── This or That ──────────────────────────────────────────────────────────
-  socket.on('tot_done',()=>{
-    const code=socket.data.roomCode;
-    const room=rooms[code];
-    if(!room||socket.id!==room.hostId) return;
-    afterMinigame(room);
-  });
-
   socket.on('tot_submit',({situation,optionA,optionB})=>{
     const code=socket.data.roomCode;
     const room=rooms[code];
@@ -454,10 +569,7 @@ io.on('connection', socket=>{
     const total=Object.keys(room.players).length;
     const done=room.totItems.length;
     io.to(code).emit('tot_progress',{done,total});
-    if(done>=total){
-      clearRoomTimer(code);
-      startTotVoting(room);
-    }
+    if(done>=total){clearRoomTimer(code);startTotVoting(room);}
   });
 
   socket.on('tot_vote',({choice})=>{
@@ -466,11 +578,9 @@ io.on('connection', socket=>{
     if(!room||room.phase!=='minigame_tot_vote') return;
     if(room.totVotes[socket.id]!==undefined) return;
     const currentItem=room.totItems[room.totCurrentIdx];
-    // creator of this question cannot vote on it
     if(currentItem&&currentItem.playerId===socket.id) return;
     room.totVotes[socket.id]=choice;
     broadcastTotVotes(room);
-    // count how many eligible voters have voted (everyone except the creator)
     const creatorId=currentItem?.playerId;
     const eligibleVoters=Object.keys(room.players).filter(pid=>pid!==creatorId);
     const votedCount=eligibleVoters.filter(pid=>room.totVotes[pid]!==undefined).length;
@@ -484,6 +594,96 @@ io.on('connection', socket=>{
     advanceTot(room);
   });
 
+  socket.on('tot_done',()=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||socket.id!==room.hostId) return;
+    afterMinigame(room);
+  });
+
+  // ── Kas iš mūsų ──────────────────────────────────────────────────────────
+  socket.on('kim_submit',({text})=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||room.phase!=='minigame_kim_create') return;
+    if(room.kimSubmissions[socket.id]) return;
+    room.kimSubmissions[socket.id]=text.trim().slice(0,200);
+    const total=Object.keys(room.players).length;
+    const done=Object.keys(room.kimSubmissions).length;
+    io.to(code).emit('kim_progress',{done,total});
+    if(done>=total){clearRoomTimer(code);startKimVoting(room);}
+  });
+
+  socket.on('kim_vote',({votedFor})=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||room.phase!=='minigame_kim_vote') return;
+    if(room.kimVotes[socket.id]!==undefined) return;
+    if(!room.players[votedFor]) return;
+    room.kimVotes[socket.id]=votedFor;
+    // broadcast live vote counts (anonymously — just totals per player)
+    const tally={};
+    Object.values(room.kimVotes).forEach(vid=>{tally[vid]=(tally[vid]||0)+1;});
+    io.to(code).emit('kim_vote_update',{tally, voted:Object.keys(room.kimVotes).length, total:Object.keys(room.players).length});
+    if(Object.keys(room.kimVotes).length>=Object.keys(room.players).length) advanceKim(room);
+  });
+
+  socket.on('kim_done',()=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||socket.id!==room.hostId) return;
+    afterMinigame(room);
+  });
+
+  // ── Guess the Word ────────────────────────────────────────────────────────
+  socket.on('gtw_set_word',({word})=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||room.phase!=='minigame_gtw_pick') return;
+    if(socket.id!==room.gtwAuthorId) return;
+    const w=word.trim().slice(0,50);
+    if(!w) return;
+    room.gtwWord=w;
+    clearRoomTimer(code);
+    // tell everyone guessing has started (author sees different screen)
+    startGtwGuessing(room);
+  });
+
+  socket.on('gtw_guess',({guess})=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||room.phase!=='minigame_gtw_guess') return;
+    if(socket.id===room.gtwAuthorId) return; // author can't guess
+    const g=guess.trim().slice(0,100);
+    if(!g) return;
+    const playerName=room.players[socket.id]?.name||'?';
+    const isCorrect=g.toLowerCase()===room.gtwWord.toLowerCase();
+    const entry={playerId:socket.id,playerName,text:g,correct:isCorrect,ts:Date.now()};
+    room.gtwGuesses.push(entry);
+    io.to(code).emit('gtw_guess_update',{entry});
+    if(isCorrect){
+      // first correct guess gets 2 pts, subsequent get 1 pt
+      if(room.gtwWinnersFirst.length===0){
+        room.players[socket.id].score+=2;
+        room.gtwWinnersFirst.push(socket.id);
+      } else if(!room.gtwWinnersFirst.includes(socket.id)&&!room.gtwWinnersRest.includes(socket.id)){
+        room.players[socket.id].score+=1;
+        room.gtwWinnersRest.push(socket.id);
+      }
+      // check if all non-author players guessed correctly
+      const guessers=Object.keys(room.players).filter(pid=>pid!==room.gtwAuthorId);
+      const allGuessed=guessers.every(pid=>room.gtwWinnersFirst.includes(pid)||room.gtwWinnersRest.includes(pid));
+      if(allGuessed) endGtw(room);
+    }
+  });
+
+  socket.on('gtw_done',()=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||socket.id!==room.hostId) return;
+    afterMinigame(room);
+  });
+
   socket.on('disconnect',()=>{
     const code=socket.data.roomCode;
     if(code&&rooms[code]){
@@ -493,52 +693,13 @@ io.on('connection', socket=>{
       delete rooms[code].playerEvents[socket.id];
       delete rooms[code].reactionTexts[socket.id];
       delete rooms[code].totVotes[socket.id];
+      delete rooms[code].kimVotes[socket.id];
+      delete rooms[code].kimSubmissions[socket.id];
       if(Object.keys(rooms[code].players).length===0){clearRoomTimer(code);delete rooms[code];}
       else io.to(code).emit('room_update',getPublicRoom(rooms[code]));
     }
   });
 });
 
-function startTotVoting(room){
-  room.phase='minigame_tot_vote';
-  room.totCurrentIdx=0;
-  room.totVotes={};
-  emitTotQuestion(room);
-}
-
-function emitTotQuestion(room){
-  const code=room.code;
-  clearRoomTimer(code);
-  const item=room.totItems[room.totCurrentIdx];
-  if(!item){afterMinigame(room);return;}
-  io.to(code).emit('tot_question',{item,idx:room.totCurrentIdx,total:room.totItems.length,votes:{A:0,B:0}});
-  io.to(code).emit('timer_start',{duration:15,label:'tot_vote'});
-  setRoomTimer(code,15000,()=>{
-    if(room.phase!=='minigame_tot_vote') return;
-    advanceTot(room);
-  });
-}
-
-function broadcastTotVotes(room){
-  const tally={A:0,B:0};
-  Object.values(room.totVotes).forEach(v=>{if(v==='A')tally.A++;else if(v==='B')tally.B++;});
-  io.to(room.code).emit('tot_votes_update',tally);
-}
-
-function advanceTot(room){
-  clearRoomTimer(room.code);
-  const tally={A:0,B:0};
-  Object.values(room.totVotes).forEach(v=>{if(v==='A')tally.A++;else if(v==='B')tally.B++;});
-  room.totResults.push({...room.totItems[room.totCurrentIdx],tally});
-  room.totCurrentIdx++;
-  room.totVotes={}; // always reset votes for next question
-  if(room.totCurrentIdx>=room.totItems.length){
-    room.phase='minigame_tot_results';
-    io.to(room.code).emit('tot_final',{results:room.totResults});
-  } else {
-    emitTotQuestion(room);
-  }
-}
-
-const PORT = process.env.PORT || 3000;
+const PORT=process.env.PORT||3000;
 server.listen(PORT,()=>console.log(`MANO REAKCIJA KAI running on port ${PORT}`));

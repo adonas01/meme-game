@@ -476,6 +476,103 @@ button:disabled{opacity:.4;cursor:default;}
   </div>
 </div>
 
+<!-- KAS IŠ MŪSŲ CREATE -->
+<div id="s-mg-kim-create" class="screen">
+  <div class="game-bar"><span>🎮 Mini žaidimas</span><div id="kim-create-timer-wrap"></div></div>
+  <div style="width:100%;padding:0 .75rem">
+    <div class="mg-banner"><h2>🫵 Kas iš mūsų...?</h2><p>Sukurk teiginį — grupė balsuos kas labiausiai atitinka!</p></div>
+    <div class="rbox" style="max-width:480px">
+      <h2>Tavo teiginys</h2>
+      <textarea id="kim-input" placeholder="Pvz: Kas iš mūsų labiausiai bijotų duoti interviu televizijoje?" maxlength="200"></textarea>
+      <button class="btn-p" id="btn-kim-submit" onclick="submitKim()">Pateikti ✓</button>
+      <div class="err" id="kim-err"></div>
+    </div>
+    <div class="submit-status" id="kim-progress">Laukiama visų žaidėjų…</div>
+  </div>
+</div>
+
+<!-- KAS IŠ MŪSŲ VOTE -->
+<div id="s-mg-kim-vote" class="screen">
+  <div class="game-bar"><span>🫵 <span id="kim-vote-counter"></span></span><div id="kim-vote-timer-wrap"></div></div>
+  <div style="width:100%;padding:0 .75rem">
+    <div class="event-box" style="margin-bottom:1.25rem">
+      <div class="event-label">🫵 Kas iš mūsų...</div>
+      <div class="event-text" id="kim-vote-text"></div>
+    </div>
+    <div style="font-size:.75rem;color:var(--muted);text-align:center;font-weight:700;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.08em">Pasirink žaidėją</div>
+    <div id="kim-player-btns" style="display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;width:100%;margin-bottom:1rem;"></div>
+    <div style="text-align:center;font-size:.9rem;color:var(--muted);font-weight:700" id="kim-vote-count"></div>
+  </div>
+</div>
+
+<!-- KAS IŠ MŪSŲ RESULTS -->
+<div id="s-mg-kim-results" class="screen">
+  <div class="game-bar"><span>🎮 Rezultatai!</span><span></span></div>
+  <div style="width:100%;padding:0 .75rem">
+    <div class="mg-banner"><h2>🫵 Grupės nuomonė!</h2><p>Štai ką visi pasirinko</p></div>
+    <div id="kim-results-list" style="width:100%;display:flex;flex-direction:column;gap:1rem;margin-bottom:1rem;"></div>
+    <div style="text-align:center">
+      <button class="btn-next" id="btn-kim-done" onclick="kimDone()" style="display:none">Tęsti →</button>
+      <div id="kim-done-wait" style="color:var(--muted);font-size:.9rem;font-weight:700">Laukiame šeimininko…</div>
+    </div>
+  </div>
+</div>
+
+<!-- GUESS THE WORD — AUTHOR -->
+<div id="s-mg-gtw-author" class="screen">
+  <div class="game-bar"><span>🎮 Mini žaidimas</span><span id="gtw-author-name" style="color:var(--yellow)"></span></div>
+  <div style="width:100%;padding:0 .75rem">
+    <div class="mg-banner"><h2>🔤 Tu pateiki žodį!</h2><p>Visi kiti bandys atspėti. Jie gali klausti tave "taip/ne" klausimus!</p></div>
+    <div class="rbox" style="max-width:440px">
+      <h2>Slaptasis žodis</h2>
+      <input type="text" id="gtw-word-input" placeholder="Pvz: voras, šaldytuvas, cirkas..." maxlength="50">
+      <button class="btn-p" id="btn-gtw-set" onclick="gtwSetWord()">Pradėti ▶</button>
+      <div class="err" id="gtw-err"></div>
+    </div>
+  </div>
+</div>
+
+<!-- GUESS THE WORD — WAIT FOR WORD -->
+<div id="s-mg-gtw-wait" class="screen">
+  <div class="game-bar"><span>🎮 Mini žaidimas</span><span></span></div>
+  <div style="width:100%;padding:0 .75rem">
+    <div class="mg-banner"><h2>🔤 Atspėk žodį!</h2><p id="gtw-wait-author-name">Laukiame žodžio...</p></div>
+    <div style="text-align:center;color:var(--muted);font-size:1rem;font-weight:700;padding:2rem">⏳ Laukiame kol žaidėjas parašys žodį…</div>
+  </div>
+</div>
+
+<!-- GUESS THE WORD — GUESSING -->
+<div id="s-mg-gtw-guess" class="screen">
+  <div class="game-bar"><span>🔤 Atspėk!</span><div id="gtw-timer-wrap"></div></div>
+  <div style="width:100%;padding:0 .75rem">
+    <div class="mg-banner" id="gtw-guess-banner"><h2>🔤 Atspėk žodį!</h2><p id="gtw-guess-author"></p></div>
+    <div id="gtw-author-panel" style="display:none;background:var(--surface2);border:2px solid var(--border);border-radius:3px;padding:1rem;margin-bottom:1rem;text-align:center;font-weight:700;color:var(--yellow);">
+      Tu esi žodžio autorius — atsakinėk <strong>taip</strong> arba <strong>ne</strong> į klausimus!<br>
+      <span style="color:var(--orange);font-family:'Alfa Slab One',serif;font-size:1.4rem;margin-top:.5rem;display:block" id="gtw-reveal-word"></span>
+    </div>
+    <div id="gtw-guesses-list" style="width:100%;max-width:520px;display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;max-height:260px;overflow-y:auto;"></div>
+    <div id="gtw-input-area" style="width:100%;max-width:520px;display:flex;gap:.5rem;margin-bottom:.5rem">
+      <input type="text" id="gtw-guess-input" placeholder="Tavo spėjimas..." maxlength="100" style="flex:1;margin-bottom:0">
+      <button class="btn-p" style="width:auto" onclick="gtwGuess()">Spėti</button>
+    </div>
+    <div style="font-size:.85rem;color:var(--muted);font-weight:700;text-align:center" id="gtw-winners-txt"></div>
+  </div>
+</div>
+
+<!-- GUESS THE WORD — REVEAL -->
+<div id="s-mg-gtw-reveal" class="screen">
+  <div class="game-bar"><span>🎮 Rezultatas!</span><span></span></div>
+  <div style="width:100%;padding:0 .75rem">
+    <div class="mg-banner"><h2>🔤 Žodis buvo...</h2></div>
+    <div style="font-family:'Alfa Slab One',serif;font-size:3rem;color:var(--orange);text-shadow:4px 4px 0 #000;text-align:center;margin-bottom:1.25rem" id="gtw-final-word"></div>
+    <div id="gtw-reveal-results" style="background:var(--paper);border:2px solid var(--border);border-radius:3px;box-shadow:4px 4px 0 #000;padding:1rem 1.25rem;width:100%;max-width:440px;margin-bottom:1rem;"></div>
+    <div style="text-align:center">
+      <button class="btn-next" id="btn-gtw-done" onclick="gtwDone()" style="display:none">Tęsti →</button>
+      <div id="gtw-done-wait" style="color:var(--muted);font-size:.9rem;font-weight:700">Laukiame šeimininko…</div>
+    </div>
+  </div>
+</div>
+
 <!-- GAME OVER -->
 <div id="s-gameover" class="screen">
   <div class="star-row">★ ★ ★</div>
