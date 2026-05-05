@@ -264,11 +264,9 @@ button:disabled{opacity:.4;cursor:default;}
   </div>
   <div id="submit-timer" style="margin-bottom:1rem;display:flex;justify-content:center;"></div>
   <div class="rbox" style="max-width:480px">
-    <h2>1-oji situacija</h2>
-    <textarea id="ev1" placeholder="Sugalvok situaciją pagal temą..." maxlength="200"></textarea>
-    <h2 style="margin-top:.25rem">2-oji situacija</h2>
-    <textarea id="ev2" placeholder="Dar viena situacija..." maxlength="200"></textarea>
-    <button class="btn-p" id="btn-submit" onclick="submitEvents()">Pateikti situacijas ✓</button>
+    <h2>Tavo situacija</h2>
+    <textarea id="ev1" placeholder="Sugalvok situaciją pagal temas..." maxlength="200"></textarea>
+    <button class="btn-p" id="btn-submit" onclick="submitEvents()">Pateikti situaciją ✓</button>
     <div class="err" id="submit-err"></div>
   </div>
   <div class="submit-status" id="submit-status">Laukiama visų žaidėjų…</div>
@@ -282,6 +280,7 @@ button:disabled{opacity:.4;cursor:default;}
 <div id="s-game" class="screen">
   <div class="game-bar">
     <span>Raundas <span id="round-num">1</span> / <span id="round-max">?</span></span>
+    <div id="play-timer-wrap"></div>
     <span id="my-name-tag" style="color:var(--yellow)"></span>
   </div>
   <div style="width:100%;padding:0 .75rem">
@@ -688,7 +687,10 @@ socket.on('timer_start',({duration,label})=>{
   } else if(label==='tot_create'){
     startTimer('tot-create-timer-wrap',duration,'tot_create',!hasSubmittedTot);
   } else if(label==='tot_vote'){
-    startTimer('tot-vote-timer-wrap',duration,'tot_vote',!totVoted&&totCurrentItem?.playerId!==myId);
+    const isMyTurn=!totVoted&&totCurrentItem?.playerId!==myId;
+    startTimer('tot-vote-timer-wrap',duration,'tot_vote',isMyTurn);
+  } else if(label==='play'){
+    startTimer('play-timer-wrap',duration,'play',!hasPlayed);
   }
 });
 
@@ -748,7 +750,7 @@ socket.on('minigame_start',({type,image,order,players,theme})=>{
     document.getElementById('tot-a').value='';
     document.getElementById('tot-b').value='';
     const tb=document.getElementById('tot-theme-badge');
-    if(tb)tb.innerHTML=theme?`<span class="theme-badge">${esc(theme)}</span>`:'';
+    if(tb)tb.innerHTML='';
     showScreen('s-mg-tot-create',true);
   }
 });
@@ -901,30 +903,24 @@ function startGame(){playSound('click');socket.emit('start_game');}
 function submitEvents(){
   if(hasSubmitted)return;
   const e1=document.getElementById('ev1').value.trim();
-  const e2=document.getElementById('ev2').value.trim();
-  if(!e1||e1.length<3){setErr('submit-err','Įvesk pirmą situaciją!');return;}
-  if(!e2||e2.length<3){setErr('submit-err','Įvesk antrą situaciją!');return;}
+  if(!e1||e1.length<3){setErr('submit-err','Įvesk situaciją!');return;}
   playSound('click');hasSubmitted=true;
   const btn=document.getElementById('btn-submit');
   btn.disabled=true;btn.textContent='✓ Pateikta!';
   stopTimer('submit-timer');
-  socket.emit('submit_events',{events:[e1,e2]});
+  socket.emit('submit_events',{events:[e1]});
 }
 
 function nextRound(){playSound('click');socket.emit('next_round');}
 function captionDone(){playSound('click');socket.emit('caption_done');}
 function reactionNext(){playSound('click');socket.emit('reaction_next');}
 function totSkip(){playSound('click');socket.emit('tot_skip');}
-function totDone(){playSound('click');socket.emit('caption_done');} // reuses afterMinigame path via caption_done on server? No — need separate
-// Actually tot_done just triggers next_round equivalent:
-
-socket.on('tot_continue',()=>{ /* handled via game_over or room_update */ });
-
 function totDone(){playSound('click');socket.emit('tot_done');}
 
 function playCard(){
   if(!selectedCard||hasPlayed)return;
   playSound('card');hasPlayed=true;
+  stopTimer('play-timer-wrap');
   socket.emit('play_card',{card:selectedCard});
   document.getElementById('hand-area').style.display='none';
   document.getElementById('played-notice').style.display='block';
@@ -1054,6 +1050,8 @@ function enterGame(room){
   renderHand();
   playSound('jazz');
   showScreen('s-game',true);
+  // start 45s play timer
+  setTimeout(()=>startTimer('play-timer-wrap',45,'play',true),600);
 }
 
 function renderHand(){
@@ -1128,8 +1126,7 @@ function showGameOver(players){
 document.getElementById('create-name').addEventListener('keydown',e=>{if(e.key==='Enter')createRoom();});
 document.getElementById('join-name').addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom();});
 document.getElementById('join-code').addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom();});
-document.getElementById('ev1').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();document.getElementById('ev2').focus();}});
-document.getElementById('ev2').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submitEvents();}});
+document.getElementById('ev1').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submitEvents();}});
 document.getElementById('caption-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitCaption();}});
 </script>
 </body>

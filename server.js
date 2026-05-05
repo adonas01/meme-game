@@ -115,8 +115,8 @@ function createRoom(code){
 }
 
 function buildMgQueue(){
-  // caption appears twice as often as others
-  return shuffle(['caption','caption','reaction','thisorthat']);
+  // caption appears 4x as often as others
+  return shuffle(['caption','caption','caption','caption','reaction','thisorthat']);
 }
 
 function getPublicRoom(room){
@@ -257,14 +257,12 @@ io.on('connection', socket=>{
     room.phase='submitting';
     room.playerEvents={}; room.submittedCount=0; room.minigameRound=0;
     room.themes=pickThemes(2);
-    // 2 minute timer for submission — auto-fill blanks
     setRoomTimer(room.code, 120000, ()=>{
       if(room.phase!=='submitting') return;
-      // fill in missing players with preset events
       Object.keys(room.players).forEach(pid=>{
         if(!room.playerEvents[pid]){
-          const picks=shuffle(PRESET_EVENTS).slice(0,2);
-          room.playerEvents[pid]=picks;
+          const pick=shuffle(PRESET_EVENTS).slice(0,1);
+          room.playerEvents[pid]=pick;
           room.submittedCount=Object.keys(room.playerEvents).length;
         }
       });
@@ -282,8 +280,8 @@ io.on('connection', socket=>{
     const room=rooms[code];
     if(!room||room.phase!=='submitting') return;
     if(room.playerEvents[socket.id]) return;
-    const cleaned=events.map(e=>e.trim()).filter(e=>e.length>=3).slice(0,2);
-    if(cleaned.length<2){socket.emit('error','Reikia dviejų situacijų!');return;}
+    const cleaned=events.map(e=>String(e||'').trim()).filter(e=>e.length>=3).slice(0,1);
+    if(cleaned.length<1){socket.emit('error','Reikia situacijos!');return;}
     room.playerEvents[socket.id]=cleaned;
     room.submittedCount=Object.keys(room.playerEvents).length;
     io.to(code).emit('room_update',getPublicRoom(room));
@@ -357,8 +355,7 @@ io.on('connection', socket=>{
         // no server timer for reaction — host skips
       } else if(mgType==='thisorthat'){
         startThisOrThatMinigame(room);
-        const themes=pickThemes(1);
-        io.to(code).emit('minigame_start',{type:'thisorthat',players:playerMap,theme:themes[0]});
+        io.to(code).emit('minigame_start',{type:'thisorthat',players:playerMap});
         io.to(code).emit('timer_start',{duration:90,label:'tot_create'});
         setRoomTimer(code,90000,()=>{
           if(room.phase!=='minigame_tot_create') return;
@@ -441,6 +438,13 @@ io.on('connection', socket=>{
   });
 
   // ── This or That ──────────────────────────────────────────────────────────
+  socket.on('tot_done',()=>{
+    const code=socket.data.roomCode;
+    const room=rooms[code];
+    if(!room||socket.id!==room.hostId) return;
+    afterMinigame(room);
+  });
+
   socket.on('tot_submit',({situation,optionA,optionB})=>{
     const code=socket.data.roomCode;
     const room=rooms[code];
@@ -461,13 +465,16 @@ io.on('connection', socket=>{
     const room=rooms[code];
     if(!room||room.phase!=='minigame_tot_vote') return;
     if(room.totVotes[socket.id]!==undefined) return;
-    // don't vote on your own situation
     const currentItem=room.totItems[room.totCurrentIdx];
+    // creator of this question cannot vote on it
     if(currentItem&&currentItem.playerId===socket.id) return;
-    room.totVotes[socket.id]=choice; // 'A' or 'B'
+    room.totVotes[socket.id]=choice;
     broadcastTotVotes(room);
-    const eligible=Object.keys(room.players).filter(pid=>!currentItem||currentItem.playerId!==pid).length;
-    if(Object.keys(room.totVotes).length>=eligible) advanceTot(room);
+    // count how many eligible voters have voted (everyone except the creator)
+    const creatorId=currentItem?.playerId;
+    const eligibleVoters=Object.keys(room.players).filter(pid=>pid!==creatorId);
+    const votedCount=eligibleVoters.filter(pid=>room.totVotes[pid]!==undefined).length;
+    if(votedCount>=eligibleVoters.length) advanceTot(room);
   });
 
   socket.on('tot_skip',()=>{
@@ -520,12 +527,11 @@ function broadcastTotVotes(room){
 
 function advanceTot(room){
   clearRoomTimer(room.code);
-  // store results
   const tally={A:0,B:0};
   Object.values(room.totVotes).forEach(v=>{if(v==='A')tally.A++;else if(v==='B')tally.B++;});
   room.totResults.push({...room.totItems[room.totCurrentIdx],tally});
   room.totCurrentIdx++;
-  room.totVotes={};
+  room.totVotes={}; // always reset votes for next question
   if(room.totCurrentIdx>=room.totItems.length){
     room.phase='minigame_tot_results';
     io.to(room.code).emit('tot_final',{results:room.totResults});
