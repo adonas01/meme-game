@@ -85,22 +85,15 @@ function getPublicRoom(room){
 }
 
 function buildEventDeck(room){
-  // ONLY player events — never presets
   const evs=Object.values(room.playerEvents).flat();
   if(evs.length===0){room.eventDeck=['(situacija neparašyta)'];room.maxRounds=1;}
-  else{
-    // repeat deck if fewer events than baseRounds
-    let deck=[...evs];
-    while(deck.length<room.baseRounds) deck=[...deck,...evs];
-    room.eventDeck=shuffle(deck).slice(0,Math.max(room.baseRounds,evs.length));
-    room.maxRounds=room.eventDeck.length;
-  }
+  else{room.eventDeck=shuffle(evs);room.maxRounds=evs.length;}
   room.mgQueue=buildMgQueue(room.mgCounts);
 }
 
 function nextNormalRound(room){
   room.round++;room.minigameRound++;
-  room.playedCards={};room.playOrder={};room.votes={};
+  room.playedCards={};room.playOrder=[];room.votes={};
   room.phase='playing';
   room.currentEvent=room.eventDeck[(room.round-1)%room.eventDeck.length];
   Object.values(room.players).forEach(p=>{p.hand=dealCards(4);});
@@ -261,12 +254,11 @@ function endShop(room){
 // ── Sockets ────────────────────────────────────────────────────────────────
 io.on('connection',socket=>{
 
-  socket.on('create_room',({name,baseRounds,mgCounts})=>{
+  socket.on('create_room',({name,mgCounts})=>{
     const code=numericCode();
     rooms[code]=createRoom(code);
     const room=rooms[code];
     room.hostId=socket.id;
-    room.baseRounds=Math.max(1,Math.min(20,parseInt(baseRounds)||3));
     if(mgCounts&&typeof mgCounts==='object'){
       Object.keys(DEFAULT_MG_COUNTS).forEach(k=>{
         room.mgCounts[k]=Math.max(0,Math.min(10,parseInt(mgCounts[k])||0));

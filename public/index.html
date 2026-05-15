@@ -183,7 +183,6 @@ button:disabled{opacity:.4;cursor:default;}
   <div class="rbox">
     <h2>Sukurti kambarį</h2>
     <input type="text" id="create-name" placeholder="Tavo vardas" maxlength="20">
-    <input type="number" id="create-rounds" placeholder="Raundų skaičius (numatyta: 3)" min="1" max="20">
     <details style="margin-bottom:.75rem">
       <summary style="cursor:pointer;color:var(--muted);font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:.4rem 0;">⚙️ Mini žaidimų kiekis</summary>
       <div class="mg-count-grid" style="margin-top:.6rem">
@@ -752,10 +751,9 @@ function createRoom(){
   snd('click');
   const name=document.getElementById('create-name').value.trim();
   if(!name){setErr('create-err','Įvesk savo vardą');return;}
-  const rounds=parseInt(document.getElementById('create-rounds').value)||3;
   const mgCounts={caption:parseInt(document.getElementById('mg-caption').value)||0,reaction:parseInt(document.getElementById('mg-reaction').value)||0,thisorthat:parseInt(document.getElementById('mg-thisorthat').value)||0,kim:parseInt(document.getElementById('mg-kim').value)||0,gtw:parseInt(document.getElementById('mg-gtw').value)||0,shop:parseInt(document.getElementById('mg-shop').value)||0};
   myName=name;setNameTags(name);
-  socket.emit('create_room',{name,baseRounds:rounds,mgCounts});
+  socket.emit('create_room',{name,mgCounts});
 }
 function joinRoom(){
   snd('click');
