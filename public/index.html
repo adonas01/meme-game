@@ -839,11 +839,16 @@ function enterGame(room){
 }
 function renderHand(){const grid=document.getElementById('hand-grid');grid.innerHTML='';myHand.forEach(card=>{const el=document.createElement('div');el.className='hand-card';el.innerHTML=`<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/150x150/2a1e0c/5a3e1a?text=?'">`;el.onclick=()=>{if(hasPlayed)return;snd('click');selectedCard=card;document.querySelectorAll('.hand-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');document.getElementById('btn-play').disabled=false;};grid.appendChild(el);});document.getElementById('btn-play').disabled=true;}
 function renderVoting(playedCards,playOrder,players){document.getElementById('vote-event').textContent=currentEvent;const grid=document.getElementById('vote-grid');grid.innerHTML='';hasVoted=false;playOrder.forEach(pid=>{const card=playedCards[pid],name=players[pid]?.name||'?';const el=document.createElement('div');el.className='vote-card'+(pid===myId?' disabled':'');el.dataset.id=pid;el.innerHTML=`<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/180x180/2a1e0c/5a3e1a?text=?'"><div class="vote-player">${esc(name)}</div>`;el.onclick=()=>vote(pid);grid.appendChild(el);});document.getElementById('vote-count-txt').textContent='';showScreen('s-vote',true);}
-function showResults({playedCards,playOrder,players,votes,round,maxRounds}){
+function showResults({playedCards,playOrder,players,votes,round,maxRounds,nextType,isLast}){
   document.getElementById('results-event').textContent=currentEvent;document.getElementById('results-sub').textContent=`Raundas ${round} iš ${maxRounds}`;
   const grid=document.getElementById('results-grid');grid.innerHTML='';const maxV=Math.max(0,...Object.values(votes));
   playOrder.forEach(pid=>{const card=playedCards[pid],name=players[pid]?.name||'?',vc=votes[pid]||0,win=vc===maxV&&maxV>0;const el=document.createElement('div');el.className='result-card'+(win?' winner':'');el.innerHTML=`${win?'<div class="winner-crown">👑</div>':''}<img src="${esc(card.url)}" alt="meme" onerror="this.src='https://placehold.co/180x180/2a1e0c/5a3e1a?text=?'"><div class="result-player">${esc(name)}</div><div class="result-votes">${vc} ${vc===1?'balsas':'balsai'} · ${players[pid]?.score??0} tšk.</div>`;grid.appendChild(el);});
-  const isLast=round>=maxRounds;hostBtn('btn-next','results-wait');document.getElementById('btn-next').textContent=isLast?'Galutiniai rezultatai 🏆':'Kitas raundas →';showScreen('s-results',true);
+  let btnLabel='Kitas raundas →';
+  if(isLast) btnLabel='Galutiniai rezultatai 🏆';
+  else if(nextType==='minigame') btnLabel='Mini žaidimas! 🎮';
+  hostBtn('btn-next','results-wait');
+  document.getElementById('btn-next').textContent=btnLabel;
+  showScreen('s-results',true);
 }
 function showGameOver(players){const sorted=Object.entries(players).sort((a,b)=>b[1].score-a[1].score);const medals=['🥇','🥈','🥉'];const board=document.getElementById('scoreboard');board.innerHTML='';sorted.forEach(([id,p],i)=>{const row=document.createElement('div');row.className='score-row';row.innerHTML=`<span class="rank">${medals[i]||i+1}</span><span>${esc(p.name)}${id===myId?'<span class="badge">tu</span>':''}</span><span class="pts">${p.score} tšk.</span>`;board.appendChild(row);});showScreen('s-gameover',true);}
 

@@ -129,16 +129,18 @@ function pMap(room,withScore=false){
 }
 
 function buildGameSequence(room){
-  // Build a full sequence: interleave minigames between rounds
-  // Pattern: play 1 normal round, then 1 minigame (if any left), repeat
+  // All events as rounds, all minigames — interleave 1 minigame after each round,
+  // then append any remaining minigames at the end (after last round)
   const events=[...room.eventDeck];
   const mgs=[...room.mgQueue];
   const seq=[];
-  let ei=0,mi=0;
-  while(ei<events.length||mi<mgs.length){
-    if(ei<events.length) seq.push({type:'round',event:events[ei++]});
-    if(mi<mgs.length) seq.push({type:'minigame',mg:mgs[mi++]});
+  const maxRounds=events.length;
+  for(let i=0;i<maxRounds;i++){
+    seq.push({type:'round',event:events[i]});
+    if(mgs.length>0) seq.push({type:'minigame',mg:mgs.shift()});
   }
+  // append leftover minigames after all rounds
+  while(mgs.length>0) seq.push({type:'minigame',mg:mgs.shift()});
   room.gameSequence=seq;
   room.seqIdx=0;
 }
@@ -357,7 +359,8 @@ io.on('connection',socket=>{
       const tally={};Object.values(room.votes).forEach(v=>{tally[v]=(tally[v]||0)+1;});
       Object.entries(tally).forEach(([pid,pts])=>{if(room.players[pid])room.players[pid].score+=pts;});
       room.phase='results';
-      io.to(code).emit('round_results',{playedCards:room.playedCards,playOrder:room.playOrder,players:pMap(room,true),votes:tally,round:room.round,maxRounds:room.maxRounds});
+      const nextItem=room.gameSequence[room.seqIdx];
+      io.to(code).emit('round_results',{playedCards:room.playedCards,playOrder:room.playOrder,players:pMap(room,true),votes:tally,round:room.round,maxRounds:room.maxRounds,nextType:nextItem?.type,isLast:!nextItem});
     }
   });
 
