@@ -39,7 +39,7 @@ function createRoom(code){
     playedCards:{}, playOrder:[], votes:{},
     playerEvents:{}, submittedCount:0,
     themes:[], mgCounts:{...DEFAULT_MG_COUNTS},
-    minigameRound:0, mgQueue:[],
+    minigameRound:0, mgQueue:[], gameSequence:[], seqIdx:0,
     // caption
     captionImage:null,captionOrder:[],captionParts:[],captionCurrentIdx:0,
     // reaction
@@ -86,38 +86,61 @@ function getPublicRoom(room){
 
 function buildEventDeck(room){
   const evs=Object.values(room.playerEvents).flat();
-  if(evs.length===0){room.eventDeck=['(situacija neparašyta)'];room.maxRounds=1;}
-  else{room.eventDeck=shuffle(evs);room.maxRounds=evs.length;}
+  if(evs.length===0){room.eventDeck=['(situacija neparašyta)'];}
+  else{room.eventDeck=shuffle(evs);}
   room.mgQueue=buildMgQueue(room.mgCounts);
+  buildGameSequence(room);
+  // maxRounds = number of round-type entries in sequence
+  room.maxRounds=room.gameSequence.filter(s=>s.type==='round').length;
 }
 
 function nextNormalRound(room){
-  room.round++;room.minigameRound++;
+  room.round++;
   room.playedCards={};room.playOrder=[];room.votes={};
   room.phase='playing';
-  room.currentEvent=room.eventDeck[(room.round-1)%room.eventDeck.length];
+  room.currentEvent=room.gameSequence[room.seqIdx]?.event||'(situacija neparašyta)';
+  room.seqIdx++;
   Object.values(room.players).forEach(p=>{p.hand=dealCards(4);});
 }
 
 function afterMinigame(room){
   clearT(room.code);
-  if(room.round>=room.maxRounds){
+  // check next in sequence
+  const next=room.gameSequence[room.seqIdx];
+  if(!next){
     room.phase='gameover';
     io.to(room.code).emit('game_over',{players:pMap(room,true)});
     return;
   }
-  nextNormalRound(room);
-  Object.entries(room.players).forEach(([sid,p])=>io.to(sid).emit('new_hand',{hand:p.hand}));
-  io.to(room.code).emit('room_update',getPublicRoom(room));
+  if(next.type==='round'){
+    nextNormalRound(room);
+    Object.entries(room.players).forEach(([sid,p])=>io.to(sid).emit('new_hand',{hand:p.hand}));
+    io.to(room.code).emit('room_update',getPublicRoom(room));
+  } else {
+    // another minigame back to back — rare but handle it
+    room.seqIdx++;
+    // just go to next normal round after skipping extra minigames
+    afterMinigame(room);
+  }
 }
 
 function pMap(room,withScore=false){
   return Object.fromEntries(Object.entries(room.players).map(([id,p])=>[id,withScore?{name:p.name,score:p.score}:{name:p.name}]));
 }
 
-function pickNextMg(room){
-  if(!room.mgQueue||room.mgQueue.length===0) room.mgQueue=buildMgQueue(room.mgCounts);
-  return room.mgQueue.length>0?room.mgQueue.shift():null;
+function buildGameSequence(room){
+  // Build a full sequence: interleave minigames between rounds
+  // Pattern: play 1 normal round, then 1 minigame (if any left), repeat
+  const events=[...room.eventDeck];
+  const mgs=[...room.mgQueue];
+  const seq=[];
+  let ei=0,mi=0;
+  while(ei<events.length||mi<mgs.length){
+    if(ei<events.length) seq.push({type:'round',event:events[ei++]});
+    if(mi<mgs.length) seq.push({type:'minigame',mg:mgs[mi++]});
+  }
+  room.gameSequence=seq;
+  room.seqIdx=0;
 }
 
 // ── Caption ────────────────────────────────────────────────────────────────
@@ -341,9 +364,27 @@ io.on('connection',socket=>{
   socket.on('next_round',()=>{
     const code=socket.data.roomCode,room=rooms[code];
     if(!room||socket.id!==room.hostId) return;
-    if(room.minigameRound>0&&room.minigameRound%2===0&&room.phase==='results'){
-      const mg=pickNextMg(room);
-      if(!mg){goNextOrEnd(room);return;}
+    advanceSequence(room);
+  });
+
+  function advanceSequence(room){
+    const code=room.code;
+    // peek at next item in sequence
+    const next=room.gameSequence[room.seqIdx];
+    if(!next){
+      // sequence done
+      room.phase='gameover';
+      io.to(code).emit('game_over',{players:pMap(room,true)});
+      return;
+    }
+    if(next.type==='round'){
+      nextNormalRound(room);
+      Object.entries(room.players).forEach(([sid,p])=>io.to(sid).emit('new_hand',{hand:p.hand}));
+      io.to(code).emit('room_update',getPublicRoom(room));
+    } else {
+      // minigame
+      room.seqIdx++;
+      const mg=next.mg;
       const pm=pMap(room);
       if(mg==='caption'){startCaption(room);io.to(code).emit('minigame_start',{type:'caption',image:room.captionImage,order:room.captionOrder,players:pm});setTimeout(()=>{io.to(code).emit('caption_update',{parts:[],currentIdx:0,captionOrder:room.captionOrder,players:pm});advanceCaption(room);},1000);}
       else if(mg==='reaction'){startReaction(room);room.reactionOrder.forEach(pid=>io.to(pid).emit('reaction_assignment',{card:room.reactionAssignments[pid]}));io.to(code).emit('minigame_start',{type:'reaction',players:pm});}
@@ -352,17 +393,11 @@ io.on('connection',socket=>{
       else if(mg==='gtw'){startGtw(room);io.to(code).emit('minigame_start',{type:'gtw',players:pm});}
       else if(mg==='shop'){startShop(room);io.to(code).emit('minigame_start',{type:'shop',players:pm});io.to(code).emit('timer_start',{duration:120,label:'shop_create'});setT(code,120000,()=>{if(room.phase==='minigame_shop_create')startShopBuying(room);});}
       io.to(code).emit('room_update',getPublicRoom(room));
-      return;
     }
-    goNextOrEnd(room);
-  });
-
-  function goNextOrEnd(room){
-    if(room.round>=room.maxRounds){room.phase='gameover';io.to(room.code).emit('game_over',{players:pMap(room,true)});return;}
-    nextNormalRound(room);
-    Object.entries(room.players).forEach(([sid,p])=>io.to(sid).emit('new_hand',{hand:p.hand}));
-    io.to(room.code).emit('room_update',getPublicRoom(room));
   }
+
+  function goNextOrEnd(room){advanceSequence(room);}
+
 
   // caption
   socket.on('caption_submit',({text})=>{
